@@ -20,7 +20,6 @@ on:
     paths:
       - "do-hoa/**"
       - "dung-tap-do-hoa.py"
-      - ".github/workflows/render.yml"
 
 permissions:
   contents: write
@@ -36,7 +35,7 @@ jobs:
     outputs:
       tap: ${{ steps.ls.outputs.tap }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Liệt kê tập cần dựng
         id: ls
         env:
@@ -73,7 +72,7 @@ jobs:
         tap: ${{ fromJSON(needs.chuan-bi.outputs.tap) }}
     name: ${{ matrix.tap }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Cài ffmpeg, phông chữ và thư viện Python
         run: |
@@ -137,7 +136,7 @@ jobs:
           sha256sum "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4"
 
       - name: Lưu bản dựng vào mục tải về của lần chạy
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.tap }}
           path: video-do-hoa/*_co-tieng.mp4
