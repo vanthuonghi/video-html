@@ -738,7 +738,80 @@ EP9 = {
  ],
 }
 
-EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9]
+EP20_11 = {
+ "slug": "20_11_cam-on-thay-co", "total": 42.0,
+ "brand": "VĂN HỈ OFFICIAL · 20/11",
+ "css_extra": """
+  #bg{background:
+      radial-gradient(1100px 900px at 18% 10%, rgba(255,179,71,.20), transparent 60%),
+      radial-gradient(900px 800px at 82% 88%, rgba(224,131,116,.14), transparent 62%),
+      linear-gradient(160deg,#1a0f08 0%,#2a1a0e 55%,#120a06 100%)!important}
+  .kicker{color:#ffb347!important}
+  h1 .hl{color:#ffb347!important}
+  .sub b{color:#ffd9a8!important}
+  .warmcard{display:flex;flex-direction:column;gap:26px;margin-top:14px}
+  .warmcard .wc{background:#2a1c12;border:2px solid #4a3120;border-radius:22px;padding:34px 40px;opacity:0}
+  .warmcard .wc .wl{font-size:34px;color:#ffb347;font-weight:700;margin-bottom:12px}
+  .warmcard .wc .wt{font-size:46px;line-height:1.35}
+  .warmcard .wc .ws{font-size:30px;color:#c9ae91;margin-top:12px}
+  .heart{font-size:150px;text-align:center;opacity:0;line-height:1}
+  .ripple{font-size:40px;color:#ffb347;text-align:center;opacity:0;margin-top:26px}
+ """,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,35.0),(35.0,42.0)],
+ "html": [
+   scene("""<div class="kicker">20 tháng 11</div>
+    <h1>Hôm nay con<br><span class="hl">nhớ thầy cô.</span></h1>
+    <div class="sub">Không chỉ là một ngày lịch. Là một cái tên hiện lên trong đầu.</div>"""),
+   scene("""<div class="kicker">Điều thầy dạy</div>
+    <div class="warmcard" id="wc1">
+      <div class="wc"><div class="wl">Công thức</div><div class="wt">Có thể quên.</div></div>
+      <div class="wc"><div class="wl">Cách đặt câu hỏi</div><div class="wt">Ở lại suốt đời.</div></div>
+    </div>"""),
+   scene("""<div class="kicker">Điều cô dạy</div>
+    <div class="heart" id="ht1">♥</div>
+    <div class="ripple" id="rp1">Đọc chậm lại, để hiểu chữ đang nói gì.</div>
+    <div class="sub">Cô không dạy con đọc nhanh hơn. Cô dạy con dừng lại lâu hơn.</div>"""),
+   scene("""<div class="kicker">Một tiết học</div>
+    <div class="warmcard" id="wc2">
+      <div class="wc"><div class="wl">Lúc đó</div><div class="wt">Giọng con còn run.</div></div>
+      <div class="wc"><div class="wl">Hôm nay</div><div class="wt">Con vẫn đang đặt câu hỏi.</div></div>
+    </div>"""),
+   scene("""<div class="kicker">Lời cảm ơn</div>
+    <h1 style="font-size:80px">Cảm ơn<br><span class="hl">thầy cô.</span></h1>
+    <div class="sub">Có một người thầy hay người cô bạn nhớ mãi?<br>Comment tên họ bên dưới nhé.</div>"""),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     [1,2].forEach(function(k){
+       var c = el.querySelector('.wc:nth-child('+k+')');
+       c.style.opacity = ease(span(t, 6.4+k*1.8, 7.4+k*1.8));
+       c.style.transform = 'translateY('+((1-ease(span(t,6.4+k*1.8,7.4+k*1.8)))*24)+'px)';
+     });
+   }""",
+   """function(t, el){
+     var h = el.querySelector('#ht1'), r = el.querySelector('#rp1');
+     var o = ease(span(t,16.0,17.6)); h.style.opacity=o; h.style.transform='scale('+(0.7+o*0.3)+')';
+     r.style.opacity = ease(span(t,18.2,19.6));
+   }""",
+   """function(t, el){
+     [1,2].forEach(function(k){
+       var c = el.querySelector('.wc:nth-child('+k+')');
+       c.style.opacity = ease(span(t, 26.4+k*1.8, 27.4+k*1.8));
+     });
+   }""",
+   "",
+ ],
+ "narration": [
+   (0, "Hôm nay là hai mươi tháng mười một. Hỉ ngồi nhớ lại những người đã dạy mình."),
+   (1, "Không phải họ dạy công thức. Mà dạy cách đặt câu hỏi. Công thức có thể quên. Cách hỏi thì ở lại suốt đời."),
+   (2, "Cô dạy Hỉ đọc chậm lại, để hiểu chữ đang nói gì. Cô không dạy đọc nhanh hơn. Cô dạy dừng lại lâu hơn."),
+   (3, "Thầy bắt Hỉ đứng dậy trình bày, dù giọng lúc đó còn run. Hôm nay Hỉ vẫn đang đặt câu hỏi."),
+   (4, "Cảm ơn thầy cô. Nếu bạn cũng có một người bạn nhớ mãi, comment tên họ bên dưới nhé."),
+ ],
+}
+
+EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11]
 
 
 def build_html(ep):
@@ -753,19 +826,22 @@ def build_html(ep):
     # đoạn chữ cho bài kiểm tra tốc độ: A 200 từ/phút, B 300, C 450
     for ph, seg in (("__A__", PASSAGE[0:34]), ("__B__", PASSAGE[34:99]), ("__C__", PASSAGE[99:140])):
         scenes_html = scenes_html.replace(ph, "|".join(seg))
+    extra_css = ep.get("css_extra", "")
+    brand_text = ep.get("brand", "SPEED READING VIỆT NAM")
     return f"""<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
 <title>{ep['slug']}</title>
-<style>{CSS}</style>
+<style>{CSS}
+{extra_css}</style>
 </head>
 <body>
 <div id="stage">
   <div id="bg"></div>
   <div class="grain"></div>
   {scenes_html}
-  <div id="brand">SPEED READING VIỆT NAM</div>
+  <div id="brand">{brand_text}</div>
 </div>
 <script>
 {js}

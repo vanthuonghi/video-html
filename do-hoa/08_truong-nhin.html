@@ -116,6 +116,7 @@
   .cta .b{font-size:56px;font-weight:800;margin-top:10px;line-height:1.2}
   .cta .c{font-size:32px;margin-top:12px;opacity:.85}
   #brand{position:absolute;left:90px;bottom:110px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
+
 </style>
 </head>
 <body>
@@ -170,7 +171,7 @@ const ANIM = [null,(function(t, el){
      ret.style.height = (a.height + 20) + 'px';
      ret.style.opacity = 1;
    }),(function(t, el){
-     const o = ease(span(t,17.0,19.5)), i = ease(span(t,19.6,21.6));
+     const o = ease(span(t,17.0,19.4)), i = ease(span(t,18.4,20.0));
      const r1 = el.querySelector('#r1'), r2 = el.querySelector('#r2');
      r1.style.opacity = o; r1.style.width = r1.style.height = (260 + o*440) + 'px';
      r2.style.opacity = i; r2.style.width = r2.style.height = (120 + i*110) + 'px';
