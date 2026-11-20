@@ -1,0 +1,144 @@
+name: Dựng video đồ hoạ (HTML → Chromium → ffmpeg)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tap:
+        description: "Tập cần dựng, cách nhau dấu cách. Bỏ trống = dựng tất cả."
+        required: false
+        default: ""
+      fps:
+        description: "Số khung hình mỗi giây (24 là đủ mượt cho đồ hoạ chậm)"
+        required: false
+        default: "24"
+      giong:
+        description: "Giọng đọc edge-tts"
+        required: false
+        default: "vi-VN-NamMinhNeural"
+  push:
+    branches: [main]
+    paths:
+      - "do-hoa/**"
+      - "dung-tap-do-hoa.py"
+      - ".github/workflows/render.yml"
+
+permissions:
+  contents: write
+
+# Không huỷ lần dựng đang chạy: mỗi tập là một máy riêng, chạy song song được.
+concurrency:
+  group: dung-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  chuan-bi:
+    runs-on: ubuntu-latest
+    outputs:
+      tap: ${{ steps.ls.outputs.tap }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Liệt kê tập cần dựng
+        id: ls
+        env:
+          IN: ${{ github.event.inputs.tap }}
+        run: |
+          python3 - <<'PY'
+          import glob, json, os
+          want = os.environ.get("IN", "").split()
+          co = sorted(os.path.basename(p)[:-5] for p in glob.glob("do-hoa/*.html"))
+          chon = want or co
+          thieu = [t for t in chon if t not in co]
+          if thieu:
+              raise SystemExit("Không có tập: " + ", ".join(thieu))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("tap=" + json.dumps(chon) + "\n")
+          print("Sẽ dựng:", ", ".join(chon))
+          PY
+      - name: Tạo release chứa video (nếu chưa có)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view moi-nhat >/dev/null 2>&1 || \
+            gh release create moi-nhat --title "Video mới nhất" \
+              --notes "Mỗi lần dựng, tệp cùng tên được thay mới tại đây. URL không đổi."
+
+  dung:
+    needs: chuan-bi
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        tap: ${{ fromJSON(needs.chuan-bi.outputs.tap) }}
+    name: ${{ matrix.tap }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài ffmpeg, phông chữ và thư viện Python
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
+          python3 -m pip install --quiet websocket-client edge-tts \
+            || python3 -m pip install --quiet --break-system-packages websocket-client edge-tts
+          python3 -c "import websocket, edge_tts; print('thư viện ok')"
+
+      - name: Tìm hoặc cài trình duyệt
+        run: |
+          set -e
+          CH=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)
+          if [ -z "$CH" ]; then
+            echo "Máy chủ không có sẵn, tải đúng bản Chrome for Testing đã ghim"
+            curl -sL -o /tmp/chrome.zip \
+              https://storage.googleapis.com/chrome-for-testing-public/156.0.8078.80/linux64/chrome-linux64.zip
+            unzip -q /tmp/chrome.zip -d /opt
+            CH=/opt/chrome-linux64/chrome
+          fi
+          echo "CHROME_PATH=$CH" >> "$GITHUB_ENV"
+          "$CH" --version
+
+      - name: Dựng trang HTML và nhạc nền
+        run: |
+          python3 dung-tap-do-hoa.py
+          python3 sinh-nhac.py
+
+      - name: Sinh giọng đọc bằng edge-tts (Microsoft, miễn phí)
+        run: |
+          python3 sinh-giong-edge.py "${{ matrix.tap }}" \
+            --giong "${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}"
+
+      - name: Chụp khung hình và mã hoá
+        env:
+          FPS: ${{ github.event.inputs.fps || '24' }}
+        run: |
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          python3 chup-nhanh.py \
+            "http://127.0.0.1:8899/do-hoa/${{ matrix.tap }}.html" \
+            ".thu-nghiem/frames-${{ matrix.tap }}" \
+            --workers 4 --fps "$FPS" --port 9400 --clean
+          mkdir -p video-do-hoa
+          ffmpeg -v error -y -framerate "$FPS" \
+            -i ".thu-nghiem/frames-${{ matrix.tap }}/%05d.jpg" \
+            -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -movflags +faststart -r "$FPS" \
+            "video-do-hoa/${{ matrix.tap }}.mp4"
+
+      - name: Ghép lời đọc và nhạc nền
+        run: python3 ghep-tieng-tap.py "${{ matrix.tap }}"
+
+      - name: Kiểm tra đầu ra (thời lượng, khung, tiếng không câm)
+        run: python3 kiem-tra.py "${{ matrix.tap }}"
+
+      - name: Đăng lên release — URL công khai cố định
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload moi-nhat "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4" --clobber
+          sha256sum "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4"
+
+      - name: Lưu bản dựng vào mục tải về của lần chạy
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.tap }}
+          path: video-do-hoa/*_co-tieng.mp4
+          retention-days: 14
