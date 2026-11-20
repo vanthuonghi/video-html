@@ -37,6 +37,20 @@ AUDIT = r"""
   }
   // cả những phần tử nằm ngoài khung cảnh (dòng thương hiệu, lớp nền)
   document.querySelectorAll('#brand').forEach(el => kiem(el, document.body));
+  // đo mực chữ thật bằng Range: khung khối không phình ra khi chữ tràn, nên cách đo khung bị sót
+  scenes.forEach((s, i) => {
+    if (parseFloat(getComputedStyle(s).opacity) < 0.3) return;
+    s.querySelectorAll('h1,h2,.sub,.lines,.cluster,.list20,.crd,.badge,.cta,.testbar,.legend,.ages,.race,.chart,.grid,.stack,.waves,.eyewrap,.flash').forEach(el => {
+      const rg = document.createRange(); rg.selectNodeContents(el);
+      const r = rg.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return;
+      if (r.right > 1050 || r.left < 30 || r.bottom > 1860 || r.top < 55) {
+        out.overflow.push({tag: 'MỰC CHỮ ' + el.tagName + '.' + (String(el.className).split(' ')[0] || ''),
+                           x: Math.round(r.left), r: Math.round(r.right), y: Math.round(r.top), b: Math.round(r.bottom),
+                           txt: (el.textContent || '').trim().slice(0, 28)});
+      }
+    });
+  });
   ['e1v','e1f2','e1f','e1v2','e3v','e3f','n21','n22','n31','n32','g1n','v1','v2','a1','a2','a3'].forEach(id=>{
     const el = document.getElementById(id);
     if (!el) return;

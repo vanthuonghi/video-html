@@ -660,7 +660,7 @@ EP8 = {
      ret.style.opacity = 1;
    }""",
    """function(t, el){
-     const o = ease(span(t,17.0,19.5)), i = ease(span(t,19.6,21.6));
+     const o = ease(span(t,17.0,19.4)), i = ease(span(t,18.4,20.0));
      const r1 = el.querySelector('#r1'), r2 = el.querySelector('#r2');
      r1.style.opacity = o; r1.style.width = r1.style.height = (260 + o*440) + 'px';
      r2.style.opacity = i; r2.style.width = r2.style.height = (120 + i*110) + 'px';
