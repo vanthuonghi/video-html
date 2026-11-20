@@ -31,7 +31,7 @@ def sinh(text, out, voice):
     if os.path.exists(out) and os.path.getsize(out) > 4000 and man.get(ten) == voice:
         return True, f"đã có sẵn đúng giọng ({os.path.getsize(out)//1024} KB)"
     err = ""
-    for lan in range(1, 6):
+    for lan in range(1, 9):
         try:
             import edge_tts
             asyncio.run(edge_tts.Communicate(text, voice).save(out))
@@ -42,7 +42,7 @@ def sinh(text, out, voice):
                                capture_output=True, text=True)
             if not (os.path.exists(out) and os.path.getsize(out) > 4000):
                 err = (r.stderr or err)[-80:]
-                time.sleep(2.5)
+                time.sleep(3 + lan)          # dịch vụ hay chặn tạm, lùi dần rồi thử lại
                 continue
             ten_lan = f"lần {lan} (dòng lệnh)"
         else:
@@ -50,7 +50,7 @@ def sinh(text, out, voice):
         man[ten] = voice
         _json.dump(man, open(man_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         return True, f"{ten_lan} · giọng {voice.split('-')[-1]} · {os.path.getsize(out)//1024} KB"
-    return False, f"thất bại sau 5 lần: {err}"
+    return False, f"thất bại sau 8 lần: {err}"
 
 
 def main():
@@ -72,6 +72,7 @@ def main():
             print(f"   cảnh {idx+1}: {'OK ' if ok else 'LỖI'} {msg}")
             loi += ok
             hong += (not ok)
+            time.sleep(1.2)          # giãn nhịp, tránh bị dịch vụ chặn tạm
     print(f"\nXONG: {loi} đoạn ok, {hong} đoạn lỗi")
     return 1 if hong else 0
 

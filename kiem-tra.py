@@ -34,6 +34,33 @@ def do_muc(f):
     return mean, peak
 
 
+def co_tieng_noi(f, moc, cua_so=0.5, tre=0.4):
+    """Đo mức âm thanh trong đoạn đầu mỗi lời đọc, so với mức nền của cả video.
+    Trả về danh sách (số cảnh, mức đo) và mức nền."""
+    import array, math, wave
+    tam = f + ".kiem-tra.wav"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f, "-ac", "1", "-ar", "16000", tam], check=True)
+    with wave.open(tam, "rb") as w:
+        sr = w.getframerate()
+        frames = w.readframes(w.getnframes())
+    x = array.array("h"); x.frombytes(frames)
+    n = max(1, int(sr * 0.05))
+    muc = []
+    for i in range(0, len(x) - n, n):
+        doan = x[i:i+n]
+        rms = (sum(float(v)*v for v in doan) / len(doan)) ** 0.5
+        muc.append(20 * math.log10(rms / 32768 + 1e-9))
+    muc_sap = sorted(muc)
+    nen = muc_sap[int(len(muc_sap) * 0.2)]        # mức nhạc nền
+    ket = []
+    for c in moc:
+        a = int((c + tre) / 0.05); b = int((c + tre + cua_so) / 0.05)
+        doan = muc[a:b] or [nen]
+        ket.append((round(max(doan), 1), round(max(doan) - nen, 1)))
+    os.remove(tam)
+    return ket, round(nen, 1)
+
+
 def main():
     eps = load_episodes()
     args = sys.argv[1:] or list(eps)
@@ -67,6 +94,19 @@ def main():
                 print(f"  LỖI: tiếng gần như câm (trung bình {mean} dB)"); ok = False
             else:
                 print(f"  tiếng: trung bình {mean} dB · đỉnh {peak} dB")
+            # từng lời đọc phải thật sự xuất hiện trong video
+            moc, t = [], 0.0
+            for a, b in ep["scenes"]:
+                moc.append(round(t, 2)); t = b
+            co = [moc[i] for i, _ in ep.get("narration", [])
+                  if i < len(moc) and os.path.exists(f"{BASE}/.thu-nghiem/giong/{slug}-sc{i+1}.mp3")]
+            if co:
+                ket, nen = co_tieng_noi(f, co, cua_so=1.0)
+                for c, (m, hon) in zip(co, ket):
+                    if hon < 6:
+                        print(f"  LỖI: cảnh mốc {c}s gần như không có tiếng nói (chỉ hơn nền {hon} dB)")
+                        ok = False
+                print(f"  lời đọc: {len(co)} đoạn, hơn nền " + ", ".join(f"{h:+.1f} dB" for _m, h in ket))
         print(f"  dung lượng {size/1048576:.1f} MB · số cảnh {len(ep['scenes'])}")
         loi += (not ok)
     print(f"\nKẾT LUẬN: {'TẤT CẢ ĐẠT' if loi == 0 else str(loi) + ' tập LỖI'}")
