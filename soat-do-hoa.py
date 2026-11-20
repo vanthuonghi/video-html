@@ -17,27 +17,29 @@ AUDIT = r"""
   let best = -1, bestO = 0.05;
   scenes.forEach((s,i)=>{ const o = parseFloat(getComputedStyle(s).opacity); if (o > bestO) { bestO = o; best = i; } });
   out.scene = best;
+  const kiem = (el, root) => {
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return;
+    let o = parseFloat(cs.opacity); let p = el.parentElement;
+    while (p && p !== root) { o *= parseFloat(getComputedStyle(p).opacity) || 0; p = p.parentElement; }
+    if (o < 0.06) return;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return;
+    if (r.left < 30 || r.right > 1050 || r.top < 60 || r.bottom > 1860) {
+      out.overflow.push({tag: el.tagName + (el.id ? '#'+el.id : '') + (el.className && typeof el.className === 'string' ? '.'+el.className.split(' ')[0] : ''),
+                         x: Math.round(r.left), r: Math.round(r.right), y: Math.round(r.top), b: Math.round(r.bottom),
+                         txt: (el.textContent||'').trim().slice(0,28)});
+    }
+  };
   if (best >= 0) {
     const root = scenes[best];
-    root.querySelectorAll('*').forEach(el => {
-      const cs = getComputedStyle(el);
-      if (cs.display === 'none' || cs.visibility === 'hidden') return;
-      let o = parseFloat(cs.opacity); let p = el.parentElement;
-      while (p && p !== root) { o *= parseFloat(getComputedStyle(p).opacity) || 0; p = p.parentElement; }
-      if (o < 0.06) return;
-      const r = el.getBoundingClientRect();
-      if (r.width < 2 || r.height < 2) return;
-      if (r.left < 30 || r.right > 1050 || r.top < 60 || r.bottom > 1860) {
-        out.overflow.push({tag: el.tagName + (el.id ? '#'+el.id : '') + (el.className && typeof el.className === 'string' ? '.'+el.className.split(' ')[0] : ''),
-                           x: Math.round(r.left), r: Math.round(r.right), y: Math.round(r.top), b: Math.round(r.bottom),
-                           txt: (el.textContent||'').trim().slice(0,28)});
-      }
-    });
+    root.querySelectorAll('*').forEach(el => kiem(el, root));
   }
+  // cả những phần tử nằm ngoài khung cảnh (dòng thương hiệu, lớp nền)
+  document.querySelectorAll('#brand').forEach(el => kiem(el, document.body));
   ['e1v','e1f2','e1f','e1v2','e3v','e3f','n21','n22','n31','n32','g1n','v1','v2','a1','a2','a3'].forEach(id=>{
     const el = document.getElementById(id);
     if (!el) return;
-    const cs = getComputedStyle(el);
     out.values[id] = el.style.width ? el.style.width : (el.textContent||'').trim().slice(0,14);
   });
   return JSON.stringify(out);
