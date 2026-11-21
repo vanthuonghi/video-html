@@ -63,6 +63,21 @@ AUDIT = r"""
   }
   // dòng thương hiệu nằm ngoài khung cảnh, có dải an toàn riêng ở trên cùng
   document.querySelectorAll('#brand').forEach(el => kiem(el, document.body, BRAND, ''));
+  // phụ đề phải nằm trọn vùng an toàn; thanh tiến trình cố ý tràn ngang nên chỉ so chiều dọc
+  const cap = document.getElementById('cap');
+  if (cap && getComputedStyle(cap).display !== 'none') {
+    const r = cap.getBoundingClientRect();
+    if (r.width > 2 && r.height > 2 && ngoai(r, SAFE)) ghi('PHỤ ĐỀ ', cap, r);
+    if (r.height > 2) out.values['cap'] = Math.round(r.top) + '-' + Math.round(r.bottom);
+  }
+  const thanh = document.getElementById('thanh');
+  if (thanh) {
+    const r = thanh.getBoundingClientRect();
+    if (r.top < SAFE.tren - 1 || r.bottom > SAFE.duoi + 1)
+      out.overflow.push({tag: 'THANH TIẾN TRÌNH', x: Math.round(r.left), r: Math.round(r.right),
+                         y: Math.round(r.top), b: Math.round(r.bottom), txt: ''});
+    if (r.height > 0) out.values['thanh'] = Math.round(r.top) + '-' + Math.round(r.bottom);
+  }
   // đo mực chữ thật bằng Range: khung khối không phình ra khi chữ tràn, nên cách đo khung bị sót
   scenes.forEach((s) => {
     if (parseFloat(getComputedStyle(s).opacity) < 0.3) return;

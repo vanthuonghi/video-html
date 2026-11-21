@@ -80,6 +80,21 @@ Mốc chụp ảnh bìa đặt riêng được bằng khoá `cover_at` trong t�
 
 Giấy phép: MIT (xem `LICENSE`).
 
+## Tốc độ (số đo thật)
+
+Một lần đẩy `main` dựng **cả 16 tập song song** trên GitHub Actions:
+
+| Hạng mục | Số đo |
+| --- | --- |
+| Toàn bộ lần chạy (16 tập + soát bố cục, kể cả xếp hàng) | **6 phút 12 giây** |
+| Tập nhanh nhất / chậm nhất | 1 phút 59 giây / 3 phút 8 giây |
+| Soát bố cục 16 tập (`soat-do-hoa.py`) | 27 giây |
+| Chụp khung trên máy (1008 khung, 4 tiến trình, Chrome 126) | 8,9 khung/giây |
+| Độ to sau khi ghép | −16,0 … −16,2 LUFS, đỉnh −1,2 … −1,5 dBFS |
+
+Thời gian gần như không đổi so với trước khi có phụ đề vì phụ đề được cháy vào khung
+ngay lúc chụp — không có bước mã hoá lại video.
+
 ## Dựng trên GitHub
 
 - Vào **Actions → Dựng video đồ hoạ → Run workflow**. Ô `tap` để trống là dựng tất cả;
