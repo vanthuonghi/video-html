@@ -155,6 +155,12 @@ CSS = """
   .list3 .it b{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:16px;background:#3fb8a8;color:#06211e;font-size:32px;margin-right:20px}
   .note{font-size:30px;color:#8fa19d;margin-top:26px}
   .clwrap{display:flex;gap:10px;padding:8px 12px;border:3px solid #2f8f84;border-radius:18px;opacity:0}
+  /* B4 — một trang sách nhìn từ xa */
+  .page{background:#16211f;border:3px solid #24322f;border-radius:24px;padding:34px 38px;margin-top:16px}
+  .pg{height:26px;border-radius:9px;background:#2a3835;margin-bottom:15px;opacity:0}
+  .pg.t{height:38px;background:#3fb8a8}
+  .pg.tshort{width:62%}
+  .pgmark{display:flex;justify-content:space-between;font-size:30px;color:#8fa19d;margin-top:20px}
   #brand{position:absolute;left:96px;top:132px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
 """
 
@@ -1073,7 +1079,204 @@ EP12 = {
  ],
 }
 
-EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12]
+# ---------------------------------------------------------------- TẬP 13 — B4: đọc tiêu đề trước
+EP13 = {
+ "slug": "13_tieude-chinh-phu", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Nắm một quyển sách trong năm phút</div>
+    <h1>Đọc <span class="hl">tiêu đề</span> trước,<br>nội dung sau</h1>
+    <div class="sub">Tiêu đề chương là bản tóm tắt mà tác giả đã viết sẵn cho bạn.</div>"""),
+   scene("""
+    <div class="kicker">Một trang sách, nhìn từ xa</div>
+    <div class="page" id="pg1">
+      <div class="pg t" id="t1"></div>
+      <div class="pg" id="b1"></div><div class="pg" id="b2"></div>
+      <div class="pg t" id="t2"></div>
+      <div class="pg" id="b3"></div><div class="pg" id="b4"></div><div class="pg" id="b5"></div>
+    </div>
+    <div class="pgmark"><span id="tt1">tiêu đề chương</span><span id="tt2">chữ nhỏ bên dưới</span></div>"""),
+   scene("""
+    <div class="kicker">Thứ tự lật sách cho đúng</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Bìa, tựa sách và lời giới thiệu</div>
+      <div class="it" id="i2"><b>2</b> Mục lục — cả quyển sách trên một trang</div>
+      <div class="it" id="i3"><b>3</b> Tiêu đề từng chương, đọc liền một mạch</div>
+    </div>
+    <div class="note">Ba bước này mất khoảng năm phút, và bạn biết ngay sách nói về cái gì.</div>"""),
+   scene("""
+    <div class="kicker">Vì sao lại hiệu quả</div>
+    <h1 style="font-size:76px">Phần thân sách chỉ để<br><span class="hl">chứng minh</span> điều tiêu đề đã nói</h1>
+    <div class="sub">Nên khi đã nắm tiêu đề, bạn đọc phần thân nhanh hơn hẳn — vì biết mình đang đọc để làm gì.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 7.8)), b = ease(span(t, 8.4, 9.6));
+     el.querySelector('#t1').style.opacity = a; el.querySelector('#t2').style.opacity = a*0.9;
+     ['b1','b2','b3','b4','b5'].forEach(function(k, i){
+       el.querySelector('#'+k).style.opacity = b*(0.35 + (i%2)*0.1);
+     });
+     el.querySelector('#tt1').style.opacity = a; el.querySelector('#tt2').style.opacity = b;
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.6+(k-1)*0.9, 17.5+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Tiêu đề chương là bản tóm tắt tác giả viết sẵn."),
+   (1, "Nhìn một trang sách từ xa: những dòng tiêu đề đậm, phần chữ nhỏ bên dưới là chứng minh."),
+   (2, "Thứ tự đúng: bìa và lời giới thiệu, rồi mục lục, rồi tiêu đề từng chương đọc liền một mạch."),
+   (3, "Ba bước này mất khoảng năm phút, và bạn biết ngay quyển sách nói về cái gì."),
+   (4, "Đó là bước chọn sách trong khoá Đọc hiệu quả Speed Reading."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 14 — B5: bản đồ 4 lớp
+EP14 = {
+ "slug": "14_ban-do-4-lop", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Một quyển sách có bốn lớp</div>
+    <h1>Đa số người đọc<br>chỉ chạm <span class="bad">lớp cuối</span></h1>
+    <div class="sub">Đọc mãi không nắm được sách nói gì, thường là vì bắt đầu từ lớp khó nhất.</div>"""),
+   scene("""
+    <div class="kicker">Bốn lớp, từ ngoài vào trong</div>
+    <div class="cards">
+      <div class="crd" id="c1"><div class="idx">1</div><div class="txt"><b>Bìa, tựa và lời giới thiệu</b><span>tác giả nói trước quyển này để làm gì</span></div></div>
+      <div class="crd" id="c2"><div class="idx">2</div><div class="txt"><b>Mục lục</b><span>cả quyển sách trên một trang</span></div></div>
+      <div class="crd" id="c3"><div class="idx">3</div><div class="txt"><b>Tiêu đề từng chương</b><span>câu trả lời đã nằm ở đây</span></div></div>
+      <div class="crd" id="c4"><div class="idx">4</div><div class="txt"><b>Chi tiết trong chương</b><span>chỉ đọc ở chỗ bạn thật sự cần</span></div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Cách dùng bốn lớp này</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Ba lớp đầu để quyết định: sách này có ích với mình không</div>
+      <div class="it" id="i2"><b>2</b> Lớp bốn chỉ đọc ở phần bạn cần dùng ngay</div>
+      <div class="it" id="i3"><b>3</b> Phần đã hiểu rồi thì bỏ qua, không đọc lại</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Kết quả</div>
+    <h1 style="font-size:78px">Mười phút là biết<br><span class="hl">sách có ích hay không</span></h1>
+    <div class="sub">Thay vì đọc hai trăm trang rồi mới tiếc thời gian.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){ [1,2,3,4].forEach(function(k){ el.querySelector('#c'+k).style.opacity = ease(span(t, 6.4+(k-1)*1.5, 7.4+(k-1)*1.5)); }); }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.9, 17.7+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Sách có bốn lớp. Đa số chỉ chạm lớp cuối."),
+   (1, "Bốn lớp từ ngoài vào: bìa và lời giới thiệu, mục lục, tiêu đề từng chương, rồi mới tới chi tiết."),
+   (2, "Ba lớp đầu để quyết định. Lớp bốn chỉ đọc ở phần bạn cần dùng ngay."),
+   (3, "Mười phút là biết sách có ích hay không, thay vì đọc hai trăm trang rồi mới tiếc."),
+   (4, "Đây là cách chọn sách tôi dạy trong buổi thứ hai của khoá."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 15 — A7: đọc nhanh khác đọc lướt
+EP15 = {
+ "slug": "15_doc-nhanh-vs-doc-luot", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Hai cách đọc rất dễ lẫn</div>
+    <h1>Đọc nhanh <span class="hl">không phải</span><br>là đọc lướt</h1>
+    <div class="sub">Cùng nhanh như nhau, nhưng một cách giữ được ý, một cách làm mất ý.</div>"""),
+   scene("""
+    <div class="kicker">Khác nhau ở chỗ giữ ý</div>
+    <div class="versus">
+      <div class="vs"><div class="nm">Đọc lướt</div><div class="meter"><i class="m2" id="v1"></i></div>
+        <div class="note" id="n1">Bỏ sót ý chính, đọc xong không kể lại được</div></div>
+      <div class="vs"><div class="nm">Đọc nhanh có phương pháp</div><div class="meter"><i id="v2"></i></div>
+        <div class="note" id="n2">Giữ nguyên ý, chỉ tăng tốc độ</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Phép thử ba mươi giây</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc xong, gấp sách lại và kể ba ý chính</div>
+      <div class="it" id="i2"><b>2</b> Không kể được là bạn chỉ đang lướt</div>
+      <div class="it" id="i3"><b>3</b> Kể được mà nhanh hơn — đó mới là đọc nhanh</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Quy tắc để tự kiểm</div>
+    <h1 style="font-size:78px">Nhanh hơn mà<br><span class="hl">hiểu như cũ</span></h1>
+    <div class="sub">Hễ hiểu giảm là bạn đã đọc lướt. Nhanh hơn mà mất ý thì không phải đọc nhanh, chỉ là đọc ẩu.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 8.6)), b = ease(span(t, 7.4, 9.4));
+     el.querySelector('#v1').style.width = (a*30)+'%';
+     el.querySelector('#v2').style.width = (b*100)+'%';
+     el.querySelector('#n1').style.opacity = 0.5 + a*0.5;
+     el.querySelector('#n2').style.opacity = 0.5 + b*0.5;
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.9, 17.7+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Đọc nhanh không phải đọc lướt."),
+   (1, "Đọc lướt thì bỏ sót ý chính. Đọc nhanh có phương pháp thì giữ nguyên ý, chỉ tăng tốc độ."),
+   (2, "Phép thử: đọc xong, gấp sách lại và kể ba ý chính. Không kể được là bạn đang lướt."),
+   (3, "Quy tắc tự kiểm rất đơn giản: nhanh hơn mà hiểu như cũ. Hễ hiểu giảm là đã lướt."),
+   (4, "Phân biệt được hai cách này là điều kiện đầu tiên để luyện đọc nhanh."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 16 — B7: năm câu hỏi trước khi mở sách
+EP16 = {
+ "slug": "16_nam-cau-hoi", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Trước khi mở sách</div>
+    <h1>Năm câu hỏi<br><span class="hl">quyết định cách đọc</span></h1>
+    <div class="sub">Đọc mà không có câu hỏi thì não không biết phải giữ lại cái gì.</div>"""),
+   scene("""
+    <div class="kicker">Hỏi năm câu này trước</div>
+    <div class="list20">
+      <div class="it" id="i1"><b>1</b> Tôi cần gì ở quyển sách này?</div>
+      <div class="it" id="i2"><b>2</b> Tác giả là ai, viết cho ai đọc?</div>
+      <div class="it" id="i3"><b>3</b> Quyển này trả lời câu hỏi nào?</div>
+      <div class="it" id="i4"><b>4</b> Chỗ nào tôi phải đọc kỹ?</div>
+      <div class="it" id="i5"><b>5</b> Chỗ nào tôi bỏ qua được?</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Làm thế nào cho nhanh</div>
+    <h1 style="font-size:74px">Ghi năm câu ra giấy,<br>rồi đọc để <span class="hl">tìm câu trả lời</span></h1>
+    <div class="sub">Không cần viết dài. Mỗi câu một dòng, mất chưa tới hai phút.</div>"""),
+   scene("""
+    <div class="kicker">Vì sao lại hiệu quả</div>
+    <h1 style="font-size:78px">Não giữ lại thứ<br>nó đang <span class="hl">đi tìm</span></h1>
+    <div class="sub">Đọc có câu hỏi thì đọc xong bạn còn nhớ. Đọc không mục đích thì đọc xong là hết.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){ [1,2,3,4,5].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t, 6.3+(k-1)*0.75, 7.1+(k-1)*0.75)); }); }""",
+   "",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Đọc mà không có câu hỏi thì não không biết phải giữ lại cái gì."),
+   (1, "Năm câu hỏi trước khi mở sách: tôi cần gì, tác giả là ai, sách trả lời câu hỏi nào, chỗ nào đọc kỹ, chỗ nào bỏ qua."),
+   (2, "Ghi năm câu đó ra giấy rồi đọc để tìm câu trả lời. Mỗi câu một dòng, mất chưa tới hai phút."),
+   (3, "Não giữ lại thứ nó đang đi tìm. Đọc có câu hỏi thì đọc xong bạn còn nhớ."),
+   (4, "Cách đặt câu hỏi này tôi dạy ngay buổi đầu của khoá."),
+ ],
+}
+
+EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12, EP13, EP14, EP15, EP16]
 
 
 def build_html(ep):
