@@ -159,6 +159,7 @@ def audit(slug, total, step, size):
         c = cn.CDP(ws)
         c.send("Page.enable")
         c.send("Runtime.enable")
+        c.send("Network.enable"); c.send("Network.setCacheDisabled", cacheDisabled=True)
         c.send("Emulation.setDeviceMetricsOverride", width=rong, height=cao,
                deviceScaleFactor=1, mobile=False)
         san_sang = False

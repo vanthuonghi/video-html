@@ -170,7 +170,7 @@
   .dots i.on{background:#3fb8a8}
   /* phụ đề cháy vào khung: nằm trên dải UI của nền tảng */
   #cap{position:absolute;left:96px;right:96px;bottom:380px;text-align:center;font-size:44px;
-       font-weight:700;line-height:1.25;opacity:0;transition:opacity .1s linear}
+       font-weight:700;line-height:1.25;opacity:0}
   #cap span{background:rgba(6,17,15,.78);padding:8px 20px;border-radius:16px;
             -webkit-box-decoration-break:clone;box-decoration-break:clone}
   #thanh{position:absolute;left:0;bottom:340px;height:4px;background:#3fb8a8;opacity:.55;width:0}
@@ -231,6 +231,7 @@ const span = (t,a,b) => (t-a)/(b-a);
 const lock = (x,a,b) => Math.max(a, Math.min(b, x));
 const $ = id => document.getElementById(id);
 function seek(t){
+  window.__da_seek = true;
   $('bg').style.transform = 'scale(1.06) translate(' + (Math.sin(t*.16)*10) + 'px,' + (Math.cos(t*.13)*10) + 'px)';
   SCENES.forEach(function(s,i){
     const el = document.querySelector('[data-scene="'+i+'"]');
@@ -242,17 +243,22 @@ function seek(t){
   });
   $('brand').style.opacity = t>1 ? (t>TOTAL-1.2?.9:.5) : 0;
   $('thanh').style.width = (100*Math.max(0, Math.min(1, t/TOTAL))) + '%';
-  let chu = null;
+  let cue = null;
   for (let k = 0; k < CUES.length; k++) {
-    if (t >= CUES[k][0] && t < CUES[k][1]) { chu = CUES[k][2]; break; }
+    if (t >= CUES[k][0] && t < CUES[k][1]) { cue = CUES[k]; break; }
   }
   const cap = $('cap');
-  if (chu) { cap.innerHTML = '<span>' + chu + '</span>'; cap.style.opacity = 1; }
-  else { cap.style.opacity = 0; }
+  // mờ dần tính bằng t, không dùng CSS transition: khung hình phải là hàm của t,
+  // không được phụ thuộc máy chụp nhanh hay chậm
+  if (cue) {
+    cap.innerHTML = '<span>' + cue[2] + '</span>';
+    cap.style.opacity = Math.max(0, Math.min(1, (t - cue[0]) / 0.08, (cue[1] - t) / 0.08)).toFixed(3);
+  } else { cap.style.opacity = 0; }
 }
 window.__seek = seek;
-// chỉ khai báo sẵn sàng sau khi font đã nạp, để khung đầu không bị lệch chữ
-document.fonts.ready.then(function(){ seek(0); window.__total = TOTAL; });
+// Chỉ tự về t=0 khi chưa ai gọi __seek. Nếu không, promise của fonts.ready có thể
+// chạy sau lệnh seek của máy chụp và kéo khung về 0 — khung hình sai mà không báo lỗi.
+document.fonts.ready.then(function(){ if (!window.__da_seek) seek(0); window.__total = TOTAL; });
 
 </script>
 </body>

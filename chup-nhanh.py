@@ -50,6 +50,17 @@ class CDP:
         r = self.send("Runtime.evaluate", expression=expr, returnByValue=True)
         return r.get("result", {}).get("value")
 
+    def ve_xong(self):
+        """Chờ trình duyệt vẽ xong hai khung.
+
+        `__seek` chỉ đổi style; ảnh chụp ngay sau đó có thể lấy khung cũ (thấy rõ ở
+        khung lớn, khi lớp composite chậm một nhịp). Hai lần requestAnimationFrame
+        là mức chờ nhỏ nhất mà vẫn chắc chắn khung đã được vẽ.
+        """
+        self.send("Runtime.evaluate", awaitPromise=True, returnByValue=True, expression=(
+            "new Promise(r=>{let k=0;const f=()=>{if(++k>=2)r(1);else requestAnimationFrame(f)};"
+            "requestAnimationFrame(f)})"))
+
 
 def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", probe_only=False):
     os.makedirs(outdir, exist_ok=True)
@@ -80,6 +91,9 @@ def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", prob
             return 0.0
         c = CDP(ws_url)
         c.send("Page.enable"); c.send("Runtime.enable")
+        # hồ sơ Chrome trong /tmp được dùng lại giữa các lần chạy: tắt cache để không
+        # chụp phải bản HTML cũ sau khi vừa sinh lại trang
+        c.send("Network.enable"); c.send("Network.setCacheDisabled", cacheDisabled=True)
         c.send("Emulation.setDeviceMetricsOverride", width=W, height=H,
                deviceScaleFactor=1, mobile=False)
         if not total:
@@ -102,6 +116,7 @@ def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", prob
         t0 = time.time(); n = 0
         for i in range(frm, hi + 1):
             c.eval(f"window.__seek({i / fps:.4f})")
+            c.ve_xong()
             shot = c.send("Page.captureScreenshot", format="jpeg", quality=quality,
                           fromSurface=True, optimizeForSpeed=True)
             with open(f"{outdir}/{i:05d}.jpg", "wb") as fh:

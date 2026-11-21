@@ -222,3 +222,7 @@ jobs:
           python3 dung-tap-do-hoa.py --size 1920x1080 --tap 02_noi-tham-trong-dau
           python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080 --step 2.5 --fail
           python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1920x1080 --step 2.5 --fail
+
+      - name: Kiểm hợp đồng render (cùng mốc t phải ra cùng khung)
+        run: python3 kiem-tra-hop-dong.py 02_noi-tham-trong-dau 08_truong-nhin
+
