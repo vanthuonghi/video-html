@@ -11,7 +11,8 @@ không bị gò vào vài loại hình của một thư viện dựng sẵn.
 ## Đường ống
 
 ```
-dung-tap-do-hoa.py   kịch bản từng tập: cảnh, hàm vẽ theo thời gian, lời đọc
+kich-ban.py          kịch bản từng tập: cảnh, HTML cảnh, hàm vẽ theo thời gian, lời đọc
+dung-tap-do-hoa.py   khung dựng: CSS, JS __seek, phụ đề, thẻ kết thúc, tỉ lệ khung
       ├─ sinh-nhac.py        nhạc nền + tiếng vút (sinh bằng ffmpeg, không kèm tệp)
       ├─ sinh-giong-edge.py  lời đọc bằng edge-tts (Microsoft, miễn phí)
       ├─ chup-nhanh.py       chụp N khung song song qua CDP (N tiến trình Chrome)
@@ -20,19 +21,21 @@ dung-tap-do-hoa.py   kịch bản từng tập: cảnh, hàm vẽ theo thời gi
              └─ kiem-tra.py  chặn lỗi thật: sai thời lượng, sai khung, tiếng câm
 ```
 
-`dung-tap-do-hoa.py` là **nguồn duy nhất** mô tả nội dung. Sửa ở đó rồi đẩy lên là máy tự dựng.
+`kich-ban.py` là **nguồn duy nhất** mô tả nội dung, `dung-tap-do-hoa.py` là khung dựng. Sửa
+kịch bản ở `kich-ban.py` rồi đẩy lên là máy tự dựng.
 
 ## Thư mục
 
 | Tệp | Việc |
 |---|---|
-| `dung-tap-do-hoa.py` | kịch bản 8 tập: cảnh, mốc thời gian, hàm vẽ, lời đọc |
+| `kich-ban.py` | kịch bản 20 tập: cảnh, mốc thời gian, HTML cảnh, hàm vẽ, lời đọc |
+| `dung-tap-do-hoa.py` | khung dựng trang HTML: CSS, `__seek`, phụ đề, thẻ kết thúc, `--size` |
 | `chup-nhanh.py` | chụp khung hình; chia việc ra nhiều tiến trình; tự dò độ dài trang |
 | `ghep-tieng-tap.py` | đặt lời đọc vào đúng cảnh, thêm nhạc nền, ép tốc độ nếu lời quá dài |
 | `sinh-giong-edge.py` | sinh lời đọc bằng edge-tts, có thử lại (dịch vụ hay chập chờn) |
 | `sinh-nhac.py` | sinh nhạc nền và tiếng vút bằng ffmpeg |
 | `kiem-tra.py` | kiểm tra đầu ra, mã thoát 1 nếu lỗi |
-| `sinh-phu-de.py` | sinh phụ đề `.srt` từ lời đọc và mốc cảnh |
+| `sinh-phu-de.py` | sinh phụ đề `.srt` từ lời đọc và mốc từng từ (không có thì theo mốc cảnh) |
 | `sinh-qr.py` | sinh mã QR đăng ký (`do-hoa/assets/qr.svg`) từ `noi-dung.json` |
 | `sinh-poster.py` | chụp ảnh bìa 1080×1920 tại mốc `cover_at` của từng tập |
 | `sinh-metadata.py` | sinh `metadata.json`: tiêu đề, mô tả, hashtag, chương, `?v=<sha8>` |
@@ -120,6 +123,7 @@ Một lần đẩy `main` dựng **cả 16 tập song song** trên GitHub Action
 | Tập nhanh nhất / chậm nhất | 1 phút 59 giây / 3 phút 8 giây |
 | Soát bố cục 16 tập (`soat-do-hoa.py`) | 27 giây |
 | Chụp khung trên máy (1008 khung, 4 tiến trình, Chrome 126) | 8,9 khung/giây |
+| Chụp khung 1080×1080 (1008 khung, 4 tiến trình) | 32,1 khung/giây (ít điểm ảnh hơn nên nhanh gần 4 lần) |
 | Độ to sau khi ghép | −16,0 … −16,2 LUFS, đỉnh −1,2 … −1,5 dBFS |
 
 Thời gian gần như không đổi so với trước khi có phụ đề vì phụ đề được cháy vào khung
@@ -142,12 +146,14 @@ ngay lúc chụp — không có bước mã hoá lại video.
 
 ## Thêm một tập mới
 
-1. Mở `dung-tap-do-hoa.py`, thêm một khối như các khối `EP7`, `EP9`:
+1. Mở `kich-ban.py`, thêm một khối như các khối `EP7`, `EP9` (kịch bản nằm riêng, khung dựng ở `dung-tap-do-hoa.py`):
    - `scenes`: danh sách `(giây bắt đầu, giây kết thúc)` cho từng cảnh;
    - `html`: phần HTML mỗi cảnh (dùng các lớp CSS có sẵn: `.race`, `.chart`, `.grid`, `.flash`, `.cluster`, `.stack`…);
    - `anim`: hàm `function(t, el)` vẽ theo thời gian, **chạy được ở mọi mốc t** (không dựa vào khung trước);
    - `narration`: `(số thứ tự cảnh, lời đọc)` — cảnh nào không có thì bỏ trống.
-2. Thêm tên tập vào danh sách `EPISODES`.
+2. Thêm tên tập vào danh sách `EPISODES` (cuối `kich-ban.py`) rồi chạy
+   `python3 kiem-tra-kich-ban.py` — bộ kiểm báo lỗi cấu trúc và ngân sách lời đọc
+   trước khi tốn một lần dựng.
 3. Đẩy lên GitHub, hoặc thử ở máy: `bash dung-video-do-hoa.sh do-hoa/<mã-tập>.html <mã-tập>`.
 
 ## Dựng ở máy

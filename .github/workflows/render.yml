@@ -109,7 +109,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .thu-nghiem/giong
-          key: giong-${{ matrix.tap }}-${{ hashFiles('dung-tap-do-hoa.py') }}-${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}
+          key: giong-${{ matrix.tap }}-${{ hashFiles('dung-tap-do-hoa.py', 'kich-ban.py') }}-${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}
           restore-keys: giong-${{ matrix.tap }}-
 
       - name: Sinh giọng đọc bằng edge-tts (kèm mốc từng từ)
