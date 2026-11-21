@@ -7,7 +7,7 @@ là metadata đổi theo. Ra: video-do-hoa/<slug>.json
 
 Dùng: python3 sinh-metadata.py [slug ...]
 """
-import importlib.util, json, os, sys
+import hashlib, importlib.util, json, os, sys
 
 BASE = os.environ.get("VH_BASE") or os.path.dirname(os.path.abspath(__file__))
 OUT = f"{BASE}/video-do-hoa"
@@ -23,6 +23,18 @@ def nap(ten_tep, ten):
 
 
 dt = nap("dung-tap-do-hoa.py", "dt")
+
+
+def _phien_ban(slug):
+    """?v=<8 ký tự sha256> để Buffer/CDN không dùng bản video cũ trong bộ nhớ đệm."""
+    f = f"{OUT}/{slug}_co-tieng.mp4"
+    if not os.path.exists(f):
+        return ""
+    h = hashlib.sha256()
+    with open(f, "rb") as fh:
+        for khoi in iter(lambda: fh.read(1 << 20), b""):
+            h.update(khoi)
+    return "?v=" + h.hexdigest()[:8]
 
 
 def gio(t):
@@ -55,7 +67,8 @@ def tao(i, ep, cfg):
         "hashtag": nhan,
         "thoi_luong_giay": ep["total"],
         "poster": f"{ep['slug']}_poster.png",
-        "video": LINK_VIDEO.format(slug=ep["slug"]),
+        "thumb": f"{ep['slug']}_thumb.png",
+        "video": LINK_VIDEO.format(slug=ep["slug"]) + _phien_ban(ep["slug"]),
         "chuong": [{"ten": f"Cảnh {k + 1}", "bat_dau": gio(a)} for k, (a, _) in enumerate(ep["scenes"])],
     }
 

@@ -35,7 +35,8 @@ dung-tap-do-hoa.py   kịch bản từng tập: cảnh, hàm vẽ theo thời gi
 | `sinh-phu-de.py` | sinh phụ đề `.srt` từ lời đọc và mốc cảnh |
 | `sinh-qr.py` | sinh mã QR đăng ký (`do-hoa/assets/qr.svg`) từ `noi-dung.json` |
 | `sinh-poster.py` | chụp ảnh bìa 1080×1920 tại mốc `cover_at` của từng tập |
-| `sinh-metadata.py` | sinh `metadata.json`: tiêu đề, mô tả, hashtag, chương |
+| `sinh-metadata.py` | sinh `metadata.json`: tiêu đề, mô tả, hashtag, chương, `?v=<sha8>` |
+| `kiem-tra-kich-ban.py` | validator: cấu trúc tập, cảnh liền mạch, ngân sách lời đọc |
 | `noi-dung.json` | link đăng ký, câu mời quét mã, hashtag dùng chung |
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
@@ -56,6 +57,28 @@ tập sau, mã QR đăng ký và dải chấm tiến độ. Link và câu mời 
 sửa một chỗ là toàn bộ tập đổi theo. Mỗi tập sinh kèm `_poster.png` (ảnh bìa) và
 `.json` (tiêu đề, mô tả, hashtag) — cả hai cùng `.srt` được đẩy lên release `moi-nhat`.
 Mốc chụp ảnh bìa đặt riêng được bằng khoá `cover_at` trong tập đó.
+
+## Phụ đề
+
+`edge-tts` trả về **mốc từng từ**; `sinh-giong-edge.py` lưu mốc đó cạnh mp3
+(`<slug>-scN.words.json`). Nhờ vậy:
+
+- phụ đề **cháy thẳng vào khung hình** ngay lúc chụp (không phải mã hoá lại video):
+  4 từ một dòng, nền tối bo góc, nằm ở y≈1485–1540, trong vùng an toàn;
+- `.srt` xuất ra dùng **đúng các dòng đó**, nên bản tải về khớp từng chữ với video;
+- không có mốc từ (ví dụ máy không cài `edge-tts`) thì trang tự bỏ phụ đề và `.srt`
+  quay về bản theo mốc cảnh — không vỡ bản dựng.
+
+## Dùng repo này cho kênh của bạn
+
+1. Fork repo, sửa `noi-dung.json` (link đăng ký, hashtag, câu mời) và màu trong `CSS`
+   của `dung-tap-do-hoa.py`.
+2. Viết tập mới: thêm một dict vào `EPISODES` (slug, `ten`, `total`, `scenes`,
+   `html`, `anim`, `narration`) rồi chạy `python3 kiem-tra-kich-ban.py`.
+3. Đẩy lên `main` — Actions dựng, soát bố cục, rồi đăng video + `.srt` + poster +
+   thumbnail + `metadata.json` lên release `moi-nhat`.
+
+Giấy phép: MIT (xem `LICENSE`).
 
 ## Dựng trên GitHub
 

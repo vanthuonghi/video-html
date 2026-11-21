@@ -98,16 +98,27 @@ jobs:
           echo "CHROME_PATH=$CH" >> "$GITHUB_ENV"
           "$CH" --version
 
-      - name: Dựng trang HTML và nhạc nền
+      - name: Sinh nhạc nền và mã QR
         run: |
-          python3 sinh-qr.py
-          python3 dung-tap-do-hoa.py
           python3 sinh-nhac.py
+          python3 sinh-qr.py
 
-      - name: Sinh giọng đọc bằng edge-tts (Microsoft, miễn phí)
+      - name: Giữ lại lời đọc giữa các lần dựng
+        uses: actions/cache@v4
+        with:
+          path: .thu-nghiem/giong
+          key: giong-${{ matrix.tap }}-${{ hashFiles('dung-tap-do-hoa.py') }}-${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}
+          restore-keys: giong-${{ matrix.tap }}-
+
+      - name: Sinh giọng đọc bằng edge-tts (kèm mốc từng từ)
         run: |
           python3 sinh-giong-edge.py "${{ matrix.tap }}" \
             --giong "${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}"
+
+      - name: Kiểm tra kịch bản và dựng trang HTML (có phụ đề theo mốc từ)
+        run: |
+          python3 kiem-tra-kich-ban.py
+          python3 dung-tap-do-hoa.py
 
       - name: Chụp khung hình và mã hoá
         env:
@@ -154,6 +165,7 @@ jobs:
           gh release upload moi-nhat "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4" \
             "video-do-hoa/${{ matrix.tap }}.srt" \
             "video-do-hoa/${{ matrix.tap }}_poster.png" \
+            "video-do-hoa/${{ matrix.tap }}_thumb.png" \
             "video-do-hoa/${{ matrix.tap }}.json" --clobber
           sha256sum "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4"
 
@@ -165,6 +177,7 @@ jobs:
             video-do-hoa/*_co-tieng.mp4
             video-do-hoa/*.srt
             video-do-hoa/*_poster.png
+            video-do-hoa/*_thumb.png
             video-do-hoa/*.json
           retention-days: 14
 
@@ -194,6 +207,7 @@ jobs:
 
       - name: Dựng HTML và soát bố cục mọi tập
         run: |
+          python3 kiem-tra-kich-ban.py
           python3 sinh-qr.py
           python3 dung-tap-do-hoa.py
           python3 -m http.server 8899 >/dev/null 2>&1 &

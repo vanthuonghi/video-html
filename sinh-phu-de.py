@@ -66,6 +66,18 @@ def chia_cue(dong, start, end):
 
 
 def tao(slug, ep):
+    # Có mốc từng từ thì dùng đúng các dòng phụ đề đã cháy vào hình, để bản .srt
+    # tải về khớp từng chữ và từng nhịp với video.
+    try:
+        sp = importlib.util.spec_from_file_location("dt", f"{BASE}/dung-tap-do-hoa.py")
+        dt = importlib.util.module_from_spec(sp)
+        sp.loader.exec_module(dt)
+        cue = dt.captions(ep)
+    except Exception:
+        cue = []
+    if cue:
+        return "\n".join(f"{k+1}\n{gio(a)} --> {gio(b)}\n{chu}\n"
+                         for k, (a, b, chu) in enumerate(cue))
     dong = []
     for idx, text in sorted(ep["narration"]):
         if idx >= len(ep["scenes"]):
@@ -93,7 +105,8 @@ def main():
             continue
         p = f"{OUT}/{ep['slug']}.srt"
         open(p, "w", encoding="utf-8").write(tao(ep["slug"], ep))
-        print(f"  {ep['slug']}: {len(ep['narration'])} dòng phụ đề · {p}")
+        so_dong = open(p, encoding="utf-8").read().count(" --> ")
+        print(f"  {ep['slug']}: {so_dong} dòng phụ đề · {p}")
 
 
 if __name__ == "__main__":

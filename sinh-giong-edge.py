@@ -17,6 +17,23 @@ def load_episodes():
     return m.EPISODES
 
 
+async def sinh_co_moc(text, voice, out):
+    """Ghi mp3 và mốc từng từ (WordBoundary) để dựng phụ đề bám theo giọng."""
+    import edge_tts
+    words = []
+    with open(out, "wb") as f:
+        async for ch in edge_tts.Communicate(text, voice).stream():
+            if ch["type"] == "audio":
+                f.write(ch["data"])
+            elif ch["type"] == "WordBoundary":
+                a = ch["offset"] / 1e7
+                words.append([round(a, 3), round(a + ch["duration"] / 1e7, 3), ch["text"]])
+    if words:
+        import json as _json
+        with open(out.replace(".mp3", ".words.json"), "w", encoding="utf-8") as fh:
+            _json.dump({"voice": voice, "words": words}, fh, ensure_ascii=False)
+
+
 def sinh(text, out, voice):
     """edge-tts hay chập chờn (NoAudioReceived) nên thử lại nhiều lần, và lùi về dòng lệnh.
     Ghi lại giọng đã dùng cho từng tệp: đổi giọng là sinh lại, không dùng nhầm tệp cũ."""
@@ -34,7 +51,7 @@ def sinh(text, out, voice):
     for lan in range(1, 9):
         try:
             import edge_tts
-            asyncio.run(edge_tts.Communicate(text, voice).save(out))
+            asyncio.run(sinh_co_moc(text, voice, out))
         except Exception as e:
             err = str(e)[:60]
         if not (os.path.exists(out) and os.path.getsize(out) > 4000):

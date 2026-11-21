@@ -71,7 +71,12 @@ def chup(slug, giay):
         ra = f"{OUT}/{slug}_poster.png"
         with open(ra, "wb") as fh:
             fh.write(base64.b64decode(shot["data"]))
-        print(f"  {slug}: poster ở {giay:.1f}s · {os.path.getsize(ra)//1024} KB · {ra}")
+        # bản 4:5 cho feed/YouTube: cắt giữa khung, giữ nguyên phần tiêu đề
+        thumb = f"{OUT}/{slug}_thumb.png"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", ra, "-vf",
+                        "crop=1080:1350:0:200", thumb], check=False)
+        print(f"  {slug}: poster ở {giay:.1f}s · {os.path.getsize(ra)//1024} KB · "
+              f"thumb {os.path.getsize(thumb)//1024} KB · {ra}")
         return True
     finally:
         try:

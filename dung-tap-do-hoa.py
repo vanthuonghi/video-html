@@ -5,10 +5,13 @@ Mỗi tập: các cảnh có mốc thời gian, phần HTML của cảnh, hàm v
 Chạy: python3 dung-tap-do-hoa.py            -> ghi file html vào do-hoa/
       python3 dung-tap-do-hoa.py --loi-doc  -> in danh sách lời đọc cần sinh
 """
-import json, os, sys
+import json, os, subprocess, sys
 
 BASE = os.environ.get("VH_BASE") or os.path.dirname(os.path.abspath(__file__))
 OUT = f"{BASE}/do-hoa"
+GIONG = f"{BASE}/.thu-nghiem/giong"
+OFFSET, GAP = 0.35, 0.5      # khớp ghep-tieng-tap.py: lời đọc vào sau khi cảnh hiện
+SO_TU_CUE = 4                # số từ mỗi dòng phụ đề
 
 CSS = """
   *{box-sizing:border-box;margin:0;padding:0}
@@ -174,6 +177,12 @@ CSS = """
   .dots{display:flex;gap:12px;margin-top:28px}
   .dots i{width:20px;height:20px;border-radius:50%;background:#2c3b38}
   .dots i.on{background:#3fb8a8}
+  /* phụ đề cháy vào khung: nằm trên dải UI của nền tảng */
+  #cap{position:absolute;left:96px;right:96px;bottom:380px;text-align:center;font-size:44px;
+       font-weight:700;line-height:1.25;opacity:0;transition:opacity .1s linear}
+  #cap span{background:rgba(6,17,15,.78);padding:8px 20px;border-radius:16px;
+            -webkit-box-decoration-break:clone;box-decoration-break:clone}
+  #thanh{position:absolute;left:0;bottom:340px;height:4px;background:#3fb8a8;opacity:.55;width:0}
   #brand{position:absolute;left:96px;top:132px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
 """
 
@@ -181,6 +190,7 @@ JS_FRAME = """
 const SCENES = __SCENES__;
 const ANIM = __ANIM__;
 const TOTAL = __TOTAL__;
+const CUES = __CUES__;
 const ease = x => x<0?0:x>1?1:(x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2);
 const span = (t,a,b) => (t-a)/(b-a);
 const lock = (x,a,b) => Math.max(a, Math.min(b, x));
@@ -196,6 +206,14 @@ function seek(t){
     if (ANIM[i]) ANIM[i](t, el);
   });
   $('brand').style.opacity = t>1 ? (t>TOTAL-1.2?.9:.5) : 0;
+  $('thanh').style.width = (100*Math.max(0, Math.min(1, t/TOTAL))) + '%';
+  let chu = null;
+  for (let k = 0; k < CUES.length; k++) {
+    if (t >= CUES[k][0] && t < CUES[k][1]) { chu = CUES[k][2]; break; }
+  }
+  const cap = $('cap');
+  if (chu) { cap.innerHTML = '<span>' + chu + '</span>'; cap.style.opacity = 1; }
+  else { cap.style.opacity = 0; }
 }
 window.__seek = seek;
 // chỉ khai báo sẵn sàng sau khi font đã nạp, để khung đầu không bị lệch chữ
@@ -248,6 +266,57 @@ def endcard(i, ep):
     </div>
     <div class="dots">{cham}</div>
     <div class="endinfo">Lớp <b>7 buổi</b> · <b>980.000đ</b> · buổi 1 không hợp thì hoàn tiền</div>"""
+
+
+def _dur(f):
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "csv=p=0", f], capture_output=True, text=True)
+        return float(r.stdout.strip())
+    except Exception:
+        return 0.0
+
+
+def captions(ep):
+    """Dòng phụ đề theo mốc từng từ của edge-tts (nếu đã sinh giọng kèm mốc).
+
+    Mốc đo trong từng tệp mp3, nên phải cộng mốc cảnh và chia theo tốc độ tua mà
+    ghep-tieng-tap.py dùng khi lời đọc dài hơn chỗ trống của cảnh.
+    """
+    ra, t = [], 0.0
+    for i, (a, b) in enumerate(ep["scenes"]):
+        w = b - a
+        mp3 = f"{GIONG}/{ep['slug']}-sc{i+1}.mp3"
+        moc = mp3.replace(".mp3", ".words.json")
+        if not (os.path.exists(mp3) and os.path.exists(moc)):
+            t += w
+            continue
+        try:
+            words = json.load(open(moc, encoding="utf-8"))["words"]
+        except Exception:
+            t += w
+            continue
+        d = _dur(mp3)
+        room = w - OFFSET - GAP
+        tempo = 1.0 if (d <= 0 or d <= room) else round(d / room, 3)
+        nhom, cur = [], []
+        for st, en, tu in words:
+            cur.append((st, en, tu))
+            if len(cur) >= SO_TU_CUE:
+                nhom.append(cur)
+                cur = []
+        if cur:
+            nhom.append(cur)
+        for g in nhom:
+            s = t + OFFSET + g[0][0] / tempo
+            e = min(t + OFFSET + g[-1][1] / tempo + 0.12, b - 0.15)
+            if e - s >= 0.25:
+                ra.append([round(s, 2), round(e, 2), " ".join(x[2] for x in g)])
+        t += w
+    # cue sau bắt đầu thì cue trước phải hết: tránh hai dòng cùng hiện chồng nhau
+    for k in range(len(ra) - 1):
+        ra[k][1] = round(min(ra[k][1], ra[k + 1][0]), 2)
+    return ra
 
 
 def cover_at(ep):
@@ -1361,7 +1430,8 @@ def build_html(ep):
     js = (JS_FRAME
           .replace("__SCENES__", json.dumps(sc))
           .replace("__ANIM__", "[" + ",".join(anims) + "]")
-          .replace("__TOTAL__", str(ep["total"])))
+          .replace("__TOTAL__", str(ep["total"]))
+          .replace("__CUES__", json.dumps(captions(ep), ensure_ascii=False)))
     htmls = [endcard(_so_tap(ep), ep) if h == CTA else h for h in ep["html"]]
     scenes_html = "\n".join(
         f'<div class="scene" data-scene="{i}">{h}</div>' for i, h in enumerate(htmls))
@@ -1384,6 +1454,8 @@ def build_html(ep):
   <div id="bg"></div>
   <div class="grain"></div>
   {scenes_html}
+  <div id="thanh"></div>
+  <div id="cap"></div>
   <div id="brand">{brand_text}</div>
 </div>
 <script>
