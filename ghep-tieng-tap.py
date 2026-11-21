@@ -88,7 +88,10 @@ def ghep(slug):
             chain += f"atempo={tempo},"
         start = t + OFFSET
         starts.append((i, start))
-        parts.append(chain + f"adelay={int(start*1000)}|{int(start*1000)},volume=1.0,"
+        # siết nhẹ đỉnh giọng đọc: hạ được chênh động để cả tập đạt đúng mức to mà
+        # không phải ép đỉnh ở khâu cuối (tập nhiều chỗ lặng trước đây bị hụt mức)
+        parts.append(chain + "acompressor=threshold=-18dB:ratio=3:attack=8:release=180,"
+                             f"adelay={int(start*1000)}|{int(start*1000)},volume=1.0,"
                              f"aformat=channel_layouts=mono[n{n_lbl}]")
         t += w
 
@@ -145,7 +148,7 @@ def ghep(slug):
     lim = 10 ** (LOUD_TP / 20.0)
     # tăng/giảm đúng bằng chênh lệch đo được rồi chặn đỉnh ở mức TP; đo lại sau khi
     # mã hoá và chỉnh nốt phần còn lệch, để các tập lệch nhau không quá 0,3 LU
-    for lan in range(3):
+    for lan in range(6):
         ln = f"volume={gain:.2f}dB,alimiter=limit={lim:.4f}:attack=5:release=50:level=false"
         r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-i", mix,
                             "-map", "0:v", "-map", "1:a", "-af", ln + ",aresample=48000",
@@ -163,19 +166,8 @@ def ghep(slug):
             break
         gain += lech
 
-    # Vẫn lệch thì nội dung quá chênh động (tập nhiều chỗ lặng): bộ chặn đỉnh giữ độ
-    # to lại. Lúc đó mới dùng loudnorm động, vì nó siết động để đạt đúng mức đích.
     if abs(LOUD_I - do_to(out)) > 0.5:
-        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-i", mix,
-                            "-map", "0:v", "-map", "1:a", "-af",
-                            f"loudnorm=I={LOUD_I}:TP={LOUD_TP}:LRA={LOUD_LRA}:linear=false,"
-                            "aresample=48000", "-c:v", "copy", "-c:a", "aac",
-                            "-b:a", "192k", "-movflags", "+faststart", out],
-                           capture_output=True, text=True)
-        if r.returncode == 0:
-            print("    siết động để đủ độ to (nội dung nhiều chỗ lặng)")
-        else:
-            print(f"    không siết động được: {r.stderr.strip()[:200]}")
+        print(f"    CẢNH BÁO còn lệch {LOUD_I - do_to(out):+.1f} LU so với mức đích")
     os.remove(mix)
     # đo mức âm lượng (phải để ffmpeg ở mức thông tin mặc định, -v error sẽ nuốt mất số liệu)
     st = subprocess.run(["ffmpeg", "-hide_banner", "-i", out, "-af", "volumedetect",
