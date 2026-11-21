@@ -162,6 +162,20 @@ def ghep(slug):
         if abs(lech) <= 0.3:
             break
         gain += lech
+
+    # Vẫn lệch thì nội dung quá chênh động (tập nhiều chỗ lặng): bộ chặn đỉnh giữ độ
+    # to lại. Lúc đó mới dùng loudnorm động, vì nó siết động để đạt đúng mức đích.
+    if abs(LOUD_I - do_to(out)) > 0.5:
+        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-i", mix,
+                            "-map", "0:v", "-map", "1:a", "-af",
+                            f"loudnorm=I={LOUD_I}:TP={LOUD_TP}:LRA={LOUD_LRA}:linear=false,"
+                            "aresample=48000", "-c:v", "copy", "-c:a", "aac",
+                            "-b:a", "192k", "-movflags", "+faststart", out],
+                           capture_output=True, text=True)
+        if r.returncode == 0:
+            print("    siết động để đủ độ to (nội dung nhiều chỗ lặng)")
+        else:
+            print(f"    không siết động được: {r.stderr.strip()[:200]}")
     os.remove(mix)
     # đo mức âm lượng (phải để ffmpeg ở mức thông tin mặc định, -v error sẽ nuốt mất số liệu)
     st = subprocess.run(["ffmpeg", "-hide_banner", "-i", out, "-af", "volumedetect",
