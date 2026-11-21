@@ -19,7 +19,9 @@ on:
     branches: [main]
     paths:
       - "do-hoa/**"
-      - "dung-tap-do-hoa.py"
+      - "*.py"
+      - "*.sh"
+      - "requirements.txt"
 
 permissions:
   contents: write
@@ -125,6 +127,15 @@ jobs:
       - name: Ghép lời đọc và nhạc nền
         run: python3 ghep-tieng-tap.py "${{ matrix.tap }}"
 
+      - name: Sinh phụ đề .srt từ lời đọc
+        run: python3 sinh-phu-de.py "${{ matrix.tap }}"
+
+      - name: Soát bố cục — chặn chữ tràn vùng an toàn trước khi đăng
+        run: |
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          python3 soat-do-hoa.py "${{ matrix.tap }}" --step 2.5 --fail
+
       - name: Kiểm tra đầu ra (thời lượng, khung, tiếng không câm)
         run: python3 kiem-tra.py "${{ matrix.tap }}"
 
@@ -132,12 +143,46 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload moi-nhat "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4" --clobber
+          gh release upload moi-nhat "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4" \
+            "video-do-hoa/${{ matrix.tap }}.srt" --clobber
           sha256sum "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4"
 
       - name: Lưu bản dựng vào mục tải về của lần chạy
         uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.tap }}
-          path: video-do-hoa/*_co-tieng.mp4
+          path: |
+            video-do-hoa/*_co-tieng.mp4
+            video-do-hoa/*.srt
           retention-days: 14
+
+  soat-bo-cuc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cài thư viện Python cho trình duyệt
+        run: |
+          python3 -m pip install --quiet websocket-client \
+            || python3 -m pip install --quiet --break-system-packages websocket-client
+          python3 -c "import websocket; print('thư viện ok')"
+
+      - name: Tìm hoặc cài trình duyệt
+        run: |
+          set -e
+          CH=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)
+          if [ -z "$CH" ]; then
+            curl -sL -o /tmp/chrome.zip \
+              https://storage.googleapis.com/chrome-for-testing-public/156.0.8078.80/linux64/chrome-linux64.zip
+            unzip -q /tmp/chrome.zip -d /opt
+            CH=/opt/chrome-linux64/chrome
+          fi
+          echo "CHROME_PATH=$CH" >> "$GITHUB_ENV"
+
+      - name: Dựng HTML và soát bố cục mọi tập
+        run: |
+          python3 dung-tap-do-hoa.py
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          python3 soat-do-hoa.py --step 2.5 --fail

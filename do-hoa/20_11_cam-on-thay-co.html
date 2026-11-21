@@ -13,7 +13,8 @@
       radial-gradient(900px 800px at 85% 88%, rgba(63,184,168,.10), transparent 62%),
       linear-gradient(160deg,#0d1113 0%,#121a19 55%,#0d1113 100%);will-change:transform}
   .grain{position:absolute;inset:0;opacity:.05;background-image:radial-gradient(#fff 1px, transparent 1px);background-size:6px 6px}
-  .scene{position:absolute;inset:0;padding:150px 90px;display:flex;flex-direction:column;justify-content:center;opacity:0;will-change:transform,opacity}
+  /* vùng an toàn 9:16: đỉnh chừa thanh trạng thái, đáy chừa caption + nút của nền tảng */
+  .scene{position:absolute;inset:0;padding:220px 96px 350px;display:flex;flex-direction:column;justify-content:center;opacity:0;will-change:transform,opacity}
   .kicker{font-size:34px;letter-spacing:.14em;text-transform:uppercase;color:#3fb8a8;font-weight:700;margin-bottom:38px}
   h1{font-size:92px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
   h1 .hl{color:#3fb8a8}
@@ -91,7 +92,7 @@
   /* trường nhìn */
   .cluster{display:flex;gap:24px;justify-content:center;margin-top:18px}
   .cluster.big{margin-top:10px}
-  .cw{font-size:58px;font-weight:800;color:#5e6f6b}
+  .cw{font-size:54px;font-weight:800;color:#5e6f6b}
   .cw.sharp{color:#f2f5f4}
   .cw.dim{color:#485754}
   .cw.wide{font-size:64px;color:#cfe9e4;opacity:0}
@@ -116,8 +117,8 @@
   .cta .b{font-size:56px;font-weight:800;margin-top:10px;line-height:1.2}
   .cta .c{font-size:32px;margin-top:12px;opacity:.85}
   /* A1 — điểm dừng của mắt */
-  .fixline{position:relative;display:flex;gap:14px;flex-wrap:nowrap;margin-top:14px}
-  .fxw{font-size:52px;font-weight:800;color:#8fa19d;padding:10px 12px;border-radius:14px;white-space:nowrap}
+  .fixline{position:relative;display:flex;gap:10px;flex-wrap:nowrap;margin-top:14px}
+  .fxw{font-size:44px;font-weight:800;color:#8fa19d;padding:10px 10px;border-radius:14px;white-space:nowrap}
   .fxw.lit{color:#f2f5f4;background:#22423d}
   .fxw.cl{background:#16211f;border:3px solid #2f8f84}
   .fixdot{position:absolute;left:0;top:-26px;width:26px;height:26px;border-radius:50%;background:#e08374;will-change:transform}
@@ -146,7 +147,7 @@
   .list3 .it b{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:16px;background:#3fb8a8;color:#06211e;font-size:32px;margin-right:20px}
   .note{font-size:30px;color:#8fa19d;margin-top:26px}
   .clwrap{display:flex;gap:10px;padding:8px 12px;border:3px solid #2f8f84;border-radius:18px;opacity:0}
-  #brand{position:absolute;left:90px;bottom:110px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
+  #brand{position:absolute;left:96px;top:132px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
 
 
   #bg{background:

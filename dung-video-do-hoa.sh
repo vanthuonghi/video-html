@@ -2,12 +2,12 @@
 # Dựng một video đồ hoạ từ file HTML: chụp khung song song → mã hoá → ghép tiếng (nếu có).
 # Dùng: bash dung-video-do-hoa.sh <file.html> <ten-video> [<thư-mục-tiếng>]
 set -euo pipefail
-BASE=/home/vider/speedreading-90days
+BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HTML="${1:?cần đường dẫn file html}"
 NAME="${2:?cần tên video}"
 VOICE="${3:-}"
 
-PY="$BASE/.venv-video/bin/python"
+PY="${PY:-python3}"
 FRAMES="$BASE/.thu-nghiem/frames-$NAME"
 OUT="$BASE/video-do-hoa"
 WORKERS="${WORKERS:-6}"

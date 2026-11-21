@@ -32,9 +32,14 @@ dung-tap-do-hoa.py   kịch bản từng tập: cảnh, hàm vẽ theo thời gi
 | `sinh-giong-edge.py` | sinh lời đọc bằng edge-tts, có thử lại (dịch vụ hay chập chờn) |
 | `sinh-nhac.py` | sinh nhạc nền và tiếng vút bằng ffmpeg |
 | `kiem-tra.py` | kiểm tra đầu ra, mã thoát 1 nếu lỗi |
-| `soat-do-hoa.py` | quét mọi khung, tìm chữ tràn khỏi vùng an toàn |
+| `sinh-phu-de.py` | sinh phụ đề `.srt` từ lời đọc và mốc cảnh |
+| `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
 | `do-hoa/*.html` | trang HTML sinh ra (commit lại để xem được trong repo) |
+
+Vùng an toàn của trang là **x ∈ [96, 984], y ∈ [220, 1580]** (1080×1920): đỉnh chừa thanh
+_trạng thái, đáy chừa caption và nút của TikTok/Reels/Shorts. Dòng thương hiệu nằm ở dải
+trên cùng. Mỗi lần đẩy lên, job `soat-bo-cuc` dựng lại HTML và chặn nếu có phần tử tràn.
 
 ## Dựng trên GitHub
 

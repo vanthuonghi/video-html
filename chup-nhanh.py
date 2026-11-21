@@ -18,9 +18,11 @@ def find_chrome():
         p = shutil.which(name)
         if p:
             return p
-    local = "/home/vider/.hermes/tools/chromium-1248/chrome-linux64/chrome"
-    if os.path.exists(local):
-        return local
+    for p in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+              "/Applications/Chromium.app/Contents/MacOS/Chromium",
+              os.path.expanduser("~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")):
+        if os.path.exists(p):
+            return p
     raise SystemExit("Không tìm thấy trình duyệt. Đặt biến CHROME_PATH trỏ tới file chrome.")
 
 

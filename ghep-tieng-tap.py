@@ -27,6 +27,13 @@ OFFSET = 0.35          # lời đọc vào sau khi cảnh đã hiện
 GAP = 0.5              # chừa chỗ cuối cảnh
 PAD_VOL = 0.30
 SWELL_VOL = 0.45
+# Nhạc nền tự hạ khi có giọng đọc (sidechain), thay vì để nhạc lấn suốt video.
+DUCK_THRESHOLD = 0.03  # ~ -30 dB: trên mức này coi là có giọng
+DUCK_RATIO = 6
+DUCK_ATTACK = 20       # ms
+DUCK_RELEASE = 350     # ms
+# Chuẩn hoá độ to về mức nền tảng dùng, để mọi tập nghe đều nhau.
+LOUD_I, LOUD_TP, LOUD_LRA = -14, -1.5, 11
 
 
 def dur(f):
@@ -47,7 +54,9 @@ def ghep(slug):
     ins, parts, starts = [], [], []
     t = 0.0
     n_in, n_lbl = 0, 0
+    moc = []                     # mốc bắt đầu từng cảnh, để đặt tiếng vút chuyển cảnh
     for i, w in enumerate(spec["wins"], 1):
+        moc.append(round(t, 3))
         f = f"{GIONG}/{slug}-sc{i}.mp3"
         if not os.path.exists(f) or os.path.getsize(f) < 4000:
             print(f"    cảnh {i}: không có lời đọc (chỉ nhạc nền)")
@@ -59,21 +68,51 @@ def ghep(slug):
         ins += ["-i", f]
         n_in += 1          # thứ tự đầu vào thật, không phải số cảnh
         n_lbl += 1
-        chain = f"[{n_in}:a]"
+        chain = f"[{n_in}:a]aresample=48000,"
         if tempo > 1.001:
             chain += f"atempo={tempo},"
         start = t + OFFSET
         starts.append((i, start))
-        parts.append(chain + f"adelay={int(start*1000)}|{int(start*1000)},volume=1.0[n{n_lbl}]")
+        parts.append(chain + f"adelay={int(start*1000)}|{int(start*1000)},volume=1.0,"
+                             f"aformat=channel_layouts=mono[n{n_lbl}]")
         t += w
-    pi = n_in + 1                        # pad
-    si = pi + 1                          # swell
-    ins += ["-stream_loop", "-1", "-i", PAD, "-stream_loop", "-1", "-i", SWELL]
-    parts.append(f"[{pi}:a]atrim=0:{durv},volume={PAD_VOL}[pad]")
-    parts.append(f"[{si}:a]atrim=0:{durv},volume={SWELL_VOL}[sw]")
-    mix = "".join(f"[n{i}]" for i in range(1, n_lbl + 1)) + "[pad][sw]"
-    parts.append(f"{mix}amix=inputs={n_lbl+2}:duration=longest:normalize=0,"
-                 f"alimiter=limit=0.95,atrim=0:{durv}[aout]")
+
+    # nền trầm: một bản lặp, cắt đúng độ dài video
+    pi = n_in + 1
+    ins += ["-stream_loop", "-1", "-i", PAD]
+    parts.append(f"[{pi}:a]atrim=0:{durv},volume={PAD_VOL},"
+                 f"aformat=channel_layouts=mono[pad]")
+
+    if n_lbl:
+        # gộp lời đọc thành một tín hiệu: vừa để mix, vừa làm khoá ducking cho nhạc nền
+        parts.append("".join(f"[n{i}]" for i in range(1, n_lbl + 1)) +
+                     f"amix=inputs={n_lbl}:duration=longest:normalize=0,"
+                     f"aformat=channel_layouts=mono,asplit=2[narr][khoa]")
+        parts.append(f"[pad][khoa]sidechaincompress=threshold={DUCK_THRESHOLD}:"
+                     f"ratio={DUCK_RATIO}:attack={DUCK_ATTACK}:release={DUCK_RELEASE}[padduck]")
+        mix_lbl = ["[narr]", "[padduck]"]
+    else:
+        mix_lbl = ["[pad]"]
+
+    # tiếng vút: chỉ một bản ngắn ở mỗi mốc chuyển cảnh, không lặp suốt video
+    bounds = moc[1:]
+    if bounds:
+        ins += ["-i", SWELL]
+        sw = pi + 1
+        if len(bounds) > 1:
+            parts.append(f"[{sw}:a]asplit={len(bounds)}" + "".join(f"[s{k}]" for k in range(len(bounds))))
+            srcs = [f"[s{k}]" for k in range(len(bounds))]
+        else:
+            srcs = [f"[{sw}:a]"]
+        for k, (at, src) in enumerate(zip(bounds, srcs)):
+            parts.append(f"{src}adelay={int(at*1000)}|{int(at*1000)},volume={SWELL_VOL},"
+                         f"aformat=channel_layouts=mono[sw{k}]")
+            mix_lbl.append(f"[sw{k}]")
+
+    parts.append("".join(mix_lbl) +
+                 f"amix=inputs={len(mix_lbl)}:duration=longest:normalize=0,"
+                 f"atrim=0:{durv},loudnorm=I={LOUD_I}:TP={LOUD_TP}:LRA={LOUD_LRA},"
+                 f"aresample=48000[aout]")
     out = f"{OUT}/{slug}_co-tieng.mp4"
     cmd = (["ffmpeg", "-v", "error", "-y", "-i", video] + ins +
            ["-filter_complex", ";".join(parts), "-map", "0:v", "-map", "[aout]",
