@@ -161,6 +161,19 @@ CSS = """
   .pg.t{height:38px;background:#3fb8a8}
   .pg.tshort{width:62%}
   .pgmark{display:flex;justify-content:space-between;font-size:30px;color:#8fa19d;margin-top:20px}
+  /* thẻ kết thúc — dùng chung cho mọi tập */
+  .nx{margin-top:26px;background:#16211f;border:2px solid #24322f;border-left:8px solid #3fb8a8;border-radius:18px;padding:24px 30px}
+  .nx .nxl{font-size:26px;letter-spacing:.12em;text-transform:uppercase;color:#3fb8a8;font-weight:700}
+  .nx .nxt{font-size:40px;font-weight:700;margin-top:8px;line-height:1.3}
+  .ticket{display:flex;gap:26px;align-items:center;margin-top:30px;background:#16211f;border:2px solid #24322f;border-radius:22px;padding:24px}
+  .ticket .qr{width:200px;height:200px;background:#f2f5f4;padding:8px;border-radius:12px;flex:0 0 auto}
+  .ticket .tl{font-size:30px;color:#a9b4b2;line-height:1.45}
+  .ticket .tu{font-size:28px;color:#3fb8a8;font-weight:700;margin-top:10px;word-break:break-all}
+  .endinfo{font-size:32px;color:#8fa19d;margin-top:26px}
+  .endinfo b{color:#cfe9e4}
+  .dots{display:flex;gap:12px;margin-top:28px}
+  .dots i{width:20px;height:20px;border-radius:50%;background:#2c3b38}
+  .dots i.on{background:#3fb8a8}
   #brand{position:absolute;left:96px;top:132px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
 """
 
@@ -189,19 +202,67 @@ window.__seek = seek;
 document.fonts.ready.then(function(){ seek(0); window.__total = TOTAL; });
 """
 
-CTA = """
-    <div class="kicker">Khoá học</div>
-    <h1 style="font-size:82px">Đọc hiệu quả<br><span class="hl">Speed Reading</span></h1>
-    <div class="sub">7 buổi · đọc cụm · chống đọc thầm · ghi nhớ khoa học</div>
-    <div class="cta"><div class="a">Bắt đầu</div><div class="b">Đăng ký lớp gần nhất</div><div class="c">Học phí 980.000đ · có buổi 1 hoàn tiền</div></div>
-"""
+# ---------------------------------------------------------------- cấu hình chung
+MAC_DINH = {
+  "thuong_hieu": "SPEED READING VIỆT NAM",
+  "dang_ky": "https://speedreading.vn/dang-ky",
+  "dang_ky_nhan": "Quét mã để nhận lịch lớp gần nhất",
+}
+
+
+def doc_cau_hinh():
+    try:
+        with open(f"{BASE}/noi-dung.json", encoding="utf-8") as f:
+            return {**MAC_DINH, **json.load(f)}
+    except Exception:
+        return dict(MAC_DINH)
+
+
+CAU_HINH = doc_cau_hinh()
+
+# Đánh dấu cảnh kết thúc: khi dựng trang sẽ được thay bằng thẻ kết thúc dùng chung.
+CTA = "@@END@@"
+
+
+def endcard(i, ep):
+    """Thẻ kết thúc thống nhất: số tập, teaser tập sau, mã QR đăng ký."""
+    so, tong = i + 1, len(EPISODES)
+    sau = EPISODES[i + 1] if i + 1 < len(EPISODES) else None
+    if sau:
+        nx = ('<div class="nx"><div class="nxl">Tập sau</div>'
+              f'<div class="nxt">{sau.get("ten", sau["slug"])}</div></div>')
+    else:
+        nx = ('<div class="nx"><div class="nxl">Hết chuỗi</div>'
+              '<div class="nxt">Xem lại từ đầu để nhớ đủ các bước</div></div>')
+    cham = "".join('<i class="%s"></i>' % ("on" if k <= i else "")
+                   for k in range(tong))
+    ten_ngan = CAU_HINH["dang_ky"].replace("https://", "").replace("http://", "").rstrip("/")
+    return f"""
+    <div class="kicker">Tập {so}/{tong}</div>
+    <h1 style="font-size:62px">Đọc hiệu quả<br><span class="hl">Speed Reading</span></h1>
+    {nx}
+    <div class="ticket">
+      <img class="qr" src="assets/qr.svg" alt="Mã QR đăng ký lớp">
+      <div><div class="tl">{CAU_HINH["dang_ky_nhan"]}</div>
+        <div class="tu">{ten_ngan}</div></div>
+    </div>
+    <div class="dots">{cham}</div>
+    <div class="endinfo">Lớp <b>7 buổi</b> · <b>980.000đ</b> · buổi 1 không hợp thì hoàn tiền</div>"""
+
+
+def cover_at(ep):
+    """Mốc chụp ảnh bìa: cảnh mở đầu, sau khi tiêu đề đã hiện xong."""
+    if "cover_at" in ep:
+        return ep["cover_at"]
+    a, b = ep["scenes"][0]
+    return round(a + (b - a) * 0.80, 2)
 
 def scene(html):
     return html.strip()
 
 # ---------------------------------------------------------------- TẬP 1
 EP1 = {
- "slug": "02_noi-tham-trong-dau", "total": 42.0,
+ "slug": "02_noi-tham-trong-dau", "total": 42.0, "ten": "Nỗi thầm trong đầu",
  "scenes": [(0,5.0),(5.0,16.0),(16.0,26.0),(26.0,35.0),(35.0,42.0)],
  "html": [
    scene("""
@@ -281,7 +342,7 @@ EP1 = {
 
 # ---------------------------------------------------------------- TẬP 2
 EP2 = {
- "slug": "03_bieu-do-tri-quen", "total": 42.0,
+ "slug": "03_bieu-do-tri-quen", "total": 42.0, "ten": "Biểu đồ trí quên",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.5),(34.5,42.0)],
  "html": [
    scene("""
@@ -354,7 +415,7 @@ EP2 = {
 
 # ---------------------------------------------------------------- TẬP 3
 EP3 = {
- "slug": "04_nao-giu-5-10-phut", "total": 42.0,
+ "slug": "04_nao-giu-5-10-phut", "total": 42.0, "ten": "Não chỉ giữ được 5–10 phút",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,25.5),(25.5,34.5),(34.5,42.0)],
  "html": [
    scene("""
@@ -420,7 +481,7 @@ EP3 = {
 
 # ---------------------------------------------------------------- TẬP 4
 EP4 = {
- "slug": "05_phuhuynh-con-bo-sach", "total": 43.0,
+ "slug": "05_phuhuynh-con-bo-sach", "total": 43.0, "ten": "Con bỏ sách: phụ huynh làm gì",
  "scenes": [(0,5.5),(5.5,15.0),(15.0,25.0),(25.0,34.0),(34.0,43.0)],
  "html": [
    scene("""
@@ -482,7 +543,7 @@ EP4 = {
 
 # ---------------------------------------------------------------- TẬP 5
 EP5 = {
- "slug": "06_ky-thuat-chi-tay", "total": 42.0,
+ "slug": "06_ky-thuat-chi-tay", "total": 42.0, "ten": "Kỹ thuật chỉ tay",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.0),(34.0,42.0)],
  "html": [
    scene("""
@@ -586,7 +647,7 @@ def _flash(scene_from, scene_to, wpm, t0, css_id):
 
 
 EP7 = {
- "slug": "07_bai-test-60-giay", "total": 46.0,
+ "slug": "07_bai-test-60-giay", "total": 46.0, "ten": "Bài test 60 giây",
  "scenes": [(0,5.5),(5.5,16.0),(16.0,29.0),(29.0,39.0),(39.0,46.0)],
  "html": [
    scene("""
@@ -650,7 +711,7 @@ EP7 = {
 
 # ---------------------------------------------------------------- TẬP 8 — trường nhìn
 EP8 = {
- "slug": "08_truong-nhin", "total": 42.0,
+ "slug": "08_truong-nhin", "total": 42.0, "ten": "Trường nhìn: đọc cả cụm",
  "scenes": [(0,5.0),(5.0,16.0),(16.0,26.0),(26.0,35.0),(35.0,42.0)],
  "html": [
    scene("""
@@ -725,7 +786,7 @@ EP8 = {
 
 # ---------------------------------------------------------------- TẬP 9 — quy luật 80/20
 EP9 = {
- "slug": "09_quyluat-8020", "total": 42.0,
+ "slug": "09_quyluat-8020", "total": 42.0, "ten": "Quy luật 80/20 khi đọc sách",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.0),(34.0,42.0)],
  "html": [
    scene("""
@@ -782,7 +843,7 @@ EP9 = {
 }
 
 EP20_11 = {
- "slug": "20_11_cam-on-thay-co", "total": 42.0,
+ "slug": "20_11_cam-on-thay-co", "total": 42.0, "ten": "Cảm ơn thầy cô",
  "brand": "VĂN HỈ OFFICIAL · 20/11",
  "css_extra": """
   #bg{background:
@@ -856,7 +917,7 @@ EP20_11 = {
 
 # ---------------------------------------------------------------- TẬP 10 — A1: điểm dừng của mắt
 EP10 = {
- "slug": "10_diem-dung-cua-mat", "total": 42.0,
+ "slug": "10_diem-dung-cua-mat", "total": 42.0, "ten": "Điểm dừng của mắt",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.0),(34.0,42.0)],
  "html": [
    scene("""
@@ -929,7 +990,7 @@ EP10 = {
 
 # ---------------------------------------------------------------- TẬP 11 — A6: đọc ngắt quãng mất mạch hiểu
 EP11 = {
- "slug": "11_doc-ngat-quang", "total": 42.0,
+ "slug": "11_doc-ngat-quang", "total": 42.0, "ten": "Đọc ngắt quãng mất mạch hiểu",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.0),(34.0,42.0)],
  "html": [
    scene("""
@@ -1013,7 +1074,7 @@ EP11 = {
 
 # ---------------------------------------------------------------- TẬP 12 — có phương pháp là nhanh gấp 2-3 lần
 EP12 = {
- "slug": "12_gap-2-3-lan", "total": 45.0,
+ "slug": "12_gap-2-3-lan", "total": 45.0, "ten": "Đọc nhanh gấp 2–3 lần",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
  "html": [
    scene("""
@@ -1081,7 +1142,7 @@ EP12 = {
 
 # ---------------------------------------------------------------- TẬP 13 — B4: đọc tiêu đề trước
 EP13 = {
- "slug": "13_tieude-chinh-phu", "total": 45.0,
+ "slug": "13_tieude-chinh-phu", "total": 45.0, "ten": "Đọc tiêu đề chính phụ trước",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
  "html": [
    scene("""
@@ -1136,7 +1197,7 @@ EP13 = {
 
 # ---------------------------------------------------------------- TẬP 14 — B5: bản đồ 4 lớp
 EP14 = {
- "slug": "14_ban-do-4-lop", "total": 45.0,
+ "slug": "14_ban-do-4-lop", "total": 45.0, "ten": "Bản đồ 4 lớp của một chương",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
  "html": [
    scene("""
@@ -1182,7 +1243,7 @@ EP14 = {
 
 # ---------------------------------------------------------------- TẬP 15 — A7: đọc nhanh khác đọc lướt
 EP15 = {
- "slug": "15_doc-nhanh-vs-doc-luot", "total": 45.0,
+ "slug": "15_doc-nhanh-vs-doc-luot", "total": 45.0, "ten": "Đọc nhanh khác đọc lướt",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
  "html": [
    scene("""
@@ -1234,7 +1295,7 @@ EP15 = {
 
 # ---------------------------------------------------------------- TẬP 16 — B7: năm câu hỏi trước khi mở sách
 EP16 = {
- "slug": "16_nam-cau-hoi", "total": 45.0,
+ "slug": "16_nam-cau-hoi", "total": 45.0, "ten": "Năm câu hỏi trước khi mở sách",
  "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
  "html": [
    scene("""
@@ -1278,6 +1339,21 @@ EP16 = {
 
 EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12, EP13, EP14, EP15, EP16]
 
+# Thẻ kết thúc dùng chung: tập nào kết thúc bằng cảnh riêng thì nối thêm 3 giây
+# thẻ kết thúc, và mọi thứ (phụ đề, cửa sổ lời đọc, kiểm tra thời lượng) theo đó.
+THEM_CUOI = 3.0
+for _ep in EPISODES:
+    if _ep["html"][-1].strip() != CTA:
+        _a = _ep["scenes"][-1][1]
+        _ep["total"] = round(_a + THEM_CUOI, 2)
+        _ep["scenes"] = list(_ep["scenes"]) + [(_a, _ep["total"])]
+        _ep["html"] = list(_ep["html"]) + [CTA]
+        _ep["anim"] = list(_ep["anim"]) + [""]
+
+
+def _so_tap(ep):
+    return next(i for i, e in enumerate(EPISODES) if e["slug"] == ep["slug"])
+
 
 def build_html(ep):
     sc = [{"start": a, "end": b} for a, b in ep["scenes"]]
@@ -1286,8 +1362,9 @@ def build_html(ep):
           .replace("__SCENES__", json.dumps(sc))
           .replace("__ANIM__", "[" + ",".join(anims) + "]")
           .replace("__TOTAL__", str(ep["total"])))
+    htmls = [endcard(_so_tap(ep), ep) if h == CTA else h for h in ep["html"]]
     scenes_html = "\n".join(
-        f'<div class="scene" data-scene="{i}">{h}</div>' for i, h in enumerate(ep["html"]))
+        f'<div class="scene" data-scene="{i}">{h}</div>' for i, h in enumerate(htmls))
     # đoạn chữ cho bài kiểm tra tốc độ: A 200 từ/phút, B 300, C 450
     for ph, seg in (("__A__", PASSAGE[0:34]), ("__B__", PASSAGE[34:99]), ("__C__", PASSAGE[99:140])):
         scenes_html = scenes_html.replace(ph, "|".join(seg))

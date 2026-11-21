@@ -33,6 +33,10 @@ dung-tap-do-hoa.py   kịch bản từng tập: cảnh, hàm vẽ theo thời gi
 | `sinh-nhac.py` | sinh nhạc nền và tiếng vút bằng ffmpeg |
 | `kiem-tra.py` | kiểm tra đầu ra, mã thoát 1 nếu lỗi |
 | `sinh-phu-de.py` | sinh phụ đề `.srt` từ lời đọc và mốc cảnh |
+| `sinh-qr.py` | sinh mã QR đăng ký (`do-hoa/assets/qr.svg`) từ `noi-dung.json` |
+| `sinh-poster.py` | chụp ảnh bìa 1080×1920 tại mốc `cover_at` của từng tập |
+| `sinh-metadata.py` | sinh `metadata.json`: tiêu đề, mô tả, hashtag, chương |
+| `noi-dung.json` | link đăng ký, câu mời quét mã, hashtag dùng chung |
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
 | `do-hoa/*.html` | trang HTML sinh ra (commit lại để xem được trong repo) |
@@ -46,6 +50,12 @@ Chữ dùng font đóng gói trong `do-hoa/fonts/` (không phụ thuộc font c�
 
 Âm thanh: nhạc nền tự hạ dưới giọng đọc (`sidechaincompress`), mỗi tập được đo độ to thật
 rồi đưa về **−16 LUFS, đỉnh −1,5 dBTP** để các tập nghe đều nhau.
+
+Cảnh cuối của mọi tập được thay bằng **thẻ kết thúc dùng chung**: số tập `n/tổng`, teaser
+tập sau, mã QR đăng ký và dải chấm tiến độ. Link và câu mời nằm trong `noi-dung.json`,
+sửa một chỗ là toàn bộ tập đổi theo. Mỗi tập sinh kèm `_poster.png` (ảnh bìa) và
+`.json` (tiêu đề, mô tả, hashtag) — cả hai cùng `.srt` được đẩy lên release `moi-nhat`.
+Mốc chụp ảnh bìa đặt riêng được bằng khoá `cover_at` trong tập đó.
 
 ## Dựng trên GitHub
 

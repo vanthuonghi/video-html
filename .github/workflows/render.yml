@@ -80,9 +80,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-noto-core fonts-dejavu-core
-          python3 -m pip install --quiet websocket-client edge-tts \
-            || python3 -m pip install --quiet --break-system-packages websocket-client edge-tts
-          python3 -c "import websocket, edge_tts; print('thư viện ok')"
+          python3 -m pip install --quiet -r requirements.txt \
+            || python3 -m pip install --quiet --break-system-packages -r requirements.txt
+          python3 -c "import websocket, edge_tts, qrcode; print('thư viện ok')"
 
       - name: Tìm hoặc cài trình duyệt
         run: |
@@ -100,6 +100,7 @@ jobs:
 
       - name: Dựng trang HTML và nhạc nền
         run: |
+          python3 sinh-qr.py
           python3 dung-tap-do-hoa.py
           python3 sinh-nhac.py
 
@@ -130,6 +131,13 @@ jobs:
       - name: Sinh phụ đề .srt từ lời đọc
         run: python3 sinh-phu-de.py "${{ matrix.tap }}"
 
+      - name: Sinh ảnh bìa và metadata.json
+        run: |
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          python3 sinh-poster.py "${{ matrix.tap }}"
+          python3 sinh-metadata.py "${{ matrix.tap }}"
+
       - name: Soát bố cục — chặn chữ tràn vùng an toàn trước khi đăng
         run: |
           python3 -m http.server 8899 >/dev/null 2>&1 &
@@ -144,7 +152,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload moi-nhat "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4" \
-            "video-do-hoa/${{ matrix.tap }}.srt" --clobber
+            "video-do-hoa/${{ matrix.tap }}.srt" \
+            "video-do-hoa/${{ matrix.tap }}_poster.png" \
+            "video-do-hoa/${{ matrix.tap }}.json" --clobber
           sha256sum "video-do-hoa/${{ matrix.tap }}_co-tieng.mp4"
 
       - name: Lưu bản dựng vào mục tải về của lần chạy
@@ -154,6 +164,8 @@ jobs:
           path: |
             video-do-hoa/*_co-tieng.mp4
             video-do-hoa/*.srt
+            video-do-hoa/*_poster.png
+            video-do-hoa/*.json
           retention-days: 14
 
   soat-bo-cuc:
@@ -164,8 +176,8 @@ jobs:
 
       - name: Cài thư viện Python cho trình duyệt
         run: |
-          python3 -m pip install --quiet websocket-client \
-            || python3 -m pip install --quiet --break-system-packages websocket-client
+          python3 -m pip install --quiet -r requirements.txt \
+            || python3 -m pip install --quiet --break-system-packages -r requirements.txt
           python3 -c "import websocket; print('thư viện ok')"
 
       - name: Tìm hoặc cài trình duyệt
@@ -182,6 +194,7 @@ jobs:
 
       - name: Dựng HTML và soát bố cục mọi tập
         run: |
+          python3 sinh-qr.py
           python3 dung-tap-do-hoa.py
           python3 -m http.server 8899 >/dev/null 2>&1 &
           sleep 2
