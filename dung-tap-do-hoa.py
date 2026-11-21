@@ -122,6 +122,37 @@ CSS = """
   .cta .a{font-size:32px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
   .cta .b{font-size:56px;font-weight:800;margin-top:10px;line-height:1.2}
   .cta .c{font-size:32px;margin-top:12px;opacity:.85}
+  /* A1 — điểm dừng của mắt */
+  .fixline{position:relative;display:flex;gap:14px;flex-wrap:nowrap;margin-top:14px}
+  .fxw{font-size:52px;font-weight:800;color:#8fa19d;padding:10px 12px;border-radius:14px;white-space:nowrap}
+  .fxw.lit{color:#f2f5f4;background:#22423d}
+  .fxw.cl{background:#16211f;border:3px solid #2f8f84}
+  .fixdot{position:absolute;left:0;top:-26px;width:26px;height:26px;border-radius:50%;background:#e08374;will-change:transform}
+  .fixcount{display:flex;align-items:baseline;gap:24px;margin-top:52px}
+  .fixcount .n{font-size:120px;font-weight:800;color:#e08374;font-variant-numeric:tabular-nums}
+  .fixcount .u{font-size:40px;color:#8fa19d}
+  .fixcount .n.ok{color:#3fb8a8}
+  /* A6 — mạch hiểu đứt khi đọc ngắt quãng */
+  .tl{display:flex;flex-direction:column;gap:14px;margin-top:10px}
+  .tlrow{display:flex;align-items:center;gap:20px}
+  .tlrow .nm{width:300px;font-size:34px;color:#cfe9e4;font-weight:700}
+  .tlrow .bars{flex:1;display:flex;gap:8px;align-items:center}
+  .seg{height:54px;border-radius:12px;background:linear-gradient(90deg,#2f8f84,#3fb8a8);width:0}
+  .gap{width:0;height:6px;border-radius:3px;background:#3a4a47;align-self:center}
+  .chain{position:relative;height:150px;margin-top:6px}
+  .chain .link{position:absolute;height:6px;background:#3fb8a8;border-radius:3px;top:72px;width:0;transform-origin:left center}
+  .chain .nd{position:absolute;top:62px;width:26px;height:26px;border-radius:50%;background:#cfe9e4;opacity:0}
+  .hieubar{display:flex;align-items:center;gap:20px;margin-top:26px}
+  .hieubar .lb{width:300px;font-size:32px;color:#8fa19d}
+  .hieubar .tr{flex:1;height:44px;border-radius:12px;background:#1a2523;overflow:hidden}
+  .hieubar .tr i{display:block;height:100%;width:0;background:#3fb8a8;border-radius:12px}
+  .hieubar .tr i.bad{background:#e08374}
+  .hieubar .pc{width:170px;text-align:right;font-size:36px;font-weight:800;font-variant-numeric:tabular-nums}
+  .list3{display:flex;flex-direction:column;gap:30px;margin-top:14px}
+  .list3 .it{font-size:40px;color:#cfe9e4;opacity:0}
+  .list3 .it b{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:16px;background:#3fb8a8;color:#06211e;font-size:32px;margin-right:20px}
+  .note{font-size:30px;color:#8fa19d;margin-top:26px}
+  .clwrap{display:flex;gap:10px;padding:8px 12px;border:3px solid #2f8f84;border-radius:18px;opacity:0}
   #brand{position:absolute;left:90px;bottom:110px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
 """
 
@@ -811,7 +842,164 @@ EP20_11 = {
  ],
 }
 
-EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11]
+# ---------------------------------------------------------------- TẬP 10 — A1: điểm dừng của mắt
+EP10 = {
+ "slug": "10_diem-dung-cua-mat", "total": 42.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.0),(34.0,42.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Vì sao bạn đọc chậm</div>
+    <h1>Mắt không đọc cả dòng —<br>mắt <span class="hl">nhảy từng chữ</span></h1>
+    <div class="sub">Mỗi lần dừng, mắt chỉ nhận được một chữ. Một dòng mười chữ là mười lần dừng.</div>"""),
+   scene("""
+    <div class="kicker">Theo dõi mắt trên một dòng chữ</div>
+    <div class="fixline" id="fl1">
+      <span class="fixdot" id="dt1"></span>
+      <span class="fxw">Học</span><span class="fxw">đọc</span><span class="fxw">nhanh</span><span class="fxw">cần</span><span class="fxw">luyện</span><span class="fxw">mắt</span>
+    </div>
+    <div class="fixcount" id="c1"><span class="n" id="n1">0</span><span class="u">điểm dừng cho sáu chữ</span></div>"""),
+   scene("""
+    <div class="kicker">Cùng dòng chữ đó, đọc theo cụm</div>
+    <div class="fixline" id="fl2">
+      <div class="clwrap"><span class="fxw">Học</span><span class="fxw">đọc</span><span class="fxw">nhanh</span></div>
+      <div class="clwrap"><span class="fxw">cần</span><span class="fxw">luyện</span><span class="fxw">mắt</span></div>
+    </div>
+    <div class="fixcount" id="c2"><span class="n ok" id="n2">—</span><span class="u">điểm dừng, thay vì sáu</span></div>"""),
+   scene("""
+    <div class="kicker">Cùng một dòng, hai tốc độ</div>
+    <div class="race">
+      <div class="row"><div class="name"><b>Đọc từng chữ</b><span class="val" id="e1v">0 từ/phút</span></div>
+        <div class="track"><i class="fill red" id="e1f"></i></div></div>
+      <div class="row"><div class="name"><b>Đọc theo cụm ba từ</b><span class="val" id="e2v">0 từ/phút</span></div>
+        <div class="track"><i class="fill" id="e2f"></i></div></div>
+    </div>
+    <div class="badge"><span class="t">Ít điểm dừng hơn</span><span class="v">nhanh hơn</span></div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const ws = el.querySelectorAll('.fxw'), dot = el.querySelector('#dt1');
+     const n = ws.length;
+     const p = lock((t - 7.6) / 5.2, 0, 0.999);
+     const k = Math.floor(p * n);
+     ws.forEach(function(w, i){ w.classList.toggle('lit', i === k && t > 7.4); });
+     const bt = ws[k].getBoundingClientRect(), bp = el.querySelector('.fixline').getBoundingClientRect();
+     dot.style.opacity = t > 7.2 ? 1 : 0;
+     dot.style.transform = 'translateX(' + (bt.left - bp.left + bt.width/2 - 13) + 'px)';
+     el.querySelector('#n1').textContent = (t > 7.2 ? k + 1 : 0);
+   }""",
+   """function(t, el){
+     const bx = el.querySelectorAll('.clwrap');
+     bx.forEach(function(b, i){ b.style.opacity = ease(span(t, 17.0 + i*0.8, 18.1 + i*0.8)); });
+     el.querySelector('#n2').textContent = (t > 18.4 ? '2' : '—');
+     el.querySelectorAll('#fl2 .fxw').forEach(function(w, i){
+       w.style.color = (t > 18.6 + i*0.12) ? '#f2f5f4' : '#8fa19d';
+     });
+   }""",
+   """function(t, el){
+     const a = ease(span(t, 28.0, 31.0)), b = ease(span(t, 28.6, 31.6));
+     el.querySelector('#e1f').style.width = (a*50)+'%';
+     el.querySelector('#e1v').textContent = Math.round(a*250)+' từ/phút';
+     el.querySelector('#e2f').style.width = (b*100)+'%';
+     el.querySelector('#e2v').textContent = Math.round(b*450)+' từ/phút';
+   }""",
+   "",
+ ],
+ "narration": [
+   (0, "Mắt không đọc cả dòng — mắt nhảy từng chữ một."),
+   (1, "Sáu chữ này, mắt phải dừng sáu lần. Mỗi lần chỉ nhận được một chữ."),
+   (2, "Đọc theo cụm ba từ, mắt chỉ còn dừng hai lần. Đó là lý do tốc độ tăng."),
+   (3, "Hai con số hai trăm năm mươi và bốn trăm năm mươi từ một phút là minh hoạ."),
+   (4, "Đọc cụm là kỹ thuật đầu tiên trong khoá Đọc hiệu quả Speed Reading."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 11 — A6: đọc ngắt quãng mất mạch hiểu
+EP11 = {
+ "slug": "11_doc-ngat-quang", "total": 42.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,25.0),(25.0,34.0),(34.0,42.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Vì sao đọc mãi không vào</div>
+    <h1>Đọc mười phút, nghỉ mười phút —<br><span class="bad">mạch hiểu đứt</span></h1>
+    <div class="sub">Không phải bạn kém tập trung. Là cách chia thời gian đang sai.</div>"""),
+   scene("""
+    <div class="kicker">Hai cách chia ba mươi phút đọc</div>
+    <div class="tl">
+      <div class="tlrow"><div class="nm">Đọc liền</div>
+        <div class="bars"><i class="seg" id="s1" style="flex:3"></i></div></div>
+      <div class="tlrow"><div class="nm">Đọc ngắt quãng</div>
+        <div class="bars"><i class="seg" id="s2" style="flex:1"></i><i class="gap" id="g1" style="flex:1"></i><i class="seg" id="s3" style="flex:1"></i><i class="gap" id="g2" style="flex:1"></i><i class="seg" id="s4" style="flex:1"></i></div></div>
+    </div>
+    <div class="note">Cùng ba mươi phút, khác nhau ở chỗ mạch hiểu có bị cắt hay không.</div>"""),
+   scene("""
+    <div class="kicker">Mạch hiểu bị cắt ở mỗi chỗ nghỉ</div>
+    <div class="chain" id="ch"></div>
+    <div class="hieubar"><span class="lb">Đọc liền</span><span class="tr"><i id="h1b"></i></span><span class="pc" id="h1p">0%</span></div>
+    <div class="hieubar"><span class="lb">Đọc ngắt quãng</span><span class="tr"><i class="bad" id="h2b"></i></span><span class="pc" id="h2p">0%</span></div>
+    <div class="note">Hai cột này là minh hoạ cho độ chênh, không phải số đo của anh.</div>"""),
+   scene("""
+    <div class="kicker">Cách sửa, làm được ngay tối nay</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc liền hai mươi đến hai mươi lăm phút, rồi nghỉ ba đến năm phút</div>
+      <div class="it" id="i2"><b>2</b> Trước khi nghỉ, ghi lại đúng một câu chốt vừa đọc được</div>
+      <div class="it" id="i3"><b>3</b> Lần sau mở sách, đọc lại câu đó rồi mới đọc tiếp</div>
+    </div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 8.2)), b = ease(span(t, 9.0, 10.4)), c = ease(span(t, 10.6, 12.0));
+     el.querySelector('#s1').style.width = (a*100)+'%';
+     el.querySelector('#s2').style.width = (b*100)+'%';
+     el.querySelector('#s3').style.width = (b*100)+'%';
+     el.querySelector('#s4').style.width = (c*100)+'%';
+   }""",
+   """function(t, el){
+     const ch = el.querySelector('#ch');
+     if (!ch.dataset.built){
+       const gaps = [3, 7];                       // hai chỗ nghỉ cắt mạch
+       for (let i=0;i<11;i++){
+         const L = document.createElement('i'); L.className = 'link';
+         L.style.left = (3 + i*7.6) + '%'; L.style.width = '7.6%';
+         if (gaps.indexOf(i) >= 0) L.dataset.gap = '1';
+         ch.appendChild(L);
+         const N = document.createElement('span'); N.className = 'nd';
+         N.style.left = 'calc(' + (3 + i*7.6) + '% - 10px)';
+         ch.appendChild(N);
+       }
+       ch.dataset.built = '1';
+     }
+     ch.querySelectorAll('.link').forEach(function(L, i){
+       const on = ease(span(t, 17.0 + i*0.35, 17.9 + i*0.35));
+       L.style.opacity = L.dataset.gap ? 0 : on;              // chỗ nghỉ: mạch không nối
+       L.style.background = L.dataset.gap ? '#e08374' : '#3fb8a8';
+       L.style.width = (on*7.6)+'%';
+     });
+     ch.querySelectorAll('.nd').forEach(function(N, i){
+       N.style.opacity = ease(span(t, 16.8 + i*0.35, 17.6 + i*0.35));
+     });
+     const p1 = ease(span(t, 20.0, 22.0)), p2 = ease(span(t, 20.4, 22.4));
+     el.querySelector('#h1b').style.width = (p1*100)+'%';
+     el.querySelector('#h1p').textContent = Math.round(p1*100)+'%';
+     el.querySelector('#h2b').style.width = (p2*60)+'%';
+     el.querySelector('#h2p').textContent = Math.round(p2*60)+'%';
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t, 26.4+(k-1)*0.8, 27.3+(k-1)*0.8)); }); }""",
+   "",
+ ],
+ "narration": [
+   (0, "Đọc mười phút, nghỉ mười phút — mạch hiểu đứt."),
+   (1, "Cùng ba mươi phút: đọc liền một mạch, hoặc chia ba lần, giữa có khoảng nghỉ."),
+   (2, "Mỗi khoảng nghỉ cắt đứt mạch hiểu. Hai cột này là minh hoạ, không phải số đo của anh."),
+   (3, "Cách sửa: đọc liền hai mươi lăm phút, nghỉ năm phút, ghi một câu chốt trước khi nghỉ."),
+   (4, "Giữ mạch hiểu liền mạch là nguyên tắc thứ ba trong khoá học."),
+ ],
+}
+
+EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11]
 
 
 def build_html(ep):
