@@ -40,6 +40,7 @@ kịch bản ở `kich-ban.py` rồi đẩy lên là máy tự dựng.
 | `sinh-poster.py` | chụp ảnh bìa 1080×1920 tại mốc `cover_at` của từng tập |
 | `sinh-metadata.py` | sinh `metadata.json`: tiêu đề, mô tả, hashtag, chương, `?v=<sha8>` |
 | `kiem-tra-kich-ban.py` | validator: cấu trúc tập, cảnh liền mạch, ngân sách lời đọc |
+| `kiem-tra-hop-dong.py` | cùng một mốc `t` ở hai phiên trình duyệt phải ra cùng khung (PSNR ≥ 45 dB) |
 | `noi-dung.json` | link đăng ký, câu mời quét mã, hashtag dùng chung |
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
