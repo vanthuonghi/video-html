@@ -13,6 +13,11 @@ GIONG = f"{BASE}/.thu-nghiem/giong"
 OFFSET, GAP = 0.35, 0.5      # khớp ghep-tieng-tap.py: lời đọc vào sau khi cảnh hiện
 SO_TU_CUE = 4                # số từ mỗi dòng phụ đề
 
+# Khung thiết kế gốc là 9:16 (1080×1920). Tỉ lệ khác dùng chính các cảnh đó:
+# thu phóng vừa khung và nới bề ngang cột nội dung, không dựng lại bố cục.
+KHUNG_GOC = (1080, 1920)
+COT_RONG_NHAT = 1320.0       # bề ngang cột nội dung tối đa, tính theo px thiết kế
+
 CSS = """
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:1080px;height:1920px;overflow:hidden;background:#0d1113}
@@ -1638,7 +1643,38 @@ def _so_tap(ep):
     return next(i for i, e in enumerate(EPISODES) if e["slug"] == ep["slug"])
 
 
-def build_html(ep):
+def hop_khung(size=KHUNG_GOC):
+    """Số đo khung đích: hệ số thu phóng, kích thước sân khấu và bề ngang cột nội dung."""
+    rong, cao = size
+    k = min(cao / KHUNG_GOC[1], rong / KHUNG_GOC[0])
+    return {"rong": rong, "cao": cao, "k": k,
+            "rong_goc": rong / k, "cao_goc": cao / k,
+            "cot": min(rong / k, COT_RONG_NHAT)}
+
+
+def css_khung(size):
+    """CSS thêm cho khung khác 9:16.
+
+    Sân khấu được vẽ ở toạ độ thiết kế rồi thu phóng vừa khung, nên mọi cảnh giữ
+    nguyên tỉ lệ đã soát. Cột nội dung rộng ra (tối đa COT_RONG_NHAT) để khung
+    vuông/ngang không bị một dải hẹp ở giữa, còn nền #bg phủ kín cả khung.
+    """
+    if tuple(size) == KHUNG_GOC:
+        return ""
+    h = hop_khung(size)
+    k, rg, cot = h["k"], h["rong_goc"], h["cot"]
+    return f"""
+  /* khung {h['rong']}×{h['cao']}: thu phóng {k:.4f} từ khung thiết kế 1080×1920 */
+  html,body{{width:{h['rong']}px;height:{h['cao']}px}}
+  #stage{{width:{rg:.2f}px;height:{h['cao_goc']:.2f}px;transform:scale({k:.6f});transform-origin:0 0}}
+  .scene{{left:50%;right:auto;bottom:auto;width:{cot:.2f}px;height:{h['cao_goc']:.2f}px;
+         margin-left:{-cot / 2:.2f}px}}
+  #cap{{left:50%;right:auto;width:{cot - 192:.2f}px;margin-left:{-(cot - 192) / 2:.2f}px}}
+  #brand{{left:calc(50% - {cot / 2 - 96:.2f}px)}}
+"""
+
+
+def build_html(ep, size=KHUNG_GOC):
     sc = [{"start": a, "end": b} for a, b in ep["scenes"]]
     anims = [("null" if not a.strip() else "(" + a.strip() + ")") for a in ep["anim"]]
     js = (JS_FRAME
@@ -1661,7 +1697,7 @@ def build_html(ep):
 <title>{ep['slug']}</title>
 <link rel="stylesheet" href="fonts/noto-sans.css">
 <style>{CSS}
-{extra_css}</style>
+{extra_css}{css_khung(size)}</style>
 </head>
 <body>
 <div id="stage">
@@ -1680,6 +1716,33 @@ def build_html(ep):
 """
 
 
+def doc_size(argv):
+    """Đọc --size WxH. Sai định dạng thì dừng ngay, không đoán."""
+    for i, a in enumerate(argv):
+        gt = a.split("=", 1)[1] if a.startswith("--size=") else (
+            argv[i + 1] if a == "--size" and i + 1 < len(argv) else None)
+        if gt is None:
+            continue
+        try:
+            rong, cao = (int(x) for x in gt.lower().split("x"))
+        except Exception:
+            raise SystemExit(f"--size phải có dạng WxH, ví dụ 1080x1080 (nhận: {gt})")
+        if min(rong, cao) < 320 or max(rong, cao) > 4096:
+            raise SystemExit(f"--size ngoài khoảng hợp lý 320–4096: {gt}")
+        if rong % 2 or cao % 2:
+            raise SystemExit(f"--size phải chẵn (H.264 yêu cầu): {gt}")
+        return (rong, cao)
+    return KHUNG_GOC
+
+
+def doc_tap(argv):
+    """Đọc --tap slug... để chỉ dựng một vài tập."""
+    for i, a in enumerate(argv):
+        if a == "--tap":
+            return [x for x in argv[i + 1:] if not x.startswith("--")]
+    return []
+
+
 def main():
     if "--loi-doc" in sys.argv:
         tasks = []
@@ -1690,9 +1753,14 @@ def main():
         print(json.dumps(tasks, ensure_ascii=False, indent=1))
         return
     os.makedirs(OUT, exist_ok=True)
+    size = doc_size(sys.argv)
+    chon = doc_tap(sys.argv)
+    hau = "" if size == KHUNG_GOC else "_%dx%d" % size
     for ep in EPISODES:
-        p = f"{OUT}/{ep['slug']}.html"
-        open(p, "w", encoding="utf-8").write(build_html(ep))
+        if chon and ep["slug"] not in chon:
+            continue
+        p = f"{OUT}/{ep['slug']}{hau}.html"
+        open(p, "w", encoding="utf-8").write(build_html(ep, size))
         print(f"đã ghi {p}  ({len(ep['html'])} cảnh, tổng {ep['total']}s)")
 
 

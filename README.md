@@ -88,6 +88,28 @@ thẳng `contentWindow.__seek(t)` — không render lại gì. Mở bằng
 `python3 -m http.server` ở gốc repo rồi vào `/gallery/`, hoặc bật GitHub Pages với
 thư mục `/gallery`.
 
+## Đa tỉ lệ khung (một kịch bản, ba đầu ra)
+
+Cùng một kịch bản dựng được cho Reels/TikTok (9:16), feed vuông (1:1) và YouTube
+ngang (16:9):
+
+```bash
+python3 dung-tap-do-hoa.py --size 1080x1080 --tap 02_noi-tham-trong-dau
+python3 dung-tap-do-hoa.py --size 1920x1080 --tap 02_noi-tham-trong-dau
+python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080 --fail
+python3 chup-nhanh.py "http://127.0.0.1:8899/do-hoa/02_noi-tham-trong-dau_1080x1080.html" \
+  .thu-nghiem/frames-vuong --size 1080x1080 --workers 4
+```
+
+Cách làm: giữ nguyên khung thiết kế 1080×1920 rồi **thu phóng vừa khung đích**
+(`transform: scale`), nới cột nội dung lên tối đa 1320px thiết kế cho khung
+vuông/ngang. Nhờ vậy 16 cảnh đã soát không phải dựng lại, chữ vẫn đúng tỉ lệ, còn
+phần thừa hai bên là nền `#bg` phủ kín chứ không phải dải đen.
+
+Bản khác tỉ lệ ghi thành `do-hoa/<slug>_WxH.html`, không lẫn với tập gốc; cổng
+`soat-do-hoa.py --size ...` tự dịch vùng an toàn theo phép thu phóng đó. Mới làm
+cho **một tập mẫu** (02) — cố ý, để chứng minh trước khi nhân ra 16 tập.
+
 ## Tốc độ (số đo thật)
 
 Một lần đẩy `main` dựng **cả 16 tập song song** trên GitHub Actions:

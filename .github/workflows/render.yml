@@ -44,9 +44,11 @@ jobs:
           IN: ${{ github.event.inputs.tap }}
         run: |
           python3 - <<'PY'
-          import glob, json, os
+          import glob, json, os, re
           want = os.environ.get("IN", "").split()
           co = sorted(os.path.basename(p)[:-5] for p in glob.glob("do-hoa/*.html"))
+          # do-hoa/<slug>_WxH.html là bản cho tỉ lệ khung khác, không phải tập riêng
+          co = [s for s in co if not re.search(r"_[0-9]+x[0-9]+$", s)]
           chon = want or co
           thieu = [t for t in chon if t not in co]
           if thieu:
@@ -213,3 +215,10 @@ jobs:
           python3 -m http.server 8899 >/dev/null 2>&1 &
           sleep 2
           python3 soat-do-hoa.py --step 2.5 --fail
+
+      - name: Soát khung vuông và ngang của tập mẫu
+        run: |
+          python3 dung-tap-do-hoa.py --size 1080x1080 --tap 02_noi-tham-trong-dau
+          python3 dung-tap-do-hoa.py --size 1920x1080 --tap 02_noi-tham-trong-dau
+          python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080 --step 2.5 --fail
+          python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1920x1080 --step 2.5 --fail

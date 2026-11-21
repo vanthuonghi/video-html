@@ -10,15 +10,36 @@ Vùng an toàn 9:16 (khớp CSS trong dung-tap-do-hoa.py):
 Dùng:
   python3 soat-do-hoa.py                        # soát mọi tập trong do-hoa/
   python3 soat-do-hoa.py 08_truong-nhin --step 2.5 --fail
+  python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080
 Mã thoát 1 khi có tràn và bật --fail (dùng làm cổng trong CI).
 Cần một máy chủ tĩnh phục vụ thư mục repo, mặc định http://127.0.0.1:8899.
 """
-import argparse, importlib.util, json, os, subprocess, sys, time, urllib.request
+import argparse, importlib.util, json, os, re, subprocess, sys, time, urllib.request
 
 BASE = os.environ.get("VH_BASE") or os.path.dirname(os.path.abspath(__file__))
 GOC = os.environ.get("VH_URL") or "http://127.0.0.1:8899"
 SAFE = {"trai": 96, "phai": 984, "tren": 220, "duoi": 1580}
 BRAND = {"trai": 96, "phai": 984, "tren": 100, "duoi": 200}
+
+
+def vung_an_toan(size):
+    """Vùng an toàn trong toạ độ khung đích.
+
+    Khung khác 9:16 được vẽ ở toạ độ thiết kế rồi thu phóng và đặt cột nội dung
+    vào giữa (xem css_khung trong dung-tap-do-hoa.py), nên vùng an toàn phải
+    dịch và co theo đúng phép biến đổi đó; không thì cổng soát đo sai chỗ.
+    """
+    h = dt.hop_khung(size)
+    k, le = h["k"], (h["rong_goc"] - h["cot"]) / 2
+    # vùng an toàn nằm trong cột nội dung: khi cột rộng hơn khung thiết kế thì
+    # mép phải là cot − 96, không còn là 984 cố định của khung 9:16
+    trai, phai = SAFE["trai"], h["cot"] - (dt.KHUNG_GOC[0] - SAFE["phai"])
+
+    def doi(b):
+        return {"trai": (le + trai) * k, "phai": (le + phai) * k,
+                "tren": b["tren"] * k, "duoi": b["duoi"] * k}
+
+    return doi(SAFE), doi(BRAND)
 
 
 def nap(tep, ten):
@@ -95,18 +116,29 @@ AUDIT = r"""
   });
   return JSON.stringify(out);
 })()
-""".replace("__SAFE__", json.dumps(SAFE)).replace("__BRAND__", json.dumps(BRAND))
+"""
 
 
-def audit(slug, total, step):
+def js_soat(size):
+    safe, brand = vung_an_toan(size)
+    return (AUDIT.replace("__SAFE__", json.dumps(safe))
+                 .replace("__BRAND__", json.dumps(brand)))
+
+
+def ten_tep(slug, size):
+    return f"{slug}.html" if tuple(size) == dt.KHUNG_GOC else f"{slug}_{size[0]}x{size[1]}.html"
+
+
+def audit(slug, total, step, size):
     """Trả về số chỗ tràn tìm thấy cho một tập."""
-    port = 9600 + abs(hash(slug)) % 300
+    rong, cao = size
+    port = 9600 + abs(hash(slug + str(size))) % 300
     prof = f"/tmp/chrome-prof-{port}"
     os.makedirs(prof, exist_ok=True)
-    url = f"{GOC}/do-hoa/{slug}.html"
+    url = f"{GOC}/do-hoa/{ten_tep(slug, size)}"
     p = subprocess.Popen([cn.CHROME, "--headless=new", f"--remote-debugging-port={port}",
                           f"--user-data-dir={prof}", "--no-sandbox", "--disable-gpu",
-                          "--hide-scrollbars", "--window-size=1080,1920",
+                          "--hide-scrollbars", f"--window-size={rong},{cao}",
                           "--disable-dev-shm-usage", "--mute-audio", url],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
@@ -127,7 +159,7 @@ def audit(slug, total, step):
         c = cn.CDP(ws)
         c.send("Page.enable")
         c.send("Runtime.enable")
-        c.send("Emulation.setDeviceMetricsOverride", width=1080, height=1920,
+        c.send("Emulation.setDeviceMetricsOverride", width=rong, height=cao,
                deviceScaleFactor=1, mobile=False)
         san_sang = False
         for _ in range(60):
@@ -137,14 +169,14 @@ def audit(slug, total, step):
             time.sleep(0.25)
         if not san_sang or not c.eval("document.querySelectorAll('.scene').length"):
             # không được coi là "sạch" khi trang chưa tải: máy chủ tĩnh tắt sẽ ra trang lỗi
-            print(f"  {slug}: LỖI trang chưa tải được ({GOC}/do-hoa/{slug}.html) — máy chủ 8899 có chạy không?")
+            print(f"  {slug}: LỖI trang chưa tải được ({url}) — máy chủ 8899 có chạy không?")
             return 1
         seen = {}
         values = {}
         t = 0.0
         while t <= total:
             c.eval(f"window.__seek({t:.3f})")
-            r = json.loads(c.eval(AUDIT))
+            r = json.loads(c.eval(js_soat(size)))
             for o in r["overflow"]:
                 khoa = (o["tag"], o["txt"])
                 seen.setdefault(khoa, {"o": o, "ts": [], "scene": r["scene"]})["ts"].append(round(t, 1))
@@ -152,7 +184,7 @@ def audit(slug, total, step):
                 if v:
                     values.setdefault(r["scene"], {})[k] = v
             t += step
-        print(f"\n=== {slug} ===")
+        print(f"\n=== {slug} ({rong}×{cao}) ===")
         if not seen:
             print("  bố cục: KHÔNG có phần tử tràn vùng an toàn")
         for (tag, txt), v in seen.items():
@@ -177,21 +209,33 @@ def main():
     ap.add_argument("tap", nargs="*", help="mã tập; bỏ trống = mọi tập trong do-hoa/")
     ap.add_argument("--step", type=float, default=0.5, help="bước lấy mẫu, giây (CI dùng 2.5)")
     ap.add_argument("--fail", action="store_true", help="mã thoát 1 khi có tràn")
+    ap.add_argument("--size", default="1080x1920", help="khung đích WxH, mặc định 1080x1920")
     a = ap.parse_args()
+
+    try:
+        size = tuple(int(x) for x in a.size.lower().split("x"))
+    except Exception:
+        raise SystemExit(f"--size phải có dạng WxH (nhận: {a.size})")
 
     tong = {e["slug"]: e["total"] for e in dt.EPISODES}
     thu_muc = os.path.join(BASE, "do-hoa")
     co = sorted(f[:-5] for f in os.listdir(thu_muc) if f.endswith(".html")) if os.path.isdir(thu_muc) else []
+    # mỗi khung có hậu tố riêng: khung gốc không hậu tố, khung khác <slug>_WxH
+    hau = "" if size == dt.KHUNG_GOC else "_%dx%d" % size
+    co = [s for s in co if (s.endswith(hau) if hau else not re.search(r"_[0-9]+x[0-9]+$", s))]
+    if hau:
+        co = [s[:-len(hau)] for s in co]
     chon = [t.replace(".html", "") for t in a.tap] or co
     thieu = [t for t in chon if t not in tong]
     if thieu:
         raise SystemExit("Không có tập: " + ", ".join(thieu))
     if not chon:
-        raise SystemExit("Chưa có trang nào trong do-hoa/. Chạy: python3 dung-tap-do-hoa.py")
+        raise SystemExit(f"Chưa có trang nào trong do-hoa/ cho khung {a.size}. "
+                         f"Chạy: python3 dung-tap-do-hoa.py --size {a.size}")
 
     tran = 0
     for s in chon:
-        tran += audit(s, tong[s], a.step)
+        tran += audit(s, tong[s], a.step, size)
     print(f"\nKẾT LUẬN: {'KHÔNG tràn vùng an toàn' if tran == 0 else str(tran) + ' chỗ tràn'}")
     return 1 if (tran and a.fail) else 0
 

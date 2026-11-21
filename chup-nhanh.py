@@ -96,6 +96,9 @@ def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", prob
             return 0.0
         n_total = int(round(total * fps))
         hi = min(to if to is not None else n_total - 1, n_total - 1)
+        # khung đầu phải chờ headless vẽ xong; chụp ngay sau __seek hay ra ảnh trắng
+        c.eval(f"window.__seek({frm / fps:.4f})")
+        time.sleep(0.25)
         t0 = time.time(); n = 0
         for i in range(frm, hi + 1):
             c.eval(f"window.__seek({i / fps:.4f})")
@@ -123,12 +126,19 @@ def main():
     ap.add_argument("--from", dest="frm", type=int, default=0)
     ap.add_argument("--to", type=int, default=None)
     ap.add_argument("--port", type=int, default=9222)
+    ap.add_argument("--size", default="1080x1920", help="khung đích WxH, phải khớp CSS của trang")
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--gpu", action="store_true")
     ap.add_argument("--total", type=float, default=None)
     ap.add_argument("--clean", action="store_true", help="xoá ảnh cũ trong thư mục đích")
     ap.add_argument("--probe", action="store_true", help="chỉ đọc tổng thời lượng của trang rồi thoát")
     a = ap.parse_args()
+
+    global W, H
+    try:
+        W, H = (int(x) for x in a.size.lower().split("x"))
+    except Exception:
+        raise SystemExit(f"--size phải có dạng WxH (nhận: {a.size})")
 
     if a.probe:
         capture(a.url, a.outdir, a.port, 0, 0, a.fps, a.quality, a.gpu, None, probe_only=True)
@@ -171,7 +181,7 @@ def main():
         procs.append(subprocess.Popen([
             sys.executable, __file__, a.url, a.outdir, "--from", str(s), "--to", str(e),
             "--port", str(a.port + k), "--fps", str(a.fps), "--quality", str(a.quality),
-            "--total", str(total)] + (["--gpu"] if a.gpu else [])))
+            "--size", a.size, "--total", str(total)] + (["--gpu"] if a.gpu else [])))
     for p in procs:
         p.wait()
     el = time.time() - t0
