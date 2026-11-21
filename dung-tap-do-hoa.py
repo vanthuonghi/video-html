@@ -1005,7 +1005,75 @@ EP11 = {
  ],
 }
 
-EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11]
+# ---------------------------------------------------------------- TẬP 12 — có phương pháp là nhanh gấp 2-3 lần
+EP12 = {
+ "slug": "12_gap-2-3-lan", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Đọc nhanh sau một buổi</div>
+    <h1>Không phải mắt bạn chậm —<br>bạn <span class="hl">chưa có phương pháp</span></h1>
+    <div class="sub">Người đọc bình thường: khoảng hai trăm từ một phút. Đó không phải giới hạn của con mắt.</div>"""),
+   scene("""
+    <div class="kicker">Khoảng trống nằm ở đâu</div>
+    <div class="race">
+      <div class="row"><div class="name"><b>Mắt đủ sức nhận</b><span class="val" id="c1v">0 từ/phút</span></div>
+        <div class="track"><i class="fill" id="c1f"></i></div></div>
+      <div class="row"><div class="name"><b>Thực tế bạn đang đọc</b><span class="val" id="c2v">0 từ/phút</span></div>
+        <div class="track"><i class="fill red" id="c2f"></i></div></div>
+    </div>
+    <div class="badge"><span class="t">Cùng một con mắt</span><span class="v">chênh 2,5 lần</span></div>"""),
+   scene("""
+    <div class="kicker">Ba việc tạo ra tốc độ</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc cụm ba đến năm từ, thay vì từng chữ một</div>
+      <div class="it" id="i2"><b>2</b> Bỏ phát âm trong đầu — đọc bằng mắt, không bằng lời</div>
+      <div class="it" id="i3"><b>3</b> Ngón tay dẫn mắt theo nhịp, không để mắt nhảy ngược</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Ba chặng trong buổi đầu</div>
+    <div class="race">
+      <div class="row"><div class="name"><b>Bắt đầu</b><span class="val" id="k1v">0</span></div>
+        <div class="track"><i class="fill red" id="k1f"></i></div></div>
+      <div class="row"><div class="name"><b>Sau khi đọc cụm</b><span class="val" id="k2v">0</span></div>
+        <div class="track"><i class="fill" id="k2f"></i></div></div>
+      <div class="row"><div class="name"><b>Sau khi bỏ phát âm</b><span class="val" id="k3v">0</span></div>
+        <div class="track"><i class="fill" id="k3f"></i></div></div>
+    </div>
+    <div class="note">Số trên hình là minh hoạ nhịp tăng; mức thật tuỳ điểm xuất phát của mỗi người.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.8, 9.2)), b = ease(span(t, 9.4, 11.6));
+     el.querySelector('#c1f').style.width = (a*100)+'%';
+     el.querySelector('#c1v').textContent = 'khoảng ' + Math.round(a*500) + ' từ/phút';
+     el.querySelector('#c2f').style.width = (b*40)+'%';
+     el.querySelector('#c2v').textContent = 'khoảng ' + Math.round(b*200) + ' từ/phút';
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.8, 17.7+(k-1)*0.8)); }); }""",
+   """function(t, el){
+     const a1 = ease(span(t,27.6,29.4)), a2 = ease(span(t,29.4,31.2)), a3 = ease(span(t,31.2,33.0));
+     el.querySelector('#k1f').style.width = (a1*250/600*100)+'%';
+     el.querySelector('#k1v').textContent = Math.round(a1*250);
+     el.querySelector('#k2f').style.width = (a2*400/600*100)+'%';
+     el.querySelector('#k2v').textContent = Math.round(a2*400);
+     el.querySelector('#k3f').style.width = (a3*550/600*100)+'%';
+     el.querySelector('#k3v').textContent = Math.round(a3*550);
+   }""",
+   "",
+ ],
+ "narration": [
+   (0, "Mắt không chậm. Bạn chưa có phương pháp."),
+   (1, "Mắt đủ sức nhận khoảng năm trăm từ một phút. Nhưng bạn đang đọc khoảng hai trăm. Khoảng trống đó là do cách đọc."),
+   (2, "Ba việc tạo ra tốc độ: đọc theo cụm ba đến năm từ, bỏ phát âm trong đầu, và để ngón tay dẫn mắt."),
+   (3, "Ba chặng trong buổi đầu: đọc cụm, bỏ phát âm, rồi tăng nhịp. Số trên hình là minh hoạ."),
+   (4, "Mục tiêu của buổi đầu là gấp đôi. Lớp bảy buổi, học phí chín trăm tám mươi nghìn."),
+ ],
+}
+
+EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12]
 
 
 def build_html(ep):
