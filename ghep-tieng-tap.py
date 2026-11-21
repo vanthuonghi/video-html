@@ -28,7 +28,7 @@ GAP = 0.5              # chừa chỗ cuối cảnh
 PAD_VOL = 0.30
 SWELL_VOL = 0.45
 # Nhạc nền tự hạ khi có giọng đọc (sidechain), thay vì để nhạc lấn suốt video.
-DUCK_THRESHOLD = 0.03  # ~ -30 dB: trên mức này coi là có giọng
+DUCK_THRESHOLD = 0.02  # ~ -34 dB: trên mức này coi là có giọng (0,03 chỉ hạ được ~4 dB)
 DUCK_RATIO = 6
 DUCK_ATTACK = 20       # ms
 DUCK_RELEASE = 350     # ms
