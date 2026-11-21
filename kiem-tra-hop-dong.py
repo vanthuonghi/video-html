@@ -13,7 +13,7 @@ rasterize chữ ở tỉ lệ khác nhau giữa hai phiên, nên mép chữ lệ
 Dùng: python3 kiem-tra-hop-dong.py [slug ...]
 Mã thoát 1 nếu có mốc lệch quá ngưỡng. Cần máy chủ tĩnh ở http://127.0.0.1:8899.
 """
-import argparse, base64, importlib.util, json, os, re, subprocess, sys, tempfile, time, urllib.request
+import argparse, base64, importlib.util, json, math, os, struct, subprocess, sys, time, urllib.request, zlib
 
 BASE = os.environ.get("VH_BASE") or os.path.dirname(os.path.abspath(__file__))
 GOC = os.environ.get("VH_URL") or "http://127.0.0.1:8899"
@@ -35,16 +35,81 @@ def ten_tep(slug, size):
     return f"{slug}.html" if tuple(size) == dt.KHUNG_GOC else f"{slug}_{size[0]}x{size[1]}.html"
 
 
+def doc_png(data):
+    """Giải mã PNG 8-bit RGB/RGBA không interlace → (rộng, cao, bytes RGB).
+
+    Tự giải mã thay vì gọi ffmpeg: bước kiểm này chạy ở job soát bố cục, nơi không
+    cần cài ffmpeg; thêm một phụ thuộc hệ thống chỉ để so ảnh là không đáng.
+    """
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise SystemExit("Đầu ra không phải PNG")
+    pos, idat = 8, bytearray()
+    rong = cao = ctype = 0
+    while pos < len(data):
+        (ln,) = struct.unpack(">I", data[pos:pos + 4])
+        typ = data[pos + 4:pos + 8]
+        body = data[pos + 8:pos + 8 + ln]
+        pos += 12 + ln
+        if typ == b"IHDR":
+            rong, cao, sau, ctype, _, _, inter = struct.unpack(">IIBBBBB", body)
+            if sau != 8 or inter != 0 or ctype not in (2, 6):
+                raise SystemExit(f"PNG không hỗ trợ: depth={sau} type={ctype} interlace={inter}")
+        elif typ == b"IDAT":
+            idat += body
+        elif typ == b"IEND":
+            break
+    kenh = 3 if ctype == 2 else 4
+    raw = zlib.decompress(bytes(idat))
+    buoc = rong * kenh
+    ra = bytearray(rong * cao * 3)
+    truoc = bytearray(buoc)
+    p = 0
+    for y in range(cao):
+        f = raw[p]
+        p += 1
+        dong = bytearray(raw[p:p + buoc])
+        p += buoc
+        if f == 1:
+            for i in range(kenh, buoc):
+                dong[i] = (dong[i] + dong[i - kenh]) & 255
+        elif f == 2:
+            for i in range(buoc):
+                dong[i] = (dong[i] + truoc[i]) & 255
+        elif f == 3:
+            for i in range(buoc):
+                a = dong[i - kenh] if i >= kenh else 0
+                dong[i] = (dong[i] + ((a + truoc[i]) >> 1)) & 255
+        elif f == 4:
+            for i in range(buoc):
+                a = dong[i - kenh] if i >= kenh else 0
+                b = truoc[i]
+                c = truoc[i - kenh] if i >= kenh else 0
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                pr = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                dong[i] = (dong[i] + pr) & 255
+        truoc = dong
+        if kenh == 3:
+            ra[y * buoc:(y + 1) * buoc] = dong
+        else:
+            for x in range(rong):
+                ra[(y * rong + x) * 3:(y * rong + x) * 3 + 3] = dong[x * 4:x * 4 + 3]
+    return rong, cao, bytes(ra)
+
+
 def psnr(a, b):
-    """PSNR giữa hai ảnh PNG (dB). Dùng ffmpeg vì nó đã là phụ thuộc của repo."""
-    with tempfile.TemporaryDirectory() as d:
-        pa, pb = os.path.join(d, "a.png"), os.path.join(d, "b.png")
-        open(pa, "wb").write(a)
-        open(pb, "wb").write(b)
-        r = subprocess.run(["ffmpeg", "-hide_banner", "-i", pa, "-i", pb, "-lavfi", "psnr",
-                            "-f", "null", "-"], capture_output=True, text=True)
-        m = re.search(r"average:([0-9.]+|inf)", r.stderr or "")
-        return float("inf") if (m and m.group(1) == "inf") else (float(m.group(1)) if m else 0.0)
+    """PSNR giữa hai ảnh PNG (dB), tính trên kênh màu RGB."""
+    r1, c1, p1 = doc_png(a)
+    r2, c2, p2 = doc_png(b)
+    if (r1, c1) != (r2, c2):
+        return 0.0
+    tong = 0
+    for x, y in zip(p1, p2):
+        d = x - y
+        tong += d * d
+    if tong == 0:
+        return float("inf")
+    mse = tong / (len(p1) or 1)
+    return 10 * math.log10((255.0 * 255.0) / mse)
 
 
 def mot_phien(slug, mocs, size, port):
