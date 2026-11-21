@@ -80,6 +80,14 @@ Mốc chụp ảnh bìa đặt riêng được bằng khoá `cover_at` trong t�
 
 Giấy phép: MIT (xem `LICENSE`).
 
+## Xem trước cả bộ tập
+
+`python3 sinh-gallery.py` sinh `gallery/index.html`: lưới 16 thẻ (ảnh bìa lấy từ
+release), bấm một thẻ mở trình xem 1080×1920 thu nhỏ, có thanh tua và nút phát gọi
+thẳng `contentWindow.__seek(t)` — không render lại gì. Mở bằng
+`python3 -m http.server` ở gốc repo rồi vào `/gallery/`, hoặc bật GitHub Pages với
+thư mục `/gallery`.
+
 ## Tốc độ (số đo thật)
 
 Một lần đẩy `main` dựng **cả 16 tập song song** trên GitHub Actions:
