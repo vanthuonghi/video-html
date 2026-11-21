@@ -1411,7 +1411,442 @@ EP16 = {
  ],
 }
 
-EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12, EP13, EP14, EP15, EP16]
+# ---------------------------------------------------------------- TẬP 17 — B8: ghi chép đúng
+EP17 = {
+ "slug": "17_ghi-chep-dung", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Ghi chép</div>
+    <h1>Ghi cả trang —<br>mà <span class="bad">không nhớ gì</span></h1>
+    <div class="sub">Vì não không nhớ chữ. Não nhớ cấu trúc của bài.</div>"""),
+   scene("""
+    <div class="kicker">Hai kiểu trang vở</div>
+    <div class="versus">
+      <div class="vs"><div class="nm">Ghi chi tiết</div><div class="meter"><i class="m2" id="v1"></i></div>
+        <div class="note">Mười lăm dòng chữ nhỏ. Đọc lại cũng không nhớ.</div></div>
+      <div class="vs"><div class="nm">Ghi tiêu đề</div><div class="meter"><i id="v2"></i></div>
+        <div class="note">Ba dòng lớn. Liếc một lần là nhớ cả bài.</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Ba nguyên tắc ghi chép</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Chỉ ghi tiêu đề và ý chính, không ghi lời giảng</div>
+      <div class="it" id="i2"><b>2</b> Mỗi ý một dòng, chừa khoảng trống bên dưới</div>
+      <div class="it" id="i3"><b>3</b> Chỗ chưa hiểu thì đánh dấu, đừng chép lại</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Vì sao lại nhớ hơn</div>
+    <h1 style="font-size:78px">Não nhớ <span class="hl">cấu trúc</span>,<br>không nhớ chữ</h1>
+    <div class="sub">Một trang ba dòng lớn dễ nhớ hơn một trang đầy chữ — vì bạn nhìn thấy hình dạng của cả bài.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 8.6)), b = ease(span(t, 7.4, 9.4));
+     el.querySelector('#v1').style.width = (a*100)+'%';
+     el.querySelector('#v2').style.width = (b*25)+'%';
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.7+(k-1)*0.9, 17.6+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Ghi cả trang mà không nhớ gì — vì não không nhớ chữ."),
+   (1, "Trang ghi chi tiết có mười lăm dòng chữ nhỏ. Trang ghi tiêu đề chỉ ba dòng lớn, mà liếc một lần là nhớ."),
+   (2, "Ba nguyên tắc: chỉ ghi tiêu đề và ý chính, mỗi ý một dòng, và đánh dấu chỗ chưa hiểu thay vì chép lại."),
+   (3, "Não nhớ cấu trúc, không nhớ chữ. Một trang ba dòng lớn dễ nhớ hơn một trang đầy chữ."),
+   (4, "Đây là cách ghi chép trong buổi thứ tư của khoá."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 18 — B9: sơ đồ một trang
+EP18 = {
+ "slug": "18_so-do-1-trang", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Một trang cho cả quyển sách</div>
+    <h1>Đọc xong,<br>đọng lại <span class="hl">một trang</span></h1>
+    <div class="sub">Không phải tóm tắt dài. Là một trang bạn tự vẽ, nhìn phát là nhớ cả quyển.</div>"""),
+   scene("""
+    <div class="kicker">Một trang gồm những gì</div>
+    <div class="badge"><span class="t">Chủ đề chính</span><span class="v">một câu</span></div>
+    <div class="cards">
+      <div class="crd" id="c1"><div class="idx">1</div><div class="txt"><b>Bốn ý lớn nhất</b><span>mỗi ý một dòng</span></div></div>
+      <div class="crd" id="c2"><div class="idx">2</div><div class="txt"><b>Ví dụ đáng nhớ</b><span>thứ bạn kể lại được cho người khác</span></div></div>
+      <div class="crd" id="c3"><div class="idx">3</div><div class="txt"><b>Việc áp dụng được</b><span>làm ngay trong tuần này</span></div></div>
+      <div class="crd" id="c4"><div class="idx">4</div><div class="txt"><b>Chỗ còn chưa hiểu</b><span>để lần sau đọc lại đúng đó</span></div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Cách làm, mỗi chương một nhánh</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc xong chương nào, thêm nhánh cho chương đó</div>
+      <div class="it" id="i2"><b>2</b> Nhánh nào quên thì mở lại đúng chỗ đó, không đọc lại cả sách</div>
+      <div class="it" id="i3"><b>3</b> Hết sách, bạn có một trang nhìn là nhớ cả quyển</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Lợi ích thật</div>
+    <h1 style="font-size:74px">Nhìn lại một trang<br>nhanh hơn <span class="hl">đọc lại hai trăm trang</span></h1>
+    <div class="sub">Và lần ôn nào cũng bắt đầu từ đúng chỗ bạn còn yếu.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){ [1,2,3,4].forEach(function(k){ el.querySelector('#c'+k).style.opacity = ease(span(t, 6.3+(k-1)*1.4, 7.3+(k-1)*1.4)); }); }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.9, 17.7+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Đọc xong cả quyển, thứ đọng lại chỉ cần một trang giấy."),
+   (1, "Một trang gồm: chủ đề chính trong một câu, bốn ý lớn nhất, ví dụ đáng nhớ, việc áp dụng được, và chỗ còn chưa hiểu."),
+   (2, "Đọc xong chương nào thì thêm nhánh cho chương đó. Nhánh nào quên thì mở lại đúng chỗ đó."),
+   (3, "Nhìn lại một trang nhanh hơn đọc lại hai trăm trang, và lần ôn nào cũng vào đúng chỗ bạn còn yếu."),
+   (4, "Đây là bước cuối của mỗi buổi học trong khoá."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 19 — B10: lịch ôn 1-3-6
+EP19 = {
+ "slug": "19_lich-on-1-3-6", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Ôn đúng lúc</div>
+    <h1>Không ôn thì một ngày<br>mất <span class="bad">một nửa</span></h1>
+    <div class="sub">Và phần còn lại rơi tiếp mỗi ngày. Đây là quy luật của trí nhớ, không phải bạn kém.</div>"""),
+   scene("""
+    <div class="kicker">Nếu không ôn lại lần nào</div>
+    <div class="chart" id="c1">
+      <div class="col"><div class="num" id="a0">0%</div><div class="bar" id="b0"></div><div class="lab">vừa học</div></div>
+      <div class="col"><div class="num" id="a1">0%</div><div class="bar red" id="b1"></div><div class="lab">1 ngày</div></div>
+      <div class="col"><div class="num" id="a3">0%</div><div class="bar red" id="b3"></div><div class="lab">3 ngày</div></div>
+      <div class="col"><div class="num" id="a6">0%</div><div class="bar red" id="b6"></div><div class="lab">6 ngày</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Nếu ôn vào ngày 1, ngày 3 và ngày 6</div>
+    <div class="chart" id="c2">
+      <div class="col"><div class="num">100%</div><div class="bar" style="height:100%"></div><div class="lab">vừa học</div></div>
+      <div class="col"><div class="num" id="d1">0%</div><div class="bar" id="e1"></div><div class="lab">ngày 1</div></div>
+      <div class="col"><div class="num" id="d3">0%</div><div class="bar" id="e3"></div><div class="lab">ngày 3</div></div>
+      <div class="col"><div class="num" id="d6">0%</div><div class="bar" id="e6"></div><div class="lab">ngày 6</div></div>
+    </div>
+    <div class="note">Mỗi lần ôn chỉ năm phút, không phải học lại từ đầu.</div>"""),
+   scene("""
+    <div class="kicker">Ba mốc cần nhớ</div>
+    <h1 style="font-size:80px">Ngày <span class="hl">1</span> · ngày <span class="hl">3</span> · ngày <span class="hl">6</span></h1>
+    <div class="sub">Đúng ba lần đó là đủ chặn đường rơi của trí nhớ. Sau đó bạn nhớ dài hạn.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const s = [[7.0,100,'a0','b0'], [8.2,50,'a1','b1'], [9.4,37,'a3','b3'], [10.6,18,'a6','b6']];
+     s.forEach(function(x){
+       const p = ease(span(t, x[0], x[0]+1.6));
+       el.querySelector('#'+x[3]).style.height = (p*x[1])+'%';
+       el.querySelector('#'+x[2]).textContent = Math.round(p*x[1])+'%';
+     });
+   }""",
+   """function(t, el){
+     const s = [[17.0,95,'d1','e1'], [18.6,92,'d3','e3'], [20.2,90,'d6','e6']];
+     s.forEach(function(x){
+       const p = ease(span(t, x[0], x[0]+1.6));
+       el.querySelector('#'+x[3]).style.height = (p*x[1])+'%';
+       el.querySelector('#'+x[2]).textContent = Math.round(p*x[1])+'%';
+     });
+   }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Không ôn thì sau một ngày bạn mất một nửa."),
+   (1, "Vừa học một trăm phần trăm. Một ngày còn năm mươi. Ba ngày ba mươi bảy. Sáu ngày mười tám."),
+   (2, "Nếu ôn vào ngày một, ngày ba và ngày sáu, mức nhớ giữ ở chín mươi phần trăm trở lên."),
+   (3, "Ba mốc đó là đủ để chặn đường rơi của trí nhớ. Mỗi lần chỉ năm phút."),
+   (4, "Lịch ôn này tôi dạy kèm theo từng buổi học."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 20 — C1: tựa sách đánh lừa
+EP20 = {
+ "slug": "20_tua-sach-danh-lua", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Chọn sách</div>
+    <h1>Tựa sách hấp dẫn<br>chưa chắc <span class="bad">đúng nội dung</span></h1>
+    <div class="sub">Tựa được viết để bán sách. Mục lục mới là thứ nói quyển sách có gì.</div>"""),
+   scene("""
+    <div class="kicker">Hai quyển trên cùng một kệ</div>
+    <div class="versus">
+      <div class="vs"><div class="nm">Quyển tựa hay</div><div class="meter"><i class="m2" id="v1"></i></div>
+        <div class="note">Mục lục chung chung. Đọc xong không dùng được gì.</div></div>
+      <div class="vs"><div class="nm">Quyển tựa thường</div><div class="meter"><i id="v2"></i></div>
+        <div class="note">Ba chương nói đúng việc bạn đang cần làm.</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Ba bước trước khi trả tiền</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc mục lục trước khi tin tựa sách</div>
+      <div class="it" id="i2"><b>2</b> Đếm số chương nói về việc bạn đang cần</div>
+      <div class="it" id="i3"><b>3</b> Chỉ mua khi có ít nhất hai chương đúng nhu cầu</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Đổi cách chọn là đổi cả tủ sách</div>
+    <h1 style="font-size:74px">Hai chương đúng việc<br><span class="hl">đáng hơn</span> mười chương nghe hay</h1>
+    <div class="sub">Một quyển dùng được hai chương vẫn hơn mười quyển đọc xong để đó.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 8.6)), b = ease(span(t, 7.4, 9.4));
+     el.querySelector('#v1').style.width = (a*30)+'%';
+     el.querySelector('#v2').style.width = (b*100)+'%';
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.9, 17.7+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Tựa sách được viết để bán sách, không phải để nói đúng nội dung."),
+   (1, "Hai quyển cùng một kệ: một quyển tựa rất hay nhưng mục lục chung chung, một quyển tựa thường mà có ba chương đúng việc bạn cần."),
+   (2, "Ba bước trước khi trả tiền: đọc mục lục, đếm số chương đúng nhu cầu, và chỉ mua khi có ít nhất hai chương."),
+   (3, "Một quyển dùng được hai chương vẫn hơn mười quyển đọc xong để đó."),
+   (4, "Đây là cách chọn sách trong buổi thứ hai của khoá."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 17 — B8: ghi chép đúng
+EP17 = {
+ "slug": "17_ghi-chep-dung", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Ghi chép</div>
+    <h1>Ghi cả trang —<br>mà <span class="bad">không nhớ gì</span></h1>
+    <div class="sub">Vì não không nhớ chữ. Não nhớ cấu trúc của bài.</div>"""),
+   scene("""
+    <div class="kicker">Hai kiểu trang vở</div>
+    <div class="versus">
+      <div class="vs"><div class="nm">Ghi chi tiết</div><div class="meter"><i class="m2" id="v1"></i></div>
+        <div class="note">Mười lăm dòng chữ nhỏ. Đọc lại cũng không nhớ.</div></div>
+      <div class="vs"><div class="nm">Ghi tiêu đề</div><div class="meter"><i id="v2"></i></div>
+        <div class="note">Ba dòng lớn. Liếc một lần là nhớ cả bài.</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Ba nguyên tắc ghi chép</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Chỉ ghi tiêu đề và ý chính, không ghi lời giảng</div>
+      <div class="it" id="i2"><b>2</b> Mỗi ý một dòng, chừa khoảng trống bên dưới</div>
+      <div class="it" id="i3"><b>3</b> Chỗ chưa hiểu thì đánh dấu, đừng chép lại</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Vì sao lại nhớ hơn</div>
+    <h1 style="font-size:78px">Não nhớ <span class="hl">cấu trúc</span>,<br>không nhớ chữ</h1>
+    <div class="sub">Một trang ba dòng lớn dễ nhớ hơn một trang đầy chữ — vì bạn nhìn thấy hình dạng của cả bài.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 8.6)), b = ease(span(t, 7.4, 9.4));
+     el.querySelector('#v1').style.width = (a*100)+'%';
+     el.querySelector('#v2').style.width = (b*25)+'%';
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.7+(k-1)*0.9, 17.6+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Ghi cả trang mà không nhớ gì — vì não không nhớ chữ."),
+   (1, "Trang ghi chi tiết có mười lăm dòng chữ nhỏ. Trang ghi tiêu đề chỉ ba dòng lớn, mà liếc một lần là nhớ."),
+   (2, "Ba nguyên tắc: chỉ ghi tiêu đề và ý chính, mỗi ý một dòng, và đánh dấu chỗ chưa hiểu thay vì chép lại."),
+   (3, "Não nhớ cấu trúc, không nhớ chữ. Một trang ba dòng lớn dễ nhớ hơn một trang đầy chữ."),
+   (4, "Đây là cách ghi chép trong buổi thứ tư của khoá."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 18 — B9: sơ đồ một trang
+EP18 = {
+ "slug": "18_so-do-1-trang", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Một trang cho cả quyển sách</div>
+    <h1>Đọc xong,<br>đọng lại <span class="hl">một trang</span></h1>
+    <div class="sub">Không phải tóm tắt dài. Là một trang bạn tự vẽ, nhìn phát là nhớ cả quyển.</div>"""),
+   scene("""
+    <div class="kicker">Một trang gồm những gì</div>
+    <div class="badge"><span class="t">Chủ đề chính</span><span class="v">một câu</span></div>
+    <div class="cards">
+      <div class="crd" id="c1"><div class="idx">1</div><div class="txt"><b>Bốn ý lớn nhất</b><span>mỗi ý một dòng</span></div></div>
+      <div class="crd" id="c2"><div class="idx">2</div><div class="txt"><b>Ví dụ đáng nhớ</b><span>thứ bạn kể lại được cho người khác</span></div></div>
+      <div class="crd" id="c3"><div class="idx">3</div><div class="txt"><b>Việc áp dụng được</b><span>làm ngay trong tuần này</span></div></div>
+      <div class="crd" id="c4"><div class="idx">4</div><div class="txt"><b>Chỗ còn chưa hiểu</b><span>để lần sau đọc lại đúng đó</span></div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Cách làm, mỗi chương một nhánh</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc xong chương nào, thêm nhánh cho chương đó</div>
+      <div class="it" id="i2"><b>2</b> Nhánh nào quên thì mở lại đúng chỗ đó, không đọc lại cả sách</div>
+      <div class="it" id="i3"><b>3</b> Hết sách, bạn có một trang nhìn là nhớ cả quyển</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Lợi ích thật</div>
+    <h1 style="font-size:74px">Nhìn lại một trang<br>nhanh hơn <span class="hl">đọc lại hai trăm trang</span></h1>
+    <div class="sub">Và lần ôn nào cũng bắt đầu từ đúng chỗ bạn còn yếu.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){ [1,2,3,4].forEach(function(k){ el.querySelector('#c'+k).style.opacity = ease(span(t, 6.3+(k-1)*1.4, 7.3+(k-1)*1.4)); }); }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.9, 17.7+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Đọc xong cả quyển, thứ đọng lại chỉ cần một trang giấy."),
+   (1, "Một trang gồm: chủ đề chính trong một câu, bốn ý lớn nhất, ví dụ đáng nhớ, việc áp dụng được, và chỗ còn chưa hiểu."),
+   (2, "Đọc xong chương nào thì thêm nhánh cho chương đó. Nhánh nào quên thì mở lại đúng chỗ đó."),
+   (3, "Nhìn lại một trang nhanh hơn đọc lại hai trăm trang, và lần ôn nào cũng vào đúng chỗ bạn còn yếu."),
+   (4, "Đây là bước cuối của mỗi buổi học trong khoá."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 19 — B10: lịch ôn 1-3-6
+EP19 = {
+ "slug": "19_lich-on-1-3-6", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Ôn đúng lúc</div>
+    <h1>Không ôn thì một ngày<br>mất <span class="bad">một nửa</span></h1>
+    <div class="sub">Và phần còn lại rơi tiếp mỗi ngày. Đây là quy luật của trí nhớ, không phải bạn kém.</div>"""),
+   scene("""
+    <div class="kicker">Nếu không ôn lại lần nào</div>
+    <div class="chart" id="c1">
+      <div class="col"><div class="num" id="a0">0%</div><div class="bar" id="b0"></div><div class="lab">vừa học</div></div>
+      <div class="col"><div class="num" id="a1">0%</div><div class="bar red" id="b1"></div><div class="lab">1 ngày</div></div>
+      <div class="col"><div class="num" id="a3">0%</div><div class="bar red" id="b3"></div><div class="lab">3 ngày</div></div>
+      <div class="col"><div class="num" id="a6">0%</div><div class="bar red" id="b6"></div><div class="lab">6 ngày</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Nếu ôn vào ngày 1, ngày 3 và ngày 6</div>
+    <div class="chart" id="c2">
+      <div class="col"><div class="num">100%</div><div class="bar" style="height:100%"></div><div class="lab">vừa học</div></div>
+      <div class="col"><div class="num" id="d1">0%</div><div class="bar" id="e1"></div><div class="lab">ngày 1</div></div>
+      <div class="col"><div class="num" id="d3">0%</div><div class="bar" id="e3"></div><div class="lab">ngày 3</div></div>
+      <div class="col"><div class="num" id="d6">0%</div><div class="bar" id="e6"></div><div class="lab">ngày 6</div></div>
+    </div>
+    <div class="note">Mỗi lần ôn chỉ năm phút, không phải học lại từ đầu.</div>"""),
+   scene("""
+    <div class="kicker">Ba mốc cần nhớ</div>
+    <h1 style="font-size:80px">Ngày <span class="hl">1</span> · ngày <span class="hl">3</span> · ngày <span class="hl">6</span></h1>
+    <div class="sub">Đúng ba lần đó là đủ chặn đường rơi của trí nhớ. Sau đó bạn nhớ dài hạn.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const s = [[7.0,100,'a0','b0'], [8.2,50,'a1','b1'], [9.4,37,'a3','b3'], [10.6,18,'a6','b6']];
+     s.forEach(function(x){
+       const p = ease(span(t, x[0], x[0]+1.6));
+       el.querySelector('#'+x[3]).style.height = (p*x[1])+'%';
+       el.querySelector('#'+x[2]).textContent = Math.round(p*x[1])+'%';
+     });
+   }""",
+   """function(t, el){
+     const s = [[17.0,95,'d1','e1'], [18.6,92,'d3','e3'], [20.2,90,'d6','e6']];
+     s.forEach(function(x){
+       const p = ease(span(t, x[0], x[0]+1.6));
+       el.querySelector('#'+x[3]).style.height = (p*x[1])+'%';
+       el.querySelector('#'+x[2]).textContent = Math.round(p*x[1])+'%';
+     });
+   }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Không ôn thì sau một ngày bạn mất một nửa."),
+   (1, "Vừa học một trăm phần trăm. Một ngày còn năm mươi. Ba ngày ba mươi bảy. Sáu ngày mười tám."),
+   (2, "Nếu ôn vào ngày một, ngày ba và ngày sáu, mức nhớ giữ ở chín mươi phần trăm trở lên."),
+   (3, "Ba mốc đó là đủ để chặn đường rơi của trí nhớ. Mỗi lần chỉ năm phút."),
+   (4, "Lịch ôn này tôi dạy kèm theo từng buổi học."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 20 — C1: tựa sách đánh lừa
+EP20 = {
+ "slug": "20_tua-sach-danh-lua", "total": 45.0,
+ "scenes": [(0,5.0),(5.0,15.0),(15.0,26.0),(26.0,36.0),(36.0,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Chọn sách</div>
+    <h1>Tựa sách hấp dẫn<br>chưa chắc <span class="bad">đúng nội dung</span></h1>
+    <div class="sub">Tựa được viết để bán sách. Mục lục mới là thứ nói quyển sách có gì.</div>"""),
+   scene("""
+    <div class="kicker">Hai quyển trên cùng một kệ</div>
+    <div class="versus">
+      <div class="vs"><div class="nm">Quyển tựa hay</div><div class="meter"><i class="m2" id="v1"></i></div>
+        <div class="note">Mục lục chung chung. Đọc xong không dùng được gì.</div></div>
+      <div class="vs"><div class="nm">Quyển tựa thường</div><div class="meter"><i id="v2"></i></div>
+        <div class="note">Ba chương nói đúng việc bạn đang cần làm.</div></div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Ba bước trước khi trả tiền</div>
+    <div class="list3">
+      <div class="it" id="i1"><b>1</b> Đọc mục lục trước khi tin tựa sách</div>
+      <div class="it" id="i2"><b>2</b> Đếm số chương nói về việc bạn đang cần</div>
+      <div class="it" id="i3"><b>3</b> Chỉ mua khi có ít nhất hai chương đúng nhu cầu</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Đổi cách chọn là đổi cả tủ sách</div>
+    <h1 style="font-size:74px">Hai chương đúng việc<br><span class="hl">đáng hơn</span> mười chương nghe hay</h1>
+    <div class="sub">Một quyển dùng được hai chương vẫn hơn mười quyển đọc xong để đó.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const a = ease(span(t, 6.6, 8.6)), b = ease(span(t, 7.4, 9.4));
+     el.querySelector('#v1').style.width = (a*30)+'%';
+     el.querySelector('#v2').style.width = (b*100)+'%';
+   }""",
+   """function(t, el){ [1,2,3].forEach(function(k){ el.querySelector('#i'+k).style.opacity = ease(span(t,16.8+(k-1)*0.9, 17.7+(k-1)*0.9)); }); }""",
+   "",
+   "",
+ ],
+ "narration": [
+   (0, "Tựa sách được viết để bán sách, không phải để nói đúng nội dung."),
+   (1, "Hai quyển cùng một kệ: một quyển tựa rất hay nhưng mục lục chung chung, một quyển tựa thường mà có ba chương đúng việc bạn cần."),
+   (2, "Ba bước trước khi trả tiền: đọc mục lục, đếm số chương đúng nhu cầu, và chỉ mua khi có ít nhất hai chương."),
+   (3, "Một quyển dùng được hai chương vẫn hơn mười quyển đọc xong để đó."),
+   (4, "Đây là cách chọn sách trong buổi thứ hai của khoá."),
+ ],
+}
+
+EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12, EP13, EP14, EP15, EP16,
+            EP17, EP18, EP19, EP20,
+            EP17, EP18, EP19, EP20]
+
+# Thẻ kết thúc dùng chung: tập nào kết thúc bằng cảnh riêng thì nối thêm 3 giây
+# thẻ kết thúc, và mọi thứ (phụ đề, cửa sổ lời đọc, kiểm tra thời lượng) theo đó.
+THEM_CUOI = 3.0
+for _ep in EPISODES:
+    if _ep["html"][-1].strip() != CTA:
+        _a = _ep["scenes"][-1][1]
+        _ep["total"] = round(_a + THEM_CUOI, 2)
+        _ep["scenes"] = list(_ep["scenes"]) + [(_a, _ep["total"])]
+        _ep["html"] = list(_ep["html"]) + [CTA]
+        _ep["anim"] = list(_ep["anim"]) + [""]
+
+
+def _so_tap(ep):
+    return next(i for i, e in enumerate(EPISODES) if e["slug"] == ep["slug"])
 
 # Thẻ kết thúc dùng chung: tập nào kết thúc bằng cảnh riêng thì nối thêm 3 giây
 # thẻ kết thúc, và mọi thứ (phụ đề, cửa sổ lời đọc, kiểm tra thời lượng) theo đó.
