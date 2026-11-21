@@ -22,7 +22,7 @@ async def sinh_co_moc(text, voice, out):
     import edge_tts
     words = []
     with open(out, "wb") as f:
-        async for ch in edge_tts.Communicate(text, voice).stream():
+        async for ch in edge_tts.Communicate(text, voice, boundary="WordBoundary").stream():
             if ch["type"] == "audio":
                 f.write(ch["data"])
             elif ch["type"] == "WordBoundary":
@@ -45,29 +45,38 @@ def sinh(text, out, voice):
     except Exception:
         man = {}
     ten = os.path.basename(out)
-    if os.path.exists(out) and os.path.getsize(out) > 4000 and man.get(ten) == voice:
-        return True, f"đã có sẵn đúng giọng ({os.path.getsize(out)//1024} KB)"
+    moc = out.replace(".mp3", ".words.json")
+    if (os.path.exists(out) and os.path.getsize(out) > 4000 and man.get(ten) == voice
+            and os.path.exists(moc)):
+        return True, f"đã có sẵn đúng giọng + mốc từ ({os.path.getsize(out)//1024} KB)"
     err = ""
-    for lan in range(1, 9):
+
+    def xong(ten_lan):
+        man[ten] = voice
+        _json.dump(man, open(man_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        co_moc = " + mốc từ" if os.path.exists(moc) else " (không có mốc từ)"
+        return True, f"{ten_lan} · giọng {voice.split('-')[-1]} · {os.path.getsize(out)//1024} KB{co_moc}"
+
+    # 1) đường có mốc từng từ (WordBoundary) — dịch vụ hay trả NoAudioReceived nên thử vài lần
+    for lan in range(1, 4):
         try:
             import edge_tts
             asyncio.run(sinh_co_moc(text, voice, out))
         except Exception as e:
-            err = str(e)[:60]
-        if not (os.path.exists(out) and os.path.getsize(out) > 4000):
-            r = subprocess.run(["edge-tts", "--voice", voice, "--text", text, "--write-media", out],
-                               capture_output=True, text=True)
-            if not (os.path.exists(out) and os.path.getsize(out) > 4000):
-                err = (r.stderr or err)[-80:]
-                time.sleep(3 + lan)          # dịch vụ hay chặn tạm, lùi dần rồi thử lại
-                continue
-            ten_lan = f"lần {lan} (dòng lệnh)"
-        else:
-            ten_lan = f"lần {lan}"
-        man[ten] = voice
-        _json.dump(man, open(man_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-        return True, f"{ten_lan} · giọng {voice.split('-')[-1]} · {os.path.getsize(out)//1024} KB"
-    return False, f"thất bại sau 8 lần: {err}"
+            err = f"{type(e).__name__}: {str(e)[:50]}"
+        if os.path.exists(out) and os.path.getsize(out) > 4000 and os.path.exists(moc):
+            return xong(f"lần {lan}")
+        time.sleep(2 + lan)
+
+    # 2) lùi về dòng lệnh: vẫn ra mp3, chỉ mất mốc từ (phụ đề quay về mức cảnh)
+    for lan in range(1, 7):
+        r = subprocess.run(["edge-tts", "--voice", voice, "--text", text, "--write-media", out],
+                           capture_output=True, text=True)
+        if os.path.exists(out) and os.path.getsize(out) > 4000:
+            return xong(f"lần {lan} (dòng lệnh)")
+        err = (r.stderr or err)[-80:]
+        time.sleep(3 + lan)          # dịch vụ hay chặn tạm, lùi dần rồi thử lại
+    return False, f"thất bại sau 9 lần: {err}"
 
 
 def main():

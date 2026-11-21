@@ -5,7 +5,7 @@ Mỗi tập: các cảnh có mốc thời gian, phần HTML của cảnh, hàm v
 Chạy: python3 dung-tap-do-hoa.py            -> ghi file html vào do-hoa/
       python3 dung-tap-do-hoa.py --loi-doc  -> in danh sách lời đọc cần sinh
 """
-import json, os, subprocess, sys
+import json, os, re, subprocess, sys
 
 BASE = os.environ.get("VH_BASE") or os.path.dirname(os.path.abspath(__file__))
 OUT = f"{BASE}/do-hoa"
@@ -299,10 +299,15 @@ def captions(ep):
         d = _dur(mp3)
         room = w - OFFSET - GAP
         tempo = 1.0 if (d <= 0 or d <= room) else round(d / room, 3)
+        # edge-tts trả từ không kèm dấu câu, nên phải đối chiếu với lời đọc gốc để biết
+        # chỗ nào hết câu: câu "chữ. Chữ nào…" không được gộp thành một dòng.
+        goc = re.findall(r"\S+", dict(ep["narration"]).get(i, ""))
+        nhu_cau = [x.rstrip().endswith((".", "!", "?", ":")) for x in goc]
         nhom, cur = [], []
-        for st, en, tu in words:
+        for k, (st, en, tu) in enumerate(words):
             cur.append((st, en, tu))
-            if len(cur) >= SO_TU_CUE:
+            het_cau = k < len(nhu_cau) and nhu_cau[k]
+            if len(cur) >= SO_TU_CUE or het_cau:
                 nhom.append(cur)
                 cur = []
         if cur:
