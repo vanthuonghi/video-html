@@ -13,7 +13,8 @@ OUT = f"{BASE}/do-hoa"
 CSS = """
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:1080px;height:1920px;overflow:hidden;background:#0d1113}
-  body{font-family:"Noto Sans","DejaVu Sans",system-ui,sans-serif;color:#f2f5f4;-webkit-font-smoothing:antialiased}
+  /* font tải sẵn trong do-hoa/fonts: mọi máy dựng ra cùng một bố cục chữ */
+  body{font-family:"VH Noto Sans","Noto Sans","DejaVu Sans",sans-serif;color:#f2f5f4;-webkit-font-smoothing:antialiased}
   #stage{position:absolute;inset:0;overflow:hidden}
   #bg{position:absolute;inset:-10%;background:
       radial-gradient(1200px 900px at 20% 12%, rgba(63,184,168,.16), transparent 60%),
@@ -177,7 +178,9 @@ function seek(t){
   });
   $('brand').style.opacity = t>1 ? (t>TOTAL-1.2?.9:.5) : 0;
 }
-window.__seek = seek; window.__total = TOTAL; seek(0);
+window.__seek = seek;
+// chỉ khai báo sẵn sàng sau khi font đã nạp, để khung đầu không bị lệch chữ
+document.fonts.ready.then(function(){ seek(0); window.__total = TOTAL; });
 """
 
 CTA = """
@@ -685,9 +688,11 @@ EP8 = {
      const a = ws[li].getBoundingClientRect(), b = ws[Math.min(li+1,ws.length-1)].getBoundingClientRect();
      const hr = el.getBoundingClientRect();
      const frac = cur - li;
-     const x = (a.left - hr.left) + ((b.left - a.left) * frac) - 12;
+     // khung ngắm không được vượt vùng an toàn: kẹp theo bề rộng thật của chữ
+     const rw = a.width + 24;
+     const x = Math.min(Math.max((a.left - hr.left) + ((b.left - a.left) * frac) - 12, 96), 984 - rw);
      ret.style.transform = 'translate(' + x + 'px,' + (a.top - hr.top - 10) + 'px)';
-     ret.style.width = (a.width + 24) + 'px';
+     ret.style.width = rw + 'px';
      ret.style.height = (a.height + 20) + 'px';
      ret.style.opacity = 1;
    }""",
@@ -1022,6 +1027,7 @@ def build_html(ep):
 <head>
 <meta charset="utf-8">
 <title>{ep['slug']}</title>
+<link rel="stylesheet" href="fonts/noto-sans.css">
 <style>{CSS}
 {extra_css}</style>
 </head>

@@ -36,10 +36,16 @@ dung-tap-do-hoa.py   kịch bản từng tập: cảnh, hàm vẽ theo thời gi
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
 | `do-hoa/*.html` | trang HTML sinh ra (commit lại để xem được trong repo) |
+| `do-hoa/fonts/` | font Noto Sans tải sẵn — mọi máy dựng ra cùng một bố cục chữ |
 
 Vùng an toàn của trang là **x ∈ [96, 984], y ∈ [220, 1580]** (1080×1920): đỉnh chừa thanh
 _trạng thái, đáy chừa caption và nút của TikTok/Reels/Shorts. Dòng thương hiệu nằm ở dải
 trên cùng. Mỗi lần đẩy lên, job `soat-bo-cuc` dựng lại HTML và chặn nếu có phần tử tràn.
+Chữ dùng font đóng gói trong `do-hoa/fonts/` (không phụ thuộc font của máy dựng), nên số đo
+ở máy và trên CI trùng nhau.
+
+Âm thanh: nhạc nền tự hạ dưới giọng đọc (`sidechaincompress`), mỗi tập được đo độ to thật
+rồi đưa về **−16 LUFS, đỉnh −1,5 dBTP** để các tập nghe đều nhau.
 
 ## Dựng trên GitHub
 

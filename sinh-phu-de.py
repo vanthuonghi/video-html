@@ -37,7 +37,7 @@ def gio(t):
 
 
 def ngat_dong(text):
-    """Ngắt dòng ở ~42 ký tự để phụ đề không tràn ngang khi phát lại."""
+    """Ngắt dòng ở ~42 ký tự, trả về danh sách dòng (không cắt bớt chữ)."""
     dong, ket = [], []
     for tu in text.split():
         if dong and len(" ".join(dong + [tu])) > RONG_DONG:
@@ -47,7 +47,22 @@ def ngat_dong(text):
             dong.append(tu)
     if dong:
         ket.append(" ".join(dong))
-    return "\n".join(ket[:2]) if ket else text
+    return ket or [text]
+
+
+def chia_cue(dong, start, end):
+    """Chia lời đọc dài thành nhiều cue, mỗi cue tối đa 2 dòng, chia thời gian theo số chữ."""
+    nhom = [dong[i:i + 2] for i in range(0, len(dong), 2)]
+    # tránh cue cuối còn đúng một chữ (hiện ra rất nhanh, khó đọc)
+    if len(nhom) > 1 and len(nhom[-1]) == 1 and len(nhom[-2]) == 2:
+        nhom[-1] = [nhom[-2].pop()] + nhom[-1]
+    tong = sum(len(" ".join(g)) for g in nhom) or 1
+    out, t = [], start
+    for g in nhom:
+        d = (end - start) * len(" ".join(g)) / tong
+        out.append((t, min(end, t + d), "\n".join(g)))
+        t += d
+    return out
 
 
 def tao(slug, ep):
@@ -62,7 +77,8 @@ def tao(slug, ep):
             end = min(end, start + dur(f) + 0.30)
         if end - start < 0.4:
             end = start + 0.4
-        dong.append(f"{len(dong)+1}\n{gio(start)} --> {gio(end)}\n{ngat_dong(text)}\n")
+        for a2, b2, chu in chia_cue(ngat_dong(text), start, end):
+            dong.append(f"{len(dong)+1}\n{gio(a2)} --> {gio(b2)}\n{chu}\n")
     return "\n".join(dong)
 
 

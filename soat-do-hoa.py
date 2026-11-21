@@ -114,10 +114,16 @@ def audit(slug, total, step):
         c.send("Runtime.enable")
         c.send("Emulation.setDeviceMetricsOverride", width=1080, height=1920,
                deviceScaleFactor=1, mobile=False)
+        san_sang = False
         for _ in range(60):
             if c.eval("(typeof window.__total==='number')?window.__total:null"):
+                san_sang = True
                 break
             time.sleep(0.25)
+        if not san_sang or not c.eval("document.querySelectorAll('.scene').length"):
+            # không được coi là "sạch" khi trang chưa tải: máy chủ tĩnh tắt sẽ ra trang lỗi
+            print(f"  {slug}: LỖI trang chưa tải được ({GOC}/do-hoa/{slug}.html) — máy chủ 8899 có chạy không?")
+            return 1
         seen = {}
         values = {}
         t = 0.0

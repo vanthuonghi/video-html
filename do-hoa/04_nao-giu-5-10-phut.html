@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>04_nao-giu-5-10-phut</title>
+<link rel="stylesheet" href="fonts/noto-sans.css">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:1080px;height:1920px;overflow:hidden;background:#0d1113}
-  body{font-family:"Noto Sans","DejaVu Sans",system-ui,sans-serif;color:#f2f5f4;-webkit-font-smoothing:antialiased}
+  /* font tải sẵn trong do-hoa/fonts: mọi máy dựng ra cùng một bố cục chữ */
+  body{font-family:"VH Noto Sans","Noto Sans","DejaVu Sans",sans-serif;color:#f2f5f4;-webkit-font-smoothing:antialiased}
   #stage{position:absolute;inset:0;overflow:hidden}
   #bg{position:absolute;inset:-10%;background:
       radial-gradient(1200px 900px at 20% 12%, rgba(63,184,168,.16), transparent 60%),
@@ -221,7 +223,9 @@ function seek(t){
   });
   $('brand').style.opacity = t>1 ? (t>TOTAL-1.2?.9:.5) : 0;
 }
-window.__seek = seek; window.__total = TOTAL; seek(0);
+window.__seek = seek;
+// chỉ khai báo sẵn sàng sau khi font đã nạp, để khung đầu không bị lệch chữ
+document.fonts.ready.then(function(){ seek(0); window.__total = TOTAL; });
 
 </script>
 </body>

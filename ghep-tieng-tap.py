@@ -32,13 +32,28 @@ DUCK_THRESHOLD = 0.03  # ~ -30 dB: trên mức này coi là có giọng
 DUCK_RATIO = 6
 DUCK_ATTACK = 20       # ms
 DUCK_RELEASE = 350     # ms
-# Chuẩn hoá độ to về mức nền tảng dùng, để mọi tập nghe đều nhau.
-LOUD_I, LOUD_TP, LOUD_LRA = -14, -1.5, 11
+# Chuẩn hoá độ to, để mọi tập nghe đều nhau. −16 LUFS là mức giọng đọc đạt được
+# mà không phải ép đỉnh (ép mạnh làm chính bộ chặn đỉnh kéo độ to ngược lại).
+LOUD_I, LOUD_TP, LOUD_LRA = -16, -1.5, 11
 
 
 def dur(f):
     return float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                  "-of", "csv=p=0", f], capture_output=True, text=True).stdout.strip())
+
+
+def do_to(f):
+    """Độ to tích hợp (LUFS) của một tệp, đọc từ ebur128."""
+    st = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", f, "-af",
+                         "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+    for line in reversed(st.splitlines()):
+        s = line.strip()
+        if s.startswith("I:") and "LUFS" in s:
+            try:
+                return float(s.split(":")[1].replace("LUFS", "").strip())
+            except ValueError:
+                pass
+    return LOUD_I
 
 
 def ghep(slug):
@@ -111,16 +126,43 @@ def ghep(slug):
 
     parts.append("".join(mix_lbl) +
                  f"amix=inputs={len(mix_lbl)}:duration=longest:normalize=0,"
-                 f"atrim=0:{durv},loudnorm=I={LOUD_I}:TP={LOUD_TP}:LRA={LOUD_LRA},"
-                 f"aresample=48000[aout]")
+                 f"atrim=0:{durv},aresample=48000[aout]")
     out = f"{OUT}/{slug}_co-tieng.mp4"
+    mix = f"{OUT}/{slug}_hon-hop.wav"
+
+    # lượt 1: dựng bản hoà trộn thô (chưa chuẩn hoá) để đo
     cmd = (["ffmpeg", "-v", "error", "-y", "-i", video] + ins +
-           ["-filter_complex", ";".join(parts), "-map", "0:v", "-map", "[aout]",
-            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
+           ["-filter_complex", ";".join(parts), "-map", "[aout]",
+            "-c:a", "pcm_s16le", "-ar", "48000", mix])
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         print(f"  {slug}: LỖI {r.stderr.strip()[:300]}")
         return
+
+    # lượt 2: đo độ to thật của bản hoà trộn rồi mới chuẩn hoá (một lượt đoán mò
+    # cho ra độ to lệch tới 3 LU giữa các tập, nghe rõ khi phát liền nhau)
+    gain = max(-30.0, min(30.0, LOUD_I - do_to(mix)))
+    lim = 10 ** (LOUD_TP / 20.0)
+    # tăng/giảm đúng bằng chênh lệch đo được rồi chặn đỉnh ở mức TP; đo lại sau khi
+    # mã hoá và chỉnh nốt phần còn lệch, để các tập lệch nhau không quá 0,3 LU
+    for lan in range(3):
+        ln = f"volume={gain:.2f}dB,alimiter=limit={lim:.4f}:attack=5:release=50:level=false"
+        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", video, "-i", mix,
+                            "-map", "0:v", "-map", "1:a", "-af", ln + ",aresample=48000",
+                            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                            "-movflags", "+faststart", out], capture_output=True, text=True)
+        if r.returncode != 0:
+            print(f"  {slug}: LỖI {r.stderr.strip()[:300]}")
+            os.remove(mix)
+            return
+        do_ra = do_to(out)
+        lech = LOUD_I - do_ra
+        if os.environ.get("VH_DEBUG"):
+            print(f"    [debug] lượt {lan+1}: mix {do_to(mix):.2f} · gain {gain:.2f} · ra {do_ra:.2f} · lệch {lech:.2f}")
+        if abs(lech) <= 0.3:
+            break
+        gain += lech
+    os.remove(mix)
     # đo mức âm lượng (phải để ffmpeg ở mức thông tin mặc định, -v error sẽ nuốt mất số liệu)
     st = subprocess.run(["ffmpeg", "-hide_banner", "-i", out, "-af", "volumedetect",
                          "-f", "null", "-"], capture_output=True, text=True).stderr
@@ -133,7 +175,7 @@ def ghep(slug):
     if mean == "không đọc được":
         print(f"  {slug}: CẢNH BÁO không đo được mức âm lượng")
     print(f"  {slug}: xong · {dur(out):.1f}s · {os.path.getsize(out)/1048576:.1f} MB · "
-          f"mức trung bình {mean} · đỉnh {peak}")
+          f"mức trung bình {mean} · đỉnh {peak} · {do_to(out):.1f} LUFS")
     print(f"    lời đọc vào ở: " + ", ".join(f"cảnh {i}@{s:.2f}s" for i, s in starts))
 
 
