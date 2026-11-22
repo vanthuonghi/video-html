@@ -1393,6 +1393,78 @@ EP21 = {
 # tối thiểu 9 cảnh, cảnh cuối là CTA. Tập 01–22 giữ nguyên định dạng cũ đã đăng.
 CAU_TRUC_CHUAN = ["hook", "gia_tri", "hieu_biet", "lam_gi", "thong_diep", "ket_khoa"]
 
+# ---------------------------------------------------------------- BỘ DỰNG TẬP THEO SÁU PHẦN
+# Viết một tập mới = khai một bảng sáu phần, không phải viết lại HTML và hàm vẽ.
+# Mỗi dòng: (kiểu cảnh, số giây, dữ liệu, lời đọc)
+#   "h1"    : (kicker, tiêu đề, phụ đề)
+#   "list"  : (kicker, [từng mục], ghi chú)        — 4 mục trở lên tự dùng .list20
+#   "thanh" : (kicker, [(nhãn, giá trị hiện sẵn)], ghi chú)
+# Cổng kiem-tra-kich-ban.py vẫn là nơi chặn: đủ 6 phần, ≥ 110 giây, ≥ 9 cảnh, CTA cuối.
+
+
+def canh_h1(kicker, tieu_de, phu=""):
+    them = f'<div class="sub">{phu}</div>' if phu else ""
+    return scene(f'<div class="kicker">{kicker}</div>\n    <h1>{tieu_de}</h1>\n    {them}')
+
+
+def canh_list(kicker, muc, kieu="list20", ghi_chu=None):
+    dong = "\n".join(f'      <div class="it">{x}</div>' for x in muc)
+    them = f'\n    <div class="note">{ghi_chu}</div>' if ghi_chu else ""
+    return scene(f'<div class="kicker">{kicker}</div>\n    <div class="{kieu}">\n{dong}\n    </div>{them}')
+
+
+def canh_thanh(kicker, hang, ghi_chu=None):
+    """Hai thanh để so sánh định tính — cố ý không in con số, tránh thành số liệu giả."""
+    rows = "\n".join(
+        f'      <div class="row"><div class="name"><b>{n}</b><span class="val">{v}</span></div>'
+        f'\n        <div class="track"><i class="fill{" red" if k else ""}"></i></div></div>'
+        for k, (n, v) in enumerate(hang))
+    them = f'\n    <div class="note">{ghi_chu}</div>' if ghi_chu else ""
+    return scene(f'<div class="kicker">{kicker}</div>\n    <div class="race">\n{rows}\n    </div>{them}')
+
+
+def anim_hien(kieu, t_bat_dau, so_muc, buoc=1.8, dai=0.7):
+    """JS làm hiện dần từng mục của cảnh, tính từ mốc bắt đầu của cảnh."""
+    t0 = ", ".join(f"{(t_bat_dau + i * buoc):.1f}" for i in range(so_muc))
+    return ("function(t, el){\n"
+            f"     const t0 = [{t0}];\n"
+            f"     el.querySelectorAll('.{kieu} .it, .race .row, .note').forEach(function(x, k){{\n"
+            "       const m = t0[Math.min(k, t0.length - 1)];\n"
+            "       x.style.opacity = ease(span(t, m, m + " + str(dai) + ")).toFixed(3);\n"
+            "     });\n"
+            "   }")
+
+
+def dua_tap(slug, ten, be, phong_cach="do-trang"):
+    """Dựng dict một tập từ bảng sáu phần (xem chú thích ngay trên)."""
+    scenes, html, anim, narration = [], [], [], []
+    t = 0.0
+    for i, (kieu, giay, du_lieu, loi) in enumerate(be):
+        scenes.append((round(t, 1), round(t + giay, 1)))
+        if kieu == "cta":
+            html.append(scene(CTA))
+            anim.append("")
+        elif kieu == "h1":
+            html.append(canh_h1(*du_lieu))
+            anim.append("")
+        elif kieu == "list":
+            kicker, muc, ghi_chu = (list(du_lieu) + [None])[:3]
+            kieu_list = "list20" if len(muc) > 3 else "list3"
+            html.append(canh_list(kicker, muc, kieu_list, ghi_chu))
+            anim.append(anim_hien(kieu_list, t + 1.0, len(muc) + (1 if ghi_chu else 0)))
+        elif kieu == "thanh":
+            kicker, hang, ghi_chu = (list(du_lieu) + [None])[:3]
+            html.append(canh_thanh(kicker, hang, ghi_chu))
+            anim.append(anim_hien("race", t + 1.0, len(hang) + (1 if ghi_chu else 0)))
+        else:
+            raise ValueError(f"{slug}: kiểu cảnh lạ {kieu!r}")
+        narration.append((i, loi))
+        t += giay
+    return {"slug": slug, "total": round(t, 1), "ten": ten, "cau_truc": CAU_TRUC_CHUAN,
+            "phong_cach": phong_cach, "scenes": scenes, "html": html, "anim": anim,
+            "narration": narration}
+
+
 # ---------------------------------------------------------------- TẬP 23 — E4: 7 bước đọc giáo trình
 EP23 = {
  "slug": "23_hoc-sinh-7-buoc-doc-giao-trinh",
@@ -1557,6 +1629,260 @@ EP23 = {
    (10, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
  ],
 }
+
+# ------------------------------------------- TẬP 24 — C2: chọn sách trong năm phút ở nhà sách
+EP24 = dua_tap(
+ "24_chon-sach-nam-phut", "Chọn sách: năm phút ở nhà sách", [
+  ("h1", 9.0, ("Nhà sách · vài phút quyết định",
+    "Mua một cuốn sách<br>mất <span class=\"hl\">2 đến 5 phút</span>",
+    "Nhưng nó ở với bạn hàng tuần — hoặc nằm im trên kệ."),
+   "Ở nhà sách bạn thường chỉ có hai đến năm phút trước khi quyết định. Và cuốn sách đó ở với bạn hàng tuần, hoặc nằm im trên kệ."),
+  ("list", 12.0, ("Ba sai lầm hay mắc", [
+    "<b>Mua theo tựa</b> — tựa được viết để bán",
+    "<b>Đọc thử trang đầu</b> — trang đầu quyển nào cũng dễ",
+    "<b>Không mở mục lục</b> — nên không biết sách có gì"], None),
+   "Ba sai lầm: mua theo tựa, vì tựa sách được viết để bán. Đọc thử trang đầu, mà trang đầu thì quyển nào cũng dễ. Và không mở mục lục, nên không biết sách có gì."),
+  ("list", 12.0, ("Năm phút này cho bạn gì", [
+    "Biết chắc cuốn sách có ích hay không",
+    "Không mua sách chỉ hay ở bìa",
+    "Mỗi lần vào nhà sách mua đúng một quyển"],
+    "Năm phút → hoặc mua, hoặc đi tiếp."),
+   "Quy trình năm phút này giúp bạn biết chắc cuốn sách có ích hay không, thay vì mua theo cảm giác ở bìa."),
+  ("h1", 13.0, ("Vì sao đọc trang đầu là sai",
+    "Trang đầu<br><span class=\"hl\">không phải</span> cuốn sách",
+    "Nhà xuất bản chăm chút trang đầu. Giá trị thật nằm ở cấu trúc."),
+   "Đọc trang đầu không cho bạn biết gì về giá trị của cuốn sách, vì nhà xuất bản nào cũng chăm chút trang đầu."),
+  ("thanh", 13.0, ("Hai cách thử khác nhau", [
+    ("Đọc trang đầu", "thử vận may"),
+    ("Xem mục lục và một chương giữa", "đúng nhu cầu")],
+    "Cùng năm phút, khác chỗ nhìn là khác kết quả."),
+   "Cách nhanh nhất là nhìn cấu trúc: mục lục, rồi mở đúng chương liên quan tới việc bạn đang cần. Đó mới là thứ quyết định cuốn sách có ích hay không."),
+  ("list", 14.0, ("Phút 1–2 · tựa phụ và mục lục", [
+    "Đọc tựa phụ — nói sách giải quyết việc gì",
+    "Xem mục lục, đếm chương đúng nhu cầu của bạn",
+    "Lướt phần giới thiệu tác giả"], None),
+   "Phút thứ nhất và thứ hai: đọc tựa phụ, xem mục lục và đếm số chương đúng nhu cầu của bạn, rồi lướt phần giới thiệu tác giả."),
+  ("list", 14.0, ("Phút 3–5 · mở đúng một chương", [
+    "Mở chương liên quan nhất, đọc hai trang ở giữa chương",
+    "Gấp lại, tự hỏi vừa đọc được ý gì",
+    "Ít nhất hai chương như vậy thì hãy mua"], None),
+   "Phút thứ ba đến thứ năm: mở chương liên quan nhất, đọc hai trang ở giữa chương đó, rồi gấp sách tự hỏi bạn vừa đọc được ý gì. Ít nhất hai chương như vậy thì hãy mua."),
+  ("h1", 13.0, ("Thông điệp",
+    "Mua sách là<br>một <span class=\"hl\">quyết định</span>",
+    "Năm phút chọn đúng rẻ hơn nhiều giờ đọc nhầm."),
+   "Thông điệp ở đây: mua sách là một quyết định, không phải một cảm hứng. Năm phút chọn đúng rẻ hơn nhiều giờ đọc nhầm."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: chọn sách, đọc cụm, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Quy trình chọn sách này nằm trong buổi thứ hai của khoá. Khoá bảy buổi Zoom, học phí chín trăm tám mươi nghìn, hoàn phí nếu sau buổi một bạn thấy không hợp."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
+# ------------------------------------------- TẬP 25 — D1: khoảng cách mắt và góc cổ khi đọc
+EP25 = dua_tap(
+ "25_khoang-cach-mat-va-co", "Khoảng cách mắt và góc cổ khi đọc", [
+  ("h1", 9.0, ("Đọc lâu · cổ và mắt",
+    "Mỏi cổ làm bạn<br><span class=\"hl\">đọc chậm lại</span>",
+    "Không phải ý chí — mà là tư thế đang chặn dòng chữ."),
+   "Đọc được ba mươi phút là cổ mỏi, mắt nặng, và bạn tự nhủ mình hết tập trung. Thật ra chỉ là tư thế đang chặn bạn."),
+  ("list", 12.0, ("Ba dấu hiệu tư thế sai", [
+    "Cúi đầu, sách cách mắt dưới 30 cm",
+    "Cổ nghiêng hẳn sang một bên",
+    "Mắt phải nhảy quãng xa để bám dòng chữ"], None),
+   "Ba dấu hiệu: sách quá gần mắt, cổ nghiêng hẳn sang một bên, và mắt phải nhảy quãng xa để bám theo dòng chữ."),
+  ("list", 12.0, ("Sửa tư thế được gì", [
+    "Đọc lâu hơn mà không mỏi",
+    "Dòng chữ đứng yên, mắt đỡ phải điều tiết",
+    "Bỏ được kiểu ngồi bó cổ mỗi tối"],
+    "Ba điều chỉnh nhỏ, kiểm được ngay trong một buổi."),
+   "Ba điều chỉnh nhỏ dưới đây giúp bạn đọc lâu hơn mà không mỏi, và giữ được dòng đọc thẳng."),
+  ("h1", 14.0, ("Vì sao khoảng cách lại quyết định",
+    "Gần quá thì<br>mắt phải <span class=\"hl\">níu lại</span>",
+    "Càng gần, cơ mắt càng phải kéo — nhanh mỏi, dễ sai dòng."),
+   "Khi sách quá gần, cơ mắt phải kéo nhiều hơn cho mỗi chữ, nên mỏi nhanh và bạn dễ nhảy sai dòng. Khoảng cách vừa phải là khoảng ba mươi đến bốn mươi lăm xăng-ti-mét."),
+  ("list", 13.0, ("Ba con số để tự soát", [
+    "Sách: 35–45 cm · màn hình máy tính: từ 50 cm",
+    "Điện thoại: khoảng 30 cm, hơi ngẩng mắt xuống",
+    "Cứ 20 phút: nhìn ra xa 20 giây"],
+    "Đây là hướng dẫn phổ biến của ngành nhãn khoa về làm việc gần."),
+   "Ba con số: sách cách mắt khoảng ba mươi lăm đến bốn mươi lăm xăng-ti-mét, màn hình từ nửa mét trở lên, và cứ hai mươi phút thì nhìn ra xa hai mươi giây."),
+  ("list", 13.0, ("Việc cần làm · trong 5 phút", [
+    "Đặt sách xuống bàn, chống khuỷu tay",
+    "Đo bằng gang tay: khoảng hai gang từ mắt tới trang",
+    "Gá sách cao lên cho cổ khỏi cúi"], None),
+   "Việc cần làm ngay: đặt sách xuống bàn, chống khuỷu tay, đo khoảng cách bằng hai gang tay, và gá sách lên cao để cổ thẳng."),
+  ("list", 13.0, ("Với màn hình thì khác một chút", [
+    "Màn hình ngang tầm mắt, đừng thấp hơn",
+    "Tai — vai — hông thành một đường thẳng",
+    "Đổi tư thế sau mỗi 20 phút"], None),
+   "Với màn hình, để ngang tầm mắt chứ đừng thấp hơn. Ngồi sao cho tai, vai và hông thẳng một đường, và đổi tư thế sau mỗi hai mươi phút."),
+  ("h1", 13.0, ("Thông điệp",
+    "Đọc lâu không phải<br>là <span class=\"hl\">chịu đau</span>",
+    "Đọc lâu là khi mắt và cổ được đặt đúng chỗ."),
+   "Thông điệp: đọc lâu không phải là chịu đau. Đọc lâu là khi mắt và cổ được đặt đúng chỗ ngay từ đầu."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Tư thế và khoảng cách được chỉnh ngay trong buổi đầu của khoá, vì sửa được chỗ này thì tốc độ lên nhanh hơn. Khoá bảy buổi Zoom, học phí chín trăm tám mươi nghìn đồng."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
+# ------------------------------------------- TẬP 26 — D2: ánh sáng và nhịp đổi tiêu cự
+EP26 = dua_tap(
+ "26_anh-sang-va-tu-the", "Ánh sáng đọc sách và nhịp đổi tiêu cự", [
+  ("h1", 9.0, ("Ánh sáng khi đọc",
+    "Đèn sáng chưa chắc<br><span class=\"hl\">đủ để đọc</span>",
+    "Sáng chói mà sai hướng thì mắt vẫn phải gắng."),
+   "Đèn phòng sáng chói nhưng đặt sai hướng thì mắt bạn vẫn phải gắng, và độ mỏi vẫn tăng đều."),
+  ("list", 12.0, ("Ba kiểu chiếu sáng hay gặp", [
+    "Đèn trần hắt xuống → bóng tay và bóng sách",
+    "Đèn sau lưng → giấy chói vào mắt",
+    "Đèn bàn đặt lệch → một nửa trang tối"], None),
+   "Ba kiểu hay gặp: đèn trần hắt xuống tạo bóng tay, đèn phía sau lưng làm giấy chói, và đèn bàn đặt lệch làm nửa trang tối."),
+  ("list", 12.0, ("Sửa hai thứ được gì", [
+    "Mắt đỡ mỏi khi đọc buổi tối",
+    "Tốc độ đọc giữ đều tới phút cuối",
+    "Hết cảm giác chữ bị nhòe cuối buổi"],
+    "Hai điều chỉnh: hướng đèn, và nhịp đổi tiêu cự."),
+   "Hai điều chỉnh dưới đây giữ cho tốc độ đọc không tuột ở hai mươi phút cuối buổi tối."),
+  ("h1", 14.0, ("Vì sao đổi tiêu cự mới là chính",
+    "Nhìn gần mãi<br>thì <span class=\"hl\">cơ mắt bị giữ</span>",
+    "Đổi khoảng cách chính là để cơ mắt được thả ra."),
+   "Mắt không được thiết kế để nhìn gần liên tục hàng giờ. Khi bạn giữ tiêu cự gần mãi, cơ mắt bị giữ ở một trạng thái, nên hết buổi là nhòe và mỏi."),
+  ("list", 13.0, ("Nhịp đổi tiêu cự", [
+    "Nhìn gần: cơ mắt co lại và giữ liên tục",
+    "Nhìn xa khoảng 20 giây: cơ mắt giãn ra",
+    "Khoảng 30 phút đổi một lần là đủ để hồi"],
+    "Không cần nghỉ dài — chỉ cần đổi khoảng cách."),
+   "Đổi tiêu cự là cách thả cơ mắt ra. Không cần nghỉ dài: cứ khoảng ba mươi phút, ngước lên nhìn một vật ở xa trong hai mươi giây là đủ."),
+  ("list", 13.0, ("Việc cần làm · đèn", [
+    "Đèn bàn đặt chếch bên tay không viết, hắt vào trang",
+    "Chùm sáng không chiếu thẳng vào mắt",
+    "Trang giấy sáng đều, không có vùng tối"], None),
+   "Với đèn: đặt chếch bên tay không viết, hắt vào trang giấy, và để chùm sáng không chiếu thẳng vào mắt."),
+  ("list", 13.0, ("Việc cần làm · nhịp đọc", [
+    "Đặt nhắc mỗi 30 phút",
+    "Mỗi lần nhắc: nhìn xa 20 giây, chớp mắt vài lần",
+    "Đọc trên màn hình: hạ độ sáng vừa phải"], None),
+   "Với nhịp đọc: đặt nhắc ba mươi phút một lần. Mỗi lần nhắc thì nhìn ra xa khoảng hai mươi giây, chớp mắt vài lần rồi đọc tiếp."),
+  ("h1", 13.0, ("Thông điệp",
+    "Mắt cần được<br><span class=\"hl\">đổi cự ly</span>",
+    "Không phải nghỉ nhiều, mà là đổi khoảng cách đều."),
+   "Thông điệp: mắt không cần nghỉ nhiều, mắt cần được đổi cự ly đều. Ba mươi phút một lần, hai mươi giây."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Đèn và nhịp đổi tiêu cự là phần đầu của buổi một, vì mắt còn mỏi thì không luyện nhanh được. Khoá có bảy buổi Zoom và hoàn phí nếu sau buổi một bạn thấy không hợp."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
+# ------------------------------------------- TẬP 27 — D3: vừa đọc vừa nghe nhạc
+EP27 = dua_tap(
+ "27_vua-doc-vua-nghe-nhac", "Vừa đọc vừa nghe nhạc: não chia kênh thế nào", [
+  ("h1", 9.0, ("Vừa đọc vừa nghe nhạc",
+    "Nhạc không làm bạn<br><span class=\"hl\">đọc chậm</span> — có khi ngược lại",
+    "Nhưng nó lấy đi một thứ khác: chỗ trống trong bộ nhớ."),
+   "Vừa đọc vừa nghe nhạc không nhất thiết làm bạn đọc chậm hơn. Nhưng nó lấy đi một thứ khác."),
+  ("list", 12.0, ("Ba kiểu nhạc khác nhau hoàn toàn", [
+    "Nhạc có lời tiếng Việt → tranh chỗ với chữ đang đọc",
+    "Nhạc có lời ngoại ngữ → ít tranh hơn, vẫn có giai điệu",
+    "Nhạc không lời, nhịp đều → cản ít nhất"], None),
+   "Ba kiểu nhạc khác nhau hoàn toàn: nhạc có lời tiếng Việt tranh chỗ với chữ trên trang, nhạc ngoại ngữ ít tranh hơn, và nhạc không lời cản ít nhất."),
+  ("list", 12.0, ("Biết điều này để làm gì", [
+    "Chọn loại nhạc theo việc đang đọc",
+    "Biết lúc nào nên tắt hẳn",
+    "Không đổ lỗi chung chung cho mất tập trung"],
+    "Một tiêu chí duy nhất: lần đọc này có cần nhớ lại không?"),
+   "Biết điều này để chọn nhạc theo việc đang đọc, và để biết lúc nào nên tắt hẳn."),
+  ("h1", 15.0, ("Đọc và nghe dùng chung một kênh",
+    "Cùng một kênh<br><span class=\"hl\">xử lý chữ</span>",
+    "Chữ trên trang và lời trong bài hát đi vào cùng một cửa."),
+   "Chữ trên trang và lời trong bài hát đi vào cùng một cửa xử lý ngôn ngữ. Đó là lý do nhạc có lời tiếng Việt kéo tốc độ đọc xuống rõ hơn nhạc không lời."),
+  ("list", 15.0, ("Nghiên cứu không đồng nhất", [
+    "Có người đọc nhanh hơn khi nghe nhạc quen",
+    "Có người chậm hẳn khi nhạc có lời",
+    "Kết quả phụ thuộc: đọc để nhớ hay đọc để lướt"],
+    "Điểm chung: đọc để nhớ thì nhạc có lời gây hại rõ nhất."),
+   "Các nghiên cứu không đồng nhất: có người đọc nhanh hơn khi nghe nhạc quen, có người chậm hẳn. Điểm chung là khi bạn cần nhớ lại nội dung, nhạc có lời gây hại rõ nhất."),
+  ("list", 14.0, ("Việc cần làm · theo loại việc đọc", [
+    "Đọc để nhớ (giáo trình, sách kỹ năng) → tắt lời",
+    "Đọc lướt, đọc cho vui → nhạc nào cũng được",
+    "Đọc để ghi chép → không mở nhạc"], None),
+   "Việc cần làm: đọc để nhớ thì tắt nhạc có lời; đọc lướt hay đọc cho vui thì nhạc nào cũng được; còn khi ghi chép thì đừng mở nhạc."),
+  ("list", 14.0, ("Tự kiểm trong 15 phút", [
+    "Đọc 5 phút có nhạc có lời → gấp sách, kể lại ba ý",
+    "Đọc 5 phút im lặng → gấp sách, kể lại ba ý",
+    "Bên nào kể được nhiều hơn là bên hợp với bạn"],
+    "Kết quả của người khác không thay được kết quả của bạn."),
+   "Muốn biết chắc thì tự kiểm: đọc năm phút có nhạc, gấp sách kể lại ba ý; rồi đọc năm phút im lặng và làm lại. Bên nào kể được nhiều hơn là bên hợp với bạn."),
+  ("h1", 13.0, ("Thông điệp",
+    "Nhạc không xấu —<br>nó <span class=\"hl\">chiếm chỗ</span>",
+    "Đọc để nhớ thì đừng để lời bài hát ngồi cùng chỗ với chữ."),
+   "Thông điệp: nhạc không xấu, nó chỉ chiếm chỗ. Khi việc đọc cần nhớ lại thì đừng để lời bài hát ngồi cùng chỗ với chữ."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Trong khoá, phần ghi chép và ôn theo mốc là phần nhạy với tiếng ồn nhất, nên tôi nhắc học viên tắt nhạc có lời đúng những lúc đó. Khoá bảy buổi Zoom, học phí chín trăm tám mươi nghìn đồng."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
+# ------------------------------------------- TẬP 28 — E3: người đi làm, 30 phút mỗi ngày nên đọc gì
+EP28 = dua_tap(
+ "28_di-lam-30-phut-moi-ngay", "Người đi làm: 30 phút mỗi ngày nên đọc gì", [
+  ("h1", 9.0, ("Người đi làm · ba mươi phút",
+    "Ba mươi phút mỗi ngày<br>đọc <span class=\"hl\">cái gì</span>?",
+    "Đọc sai thứ thì ba mươi phút cũng trôi mất."),
+   "Bạn có ba mươi phút mỗi ngày, và câu hỏi thật không phải đọc thế nào, mà là đọc cái gì."),
+  ("list", 12.0, ("Ba cách dùng sai ba mươi phút", [
+    "Đọc tin trên mạng rồi hết giờ",
+    "Mỗi cuốn đọc vài trang rồi bỏ",
+    "Chờ có thời gian dài mới đọc — mà không bao giờ có"], None),
+   "Ba cách làm mất ba mươi phút: đọc tin trên mạng rồi hết giờ, đọc mỗi cuốn vài trang rồi bỏ, và chờ một khoảng thời gian dài mới đọc."),
+  ("list", 13.0, ("Chọn đúng thì được gì", [
+    "Ba mươi phút thành 20–30 cuốn một năm",
+    "Kiến thức dùng được ngay vào việc đang làm",
+    "Đọc đều, không phải quyết định lại mỗi ngày"],
+    "Cùng số phút, khác thứ đọc là khác kết quả."),
+   "Chọn đúng thì ba mươi phút mỗi ngày thành hai mươi đến ba mươi cuốn một năm, và phần lớn là sách dùng được ngay cho công việc."),
+  ("h1", 14.0, ("Vì sao thứ đọc quyết định",
+    "Sách để làm việc<br>khác <span class=\"hl\">sách để đọc cho nhẹ</span>",
+    "Một loại cần ghi chép và làm theo. Một loại chỉ cần đọc cho nhẹ đầu."),
+   "Sách để làm việc và sách để đọc cho nhẹ là hai loại khác nhau. Loại thứ nhất cần ghi chép và làm theo, và không nên đọc lúc bạn đã mệt."),
+  ("list", 14.0, ("Ba túi thời gian khác nhau", [
+    "Lúc chờ, lúc đi đường (5–10 phút): bài ngắn, tin, tổng hợp",
+    "Buổi tối 30 phút liền: sách kỹ năng, đọc kèm ghi chép",
+    "Cuối tuần: sách dài, chủ đề lớn"], None),
+   "Ba túi thời gian cần ba loại đọc khác nhau: lúc chờ thì đọc bài ngắn; buổi tối có ba mươi phút liền thì đọc sách kỹ năng kèm ghi chép; cuối tuần thì dành cho sách dài."),
+  ("list", 13.0, ("Việc cần làm · chọn một chủ đề", [
+    "Chọn đúng một chủ đề gắn với việc đang làm",
+    "Xếp hàng ba cuốn, đọc lần lượt",
+    "Đọc xong một cuốn mới sang cuốn tiếp"], None),
+   "Việc cần làm: chọn đúng một chủ đề gắn với việc bạn đang làm, xếp hàng ba cuốn và đọc lần lượt, xong một cuốn rồi mới sang cuốn khác."),
+  ("list", 13.0, ("Việc cần làm · đặt giờ cố định", [
+    "Ba mươi phút cùng một khung giờ mỗi ngày",
+    "Đọc trên máy: tắt thông báo, chỉ một cửa sổ",
+    "Sau mỗi lần đọc, ghi lại một câu đáng dùng"], None),
+   "Và đặt một khung giờ cố định, ba mươi phút, cùng một chỗ mỗi ngày. Đọc trên máy thì tắt thông báo và chỉ mở một cửa sổ."),
+  ("h1", 13.0, ("Thông điệp",
+    "Ba mươi phút là<br><span class=\"hl\">một cuốn sách mỗi tháng</span>",
+    "Nhưng chỉ khi bạn chọn đúng thứ để đọc."),
+   "Thông điệp: ba mươi phút mỗi ngày là một cuốn sách mỗi tháng, với điều kiện bạn chọn đúng thứ để đọc."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Người đi làm thường vào khoá vì không có nhiều thời gian: ba mươi phút mỗi ngày, đọc đúng thứ, và có quy trình để nhớ. Học phí chín trăm tám mươi nghìn đồng, hoàn phí sau buổi một."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
 
 # ---------------------------------------------------------------- TẬP 22 — bài test tốc độ đọc, bản đầy đủ
 # Các tập đứng trước theo đúng thứ tự đăng — văn bản cho bài test lấy từ chính lời đọc của chúng.
@@ -1821,4 +2147,4 @@ EP_AI_AGENT = {
 }
 
 
-EPISODES = _DS_TAP + [EP22, EP23, EP_AI_AGENT]
+EPISODES = _DS_TAP + [EP22, EP23, EP24, EP25, EP26, EP27, EP28, EP_AI_AGENT]
