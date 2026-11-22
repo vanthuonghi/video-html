@@ -353,7 +353,7 @@ const ANIM = [null,(function(t, el){
      const ln = lns[li];
      const r = ln.getBoundingClientRect(), hr = el.getBoundingClientRect();
      const frac = cur - li;
-     const x = Math.min(r.left - hr.left + frac*Math.min(r.width, 860) - 22, 960 - 70);
+     const x = Math.max(96, Math.min(r.left - hr.left + frac*Math.min(r.width, 860) - 22, 960 - 70));
      f.style.transform = 'translate(' + x + 'px,' + (r.top - hr.top - 26) + 'px)';
      f.style.opacity = 1;
    }),(function(t, el){
@@ -367,7 +367,7 @@ const ANIM = [null,(function(t, el){
        const ln = lns[Math.min(2,k)];
        const r = ln.getBoundingClientRect(), hr = el.getBoundingClientRect();
        const frac = lock(span(t,16.4 + k*2.7, 16.4 + k*2.7 + 2.4),0,1);
-       const x = Math.min(r.left - hr.left + frac*r.width - 22, 960 - 70);
+       const x = Math.max(96, Math.min(r.left - hr.left + frac*r.width - 22, 960 - 70));
        f.style.transform = 'translate(' + x + 'px,' + (r.top - hr.top - 26) + 'px)';
        f.style.opacity = 1;
      }
