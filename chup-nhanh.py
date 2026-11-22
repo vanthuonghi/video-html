@@ -62,23 +62,34 @@ class CDP:
             "requestAnimationFrame(f)})"))
 
 
-FONT_SAN_SANG = """document.fonts.ready.then(()=>
-  // phải kiểm cả chữ có dấu: mỗi dải unicode là một tệp woff2 riêng
-  ['400 40px \"VH Noto Sans\"','800 40px \"VH Noto Sans\"']
-   .every(f => document.fonts.check(f, 'Mắt bạn chạy nhanh'))
-   && (typeof window.__total === 'number'))"""
+MAU_CHU = "Mắt bạn chạy nhanh HỌC 0123 ĐƯỢC Ự Ộ Ậ Ễ Ỹ Ỏ Ứ"
+
+# Trang vừa mở thì chưa mặt chữ nào được *yêu cầu* tải; để tự nhiên, tới cảnh đầu tiên
+# dùng mặt chữ khác là một khung hình ra bằng font dự phòng — chữ xuống dòng lệch hẳn.
+# Nên nạp sẵn mọi mặt chữ, rồi chờ không còn mặt chữ nào đang tải.
+FONT_KICH_HOAT = (
+    '[...document.fonts].forEach(f=>{document.fonts.load('
+    '(f.weight||"400")+" 40px \'" + f.family + "\'","' + MAU_CHU + '").catch(()=>{})});"ok"')
+
+FONT_SAN_SANG = (
+    "(()=>{"
+    "if(document.fonts.status!=='loaded')return false;"
+    "if(typeof window.__total!=='number')return false;"
+    "const mat=[...document.fonts];"
+    "if(!mat.some(f=>f.status==='loaded'))return false;"
+    "return mat.every(f=>f.status!=='loading');"
+    "})()")
 
 
-def cho_font(c, so_lan=120):
-    """Chờ font đóng gói tải xong trước khi chụp.
-
-    `font-display` trong fonts/noto-sans.css là `block`, nhưng nếu chụp khi woff2 còn
-    đang tải thì cả tập sẽ dùng font dự phòng: chữ xuống dòng khác hẳn bản đúng.
-    """
+def cho_font(c, so_lan=160):
+    """Chờ mọi mặt chữ của trang tải xong trước khi chụp khung đầu."""
+    try:
+        c.eval(FONT_KICH_HOAT)
+    except Exception:
+        pass
     for _ in range(so_lan):
         try:
-            if c.send("Runtime.evaluate", awaitPromise=True, returnByValue=True,
-                      expression=FONT_SAN_SANG).get("value"):
+            if c.eval(FONT_SAN_SANG):
                 return True
         except Exception:
             pass
@@ -123,11 +134,16 @@ def chup_mot_khung(c, i, fps, quality, so_lan=3):
 
 
 def mo_encoder(seg, fps):
-    """ffmpeg đọc thẳng khung JPEG từ ống: không ghi 1008 tệp trung gian."""
+    """ffmpeg đọc thẳng khung JPEG từ ống: không ghi 1008 tệp trung gian.
+
+    Số luồng x264 phải nhỏ: encoder chạy chen với Chromium trên cùng số nhân, để nó
+    lấy hết thì chính việc chụp chậm lại và tổng thời gian còn tăng.
+    """
+    luong = os.environ.get("VH_X264_THREADS", "1")
     return subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y", "-f", "image2pipe", "-framerate", str(fps),
          "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
-         "-pix_fmt", "yuv420p", seg],
+         "-threads", luong, "-pix_fmt", "yuv420p", seg],
         stdin=subprocess.PIPE)
 
 
@@ -322,3 +338,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
