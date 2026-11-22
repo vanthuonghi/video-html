@@ -62,6 +62,31 @@ class CDP:
             "requestAnimationFrame(f)})"))
 
 
+FONT_SAN_SANG = """document.fonts.ready.then(()=>
+  // phải kiểm cả chữ có dấu: mỗi dải unicode là một tệp woff2 riêng
+  ['400 40px \"VH Noto Sans\"','800 40px \"VH Noto Sans\"']
+   .every(f => document.fonts.check(f, 'Mắt bạn chạy nhanh'))
+   && (typeof window.__total === 'number'))"""
+
+
+def cho_font(c, so_lan=120):
+    """Chờ font đóng gói tải xong trước khi chụp.
+
+    `font-display` trong fonts/noto-sans.css là `block`, nhưng nếu chụp khi woff2 còn
+    đang tải thì cả tập sẽ dùng font dự phòng: chữ xuống dòng khác hẳn bản đúng.
+    """
+    for _ in range(so_lan):
+        try:
+            if c.send("Runtime.evaluate", awaitPromise=True, returnByValue=True,
+                      expression=FONT_SAN_SANG).get("value"):
+                return True
+        except Exception:
+            pass
+        time.sleep(0.25)
+    print("  cảnh báo: font chưa sẵn sàng, chờ quá lâu")
+    return False
+
+
 def cho_trang_lai(c, so_lan=60):
     """Chờ trang dùng được lại sau khi ngữ cảnh thực thi bị huỷ."""
     for _ in range(so_lan):
@@ -97,7 +122,17 @@ def chup_mot_khung(c, i, fps, quality, so_lan=3):
     raise RuntimeError(f"khung {i}: {loi}")
 
 
-def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", probe_only=False):
+def mo_encoder(seg, fps):
+    """ffmpeg đọc thẳng khung JPEG từ ống: không ghi 1008 tệp trung gian."""
+    return subprocess.Popen(
+        ["ffmpeg", "-v", "error", "-y", "-f", "image2pipe", "-framerate", str(fps),
+         "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+         "-pix_fmt", "yuv420p", seg],
+        stdin=subprocess.PIPE)
+
+
+def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", probe_only=False,
+            encode_out=None):
     os.makedirs(outdir, exist_ok=True)
     profile = f"/tmp/chrome-prof-{port}"
     os.makedirs(profile, exist_ok=True)
@@ -140,6 +175,7 @@ def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", prob
         if not total:
             print(f"  [{label or port}] trang chưa sẵn sàng")
             return 0.0
+        cho_font(c)
         if probe_only:
             print(f"TOTAL={total}")
             return 0.0
@@ -148,11 +184,22 @@ def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", prob
         # khung đầu phải chờ headless vẽ xong; chụp ngay sau __seek hay ra ảnh trắng
         c.eval(f"window.__seek({frm / fps:.4f})")
         time.sleep(0.25)
+        enc = mo_encoder(encode_out, fps) if encode_out else None
         t0 = time.time(); n = 0
         for i in range(frm, hi + 1):
-            with open(f"{outdir}/{i:05d}.jpg", "wb") as fh:
-                fh.write(chup_mot_khung(c, i, fps, quality))
+            khung = chup_mot_khung(c, i, fps, quality)
+            if enc:
+                enc.stdin.write(khung)
+            else:
+                with open(f"{outdir}/{i:05d}.jpg", "wb") as fh:
+                    fh.write(khung)
             n += 1
+        if enc:
+            enc.stdin.close()
+            if enc.wait() != 0:
+                raise RuntimeError(f"ffmpeg mã hoá hỏng ở đoạn {frm}–{hi}")
+            with open(encode_out + ".count", "w") as fh:
+                fh.write(str(n))
         el = time.time() - t0
         if n:
             print(f"  [{label or port}] {frm}–{hi}: {n} khung · {el:.1f}s · {n/el:.1f} khung/giây")
@@ -177,6 +224,8 @@ def main():
     ap.add_argument("--gpu", action="store_true")
     ap.add_argument("--total", type=float, default=None)
     ap.add_argument("--clean", action="store_true", help="xoá ảnh cũ trong thư mục đích")
+    ap.add_argument("--encode-out", dest="encode_out", default=None,
+                    help="ghi thẳng ra mp4 (khung chuyển sang ffmpeg qua ống, không để lại tệp jpg)")
     ap.add_argument("--probe", action="store_true", help="chỉ đọc tổng thời lượng của trang rồi thoát")
     a = ap.parse_args()
 
@@ -197,7 +246,8 @@ def main():
 
     if a.workers <= 1:
         t0 = time.time()
-        capture(a.url, a.outdir, a.port, a.frm, a.to, a.fps, a.quality, a.gpu, a.total)
+        capture(a.url, a.outdir, a.port, a.frm, a.to, a.fps, a.quality, a.gpu, a.total,
+                encode_out=a.encode_out)
         print(f"  tổng thời gian: {time.time()-t0:.1f}s")
         return
 
@@ -227,7 +277,8 @@ def main():
         procs.append((s, e, subprocess.Popen([
             sys.executable, __file__, a.url, a.outdir, "--from", str(s), "--to", str(e),
             "--port", str(a.port + k), "--fps", str(a.fps), "--quality", str(a.quality),
-            "--size", a.size, "--total", str(total)] + (["--gpu"] if a.gpu else []))))
+            "--size", a.size, "--total", str(total)] + (["--gpu"] if a.gpu else [])
+            + (["--encode-out", f"/tmp/vh-seg-{a.port + k}-{s}.mp4"] if a.encode_out else []))))
     for s, e, p in procs:
         p.wait()
         # một tiến trình Chrome chết giữa chừng từng làm thiếu nửa số khung mà vẫn
@@ -235,6 +286,31 @@ def main():
         if p.returncode != 0:
             print(f"  !! tiến trình {s}–{e} thoát với mã {p.returncode}")
     el = time.time() - t0
+    if a.encode_out:
+        segs = [f"/tmp/vh-seg-{a.port + k}-{s}.mp4" for k, (s, _, _) in enumerate(procs)]
+        got = sum(int(open(x + ".count").read()) for x in segs if os.path.exists(x + ".count"))
+        want = hi - lo + 1
+        thieu = got != want or any(p.returncode != 0 for _, _, p in procs)
+        canh_bao = "   <<< THIẾU KHUNG, kiểm lại" if got != want else ""
+        print(f"TỔNG: {a.workers} tiến trình · cần {want} khung · có {got} khung · {el:.1f}s · {got/el:.1f} khung/giây{canh_bao}")
+        if thieu:
+            sys.exit(1)
+        danh_sach = "/tmp/vh-concat.txt"
+        with open(danh_sach, "w") as fh:
+            for x in segs:
+                fh.write(f"file '{x}'\n")
+        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0",
+                            "-i", danh_sach, "-c", "copy", "-movflags", "+faststart",
+                            a.encode_out])
+        for x in segs:
+            for f in (x, x + ".count"):
+                if os.path.exists(f):
+                    os.remove(f)
+        if r.returncode != 0:
+            print("  !! ghép các đoạn video hỏng")
+            sys.exit(1)
+        print(f"  xong: {a.encode_out} ({got / a.fps:.1f}s)")
+        return
     got = len([f for f in os.listdir(a.outdir) if f.endswith(".jpg")])
     want = hi - lo + 1
     thieu = got != want or any(p.returncode != 0 for _, _, p in procs)

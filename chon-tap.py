@@ -51,6 +51,15 @@ def slug_tu_tep(dong):
     return ra
 
 
+def tai_nguyen_dung_chung(tep):
+    """Tệp trong do-hoa/ mà mọi tập cùng dùng (font, nhạc, mã QR).
+
+    Đổi mấy tệp này thì khung hình của *tất cả* tập đổi theo, không riêng tập nào —
+    bỏ qua chúng là để video cũ nằm lại sai mà không ai biết.
+    """
+    return [p for p in tep if p.startswith("do-hoa/") and not p.endswith(".html")]
+
+
 def main():
     argv = sys.argv[1:]
     env_in = os.environ.get("IN", "")
@@ -73,14 +82,21 @@ def main():
     elif not co_commit(env_truoc):
         chon, nguon = co, f"không thấy commit {env_truoc[:8]} → dựng tất cả"
     else:
-        doi = slug_tu_tep(git("diff", "--name-only", env_truoc, "HEAD", "--", "do-hoa"))
+        doi_tep = git("diff", "--name-only", env_truoc, "HEAD", "--", "do-hoa")
+        doi = slug_tu_tep(doi_tep)
         # sinh lại trang rồi xem còn tệp nào khác bản đang có (sửa khung mà quên sinh lại)
         r = subprocess.run([sys.executable, f"{BASE}/dung-tap-do-hoa.py"],
                            cwd=BASE, capture_output=True, text=True)
         if r.returncode != 0:
             raise SystemExit("Không sinh lại được trang HTML:\n" + (r.stderr or "")[-500:])
         doi |= slug_tu_tep(git("status", "--porcelain", "--", "do-hoa"))
-        chon, nguon = [s for s in co if s in doi], "trang HTML đổi"
+        chung = tai_nguyen_dung_chung(
+            [d.split()[-1] for d in doi_tep.splitlines() if d.split()]
+            + [d.split()[-1] for d in git("status", "--porcelain", "--", "do-hoa").splitlines() if d.split()])
+        if chung:
+            chon, nguon = co, "tài nguyên dùng chung đổi: " + ", ".join(sorted(set(chung))[:3])
+        else:
+            chon, nguon = [s for s in co if s in doi], "trang HTML đổi"
 
     thieu = [t for t in chon if t not in co]
     if thieu:

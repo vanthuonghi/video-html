@@ -64,35 +64,27 @@ def main():
     # 1. trang HTML đúng khung
     os.makedirs(os.path.dirname(trang), exist_ok=True)
     open(trang, "w", encoding="utf-8").write(dt.build_html(ep, size))
-    print(f"1/4 trang: {trang}  ({ep['total']}s)")
+    print(f"1/3 trang: {trang}  ({ep['total']}s)")
 
     if not mo_duoc(url):
         raise SystemExit(f"  !! chưa mở được {url}\n"
                          f"     mở máy chủ trước: cd {BASE} && python3 -m http.server 8899")
 
-    # 2. chụp khung
+    # 2. chụp khung và mã hoá luôn (mã hoá chạy song song với việc chụp)
+    os.makedirs(os.path.dirname(mp4), exist_ok=True)
     subprocess.run([sys.executable, os.path.join(BASE, "chup-nhanh.py"), url, khung,
                     "--size", a.size, "--fps", str(a.fps), "--workers", str(a.workers),
-                    "--port", str(a.port), "--clean"], check=True)
-    print(f"2/4 khung: {khung}")
+                    "--port", str(a.port), "--clean", "--encode-out", mp4], check=True)
+    print(f"2/3 hình: {mp4}")
 
-    # 3. mã hoá
-    os.makedirs(os.path.dirname(mp4), exist_ok=True)
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(a.fps),
-                    "-i", os.path.join(khung, "%05d.jpg"),
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "20",
-                    "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-r", str(a.fps), mp4],
-                   check=True)
-    print(f"3/4 hình: {mp4}")
-
-    # 4. tiếng (dùng đúng bộ trộn của bản dọc, chỉ đổi tên tệp qua VH_HAU_TO)
+    # 3. tiếng (dùng đúng bộ trộn của bản dọc, chỉ đổi tên tệp qua VH_HAU_TO)
     if a.khong_tieng:
-        print("4/4 tiếng: bỏ qua (--khong-tieng)")
+        print("3/3 tiếng: bỏ qua (--khong-tieng)")
     else:
         env = dict(os.environ, VH_HAU_TO=hau)
         subprocess.run([sys.executable, os.path.join(BASE, "ghep-tieng-tap.py"), a.slug],
                        env=env, check=True)
-        print(f"4/4 tiếng: video-do-hoa/{a.slug}{hau}_co-tieng.mp4")
+        print(f"3/3 tiếng: video-do-hoa/{a.slug}{hau}_co-tieng.mp4")
 
 
 if __name__ == "__main__":

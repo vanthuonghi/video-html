@@ -64,7 +64,8 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      max-parallel: 8
+      # mỗi tập là một máy riêng: dựng nhiều tập cùng lúc thì nhanh hơn là xếp hàng
+      max-parallel: 12
       matrix:
         tap: ${{ fromJSON(needs.chuan-bi.outputs.tap) }}
     name: ${{ matrix.tap }}
@@ -116,20 +117,20 @@ jobs:
           python3 dung-tap-do-hoa.py
 
       - name: Chụp khung hình và mã hoá
+        # khung JPEG chuyển thẳng vào ffmpeg qua ống, mỗi tiến trình tự mã hoá đoạn của
+        # mình (mã hoá chạy song song với việc chụp) rồi ghép lại: không ghi 1008 tệp
+        # trung gian và mất thêm ~30s mã hoá sau khi chụp xong
         env:
           FPS: ${{ github.event.inputs.fps || '24' }}
         run: |
           python3 -m http.server 8899 >/dev/null 2>&1 &
           sleep 2
+          mkdir -p video-do-hoa
           python3 chup-nhanh.py \
             "http://127.0.0.1:8899/do-hoa/${{ matrix.tap }}.html" \
             ".thu-nghiem/frames-${{ matrix.tap }}" \
-            --workers 4 --fps "$FPS" --port 9400 --clean
-          mkdir -p video-do-hoa
-          ffmpeg -v error -y -framerate "$FPS" \
-            -i ".thu-nghiem/frames-${{ matrix.tap }}/%05d.jpg" \
-            -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -movflags +faststart -r "$FPS" \
-            "video-do-hoa/${{ matrix.tap }}.mp4"
+            --workers 4 --fps "$FPS" --port 9400 --clean \
+            --encode-out "video-do-hoa/${{ matrix.tap }}.mp4"
 
       - name: Ghép lời đọc và nhạc nền
         run: python3 ghep-tieng-tap.py "${{ matrix.tap }}"
