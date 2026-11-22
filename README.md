@@ -45,6 +45,10 @@ kịch bản ở `kich-ban.py` rồi đẩy lên là máy tự dựng.
 | `noi-dung.json` | link đăng ký, câu mời quét mã, hashtag dùng chung |
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
+| `dung-ti-le-khac.py` | dựng trọn một tập ở tỉ lệ khung khác 9:16 (1:1, 16:9) |
+| `tai-font-inter.py` | tải font Inter (font thương hiệu) vào `do-hoa/fonts/` |
+| `kiem-qr.py` | giải mã mã QR trong thẻ kết thúc của video đã dựng |
+| `kiem-bai-test.py` | đối chiếu cụm từ hiện ở mốc `t` của bài test tốc độ với kịch bản |
 | `do-hoa/*.html` | trang HTML sinh ra (commit lại để xem được trong repo) |
 | `do-hoa/fonts/` | font Noto Sans tải sẵn — mọi máy dựng ra cùng một bố cục chữ |
 
@@ -94,6 +98,25 @@ thẳng `contentWindow.__seek(t)` — không render lại gì. Mở bằng
 Settings → Pages → Source: **GitHub Actions**. Sau đó workflow `pages.yml` tự đăng
 thư mục `gallery/` mỗi khi nó đổi; khi Pages chưa bật, workflow đó tự bỏ qua nên
 không làm đỏ lần đẩy nào.
+
+## Hai bộ màu trình bày
+
+Mặc định vẫn là **nền tối xanh ngọc** (các tập 01–20, không đổi). Tập nào muốn theo bộ màu
+thương hiệu **đỏ–trắng** của trang `speedreading.vn/sp-online` thì thêm một khoá vào dict
+của tập đó trong `kich-ban.py`:
+
+```python
+"phong_cach": "do-trang",
+```
+
+Khi bật, tập đó dùng: nền trắng, đỏ thương hiệu `#dc2626` / `#b91c1c` / `#991b1b`, chữ xám
+đậm, font **Inter** (tải sẵn trong `do-hoa/fonts/`, sinh bằng `tai-font-inter.py`), ô phụ đề
+đỏ sẫm chữ trắng — và **thẻ kết thúc trỏ về `speedreading.vn/sp-online`** kèm mã QR riêng
+(`assets/qr-sp-online.svg`, `sinh-qr.py` sinh cùng mã cũ). Mô tả trong `metadata.json` cũng
+đổi theo link đó.
+
+Đổi font thì bề ngang chữ đổi theo, nên sau khi bật bộ màu mới **phải chạy lại
+`soat-do-hoa.py <slug> --fail`** trước khi dựng — đây là cổng bắt lỗi chữ tràn.
 
 ## Đa tỉ lệ khung (một kịch bản, ba đầu ra)
 
