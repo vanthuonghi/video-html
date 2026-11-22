@@ -255,7 +255,7 @@ const ANIM = [null,(function(t, el){
      $('e3v').textContent = Math.round(p*500)+' từ/phút';
    }),null];
 const TOTAL = 42.0;
-const CUES = [];
+const CUES = [[0.45, 1.51, "Mắt bạn chạy nhanh"], [1.51, 2.38, "hơn miệng bạn rất"], [2.38, 2.8, "nhiều"], [5.45, 6.56, "Đây là hai tốc"], [6.56, 7.0, "độ"], [7.71, 8.59, "Mắt có thể nhận"], [8.59, 9.39, "hai trăm từ một"], [9.39, 10.57, "phút nhưng giọng đọc"], [10.57, 11.4, "trong đầu thì chậm"], [11.4, 11.84, "hơn"], [16.45, 17.38, "Vì não đọc bằng"], [17.38, 18.25, "cách nghe lại từng"], [18.25, 18.8, "chữ"], [19.51, 20.35, "Chữ nào chưa được"], [20.35, 21.24, "phát âm thì não"], [21.24, 21.97, "chưa nhận"], [26.45, 27.79, "Muốn nhanh hơn phải"], [27.79, 28.57, "đọc bằng mắt"], [29.29, 30.28, "Bỏ giọng đọc trong"], [30.28, 31.46, "đầu tốc độ tăng"], [31.46, 32.07, "gấp đôi"], [35.45, 36.18, "Đó là nguyên lý"], [36.18, 37.02, "thứ hai trong khoá"], [37.02, 38.01, "đọc hiệu quả Speed"], [38.01, 38.58, "Reading"]];
 const ease = x => x<0?0:x>1?1:(x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2);
 const span = (t,a,b) => (t-a)/(b-a);
 const lock = (x,a,b) => Math.max(a, Math.min(b, x));

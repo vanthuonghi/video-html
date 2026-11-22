@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Chọn tập cần dựng: chỉ tập vừa đổi, không dựng lại tập đã xong.
 
+Video đã dựng xong thì coi như xong: chỉ tập có trang HTML thay đổi mới được dựng.
+
 Video đã dựng rồi thì không đụng tới nữa. Mỗi lần đẩy, bước này xem tập nào thật
 sự đổi rồi trả danh sách cho ma trận job. Dựng lại 20 tập chỉ vì một tập mới là
 thứ bỏ được.
