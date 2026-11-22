@@ -15,6 +15,14 @@ on:
         description: "Giọng đọc edge-tts"
         required: false
         default: "vi-VN-NamMinhNeural"
+      workers:
+        description: "Số tiến trình chụp khung mỗi tập (máy CI 4 nhân; để trống = 4)"
+        required: false
+        default: ""
+      ti_le:
+        description: "Ghi 1 để dựng thêm bản 1:1 và 16:9 của tập mẫu 02 (tự chạy khi tập 02 đổi)"
+        required: false
+        default: ""
   push:
     branches: [main]
     paths:
@@ -129,7 +137,7 @@ jobs:
           python3 chup-nhanh.py \
             "http://127.0.0.1:8899/do-hoa/${{ matrix.tap }}.html" \
             ".thu-nghiem/frames-${{ matrix.tap }}" \
-            --workers 4 --fps "$FPS" --port 9400 --clean \
+            --workers "${{ github.event.inputs.workers || '4' }}" --fps "$FPS" --port 9400 --clean \
             --encode-out "video-do-hoa/${{ matrix.tap }}.mp4"
 
       - name: Ghép lời đọc và nhạc nền
@@ -175,6 +183,91 @@ jobs:
             video-do-hoa/*_poster.png
             video-do-hoa/*_thumb.png
             video-do-hoa/*.json
+          retention-days: 14
+
+  # Bản 1:1 và 16:9 của tập mẫu: cùng kịch bản, cùng lời đọc, chỉ khác khung.
+  # Chỉ chạy khi tập mẫu đổi (hoặc chọn tay) để không cộng thêm thời gian vào lần dựng thường.
+  ti-le-khac:
+    needs: chuan-bi
+    if: |
+      needs.chuan-bi.outputs.co == '1' && (
+        github.event.inputs.ti_le == '1' ||
+        contains(needs.chuan-bi.outputs.tap, '02_noi-tham-trong-dau'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        size: ["1080x1080", "1920x1080"]
+    name: 02 · ${{ matrix.size }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Cài ffmpeg và thư viện Python
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install --quiet -r requirements.txt \
+            || python3 -m pip install --quiet --break-system-packages -r requirements.txt
+
+      - name: Tìm hoặc cài trình duyệt
+        run: |
+          set -e
+          CH=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)
+          if [ -z "$CH" ]; then
+            curl -sL -o /tmp/chrome.zip \
+              https://storage.googleapis.com/chrome-for-testing-public/156.0.8078.80/linux64/chrome-linux64.zip
+            unzip -q /tmp/chrome.zip -d /opt
+            CH=/opt/chrome-linux64/chrome
+          fi
+          echo "CHROME_PATH=$CH" >> "$GITHUB_ENV"
+
+      - name: Sinh nhạc nền và mã QR
+        run: |
+          python3 sinh-nhac.py
+          python3 sinh-qr.py
+
+      - name: Giữ lại lời đọc giữa các lần dựng
+        uses: actions/cache@v4
+        with:
+          path: .thu-nghiem/giong
+          key: giong-02_noi-tham-trong-dau-${{ hashFiles('dung-tap-do-hoa.py', 'kich-ban.py') }}-${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}
+          restore-keys: giong-02_noi-tham-trong-dau-
+
+      - name: Sinh giọng đọc của tập mẫu
+        run: |
+          python3 sinh-giong-edge.py 02_noi-tham-trong-dau \
+            --giong "${{ github.event.inputs.giong || 'vi-VN-NamMinhNeural' }}"
+
+      - name: Dựng trọn một tập ở khung ${{ matrix.size }}
+        run: |
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          python3 dung-ti-le-khac.py 02_noi-tham-trong-dau --size "${{ matrix.size }}" \
+            --workers "${{ github.event.inputs.workers || '4' }}" --fps "${{ github.event.inputs.fps || '24' }}"
+
+      - name: Soát bố cục khung ${{ matrix.size }}
+        run: |
+          python3 -m http.server 8899 >/dev/null 2>&1 &
+          sleep 2
+          python3 soat-do-hoa.py 02_noi-tham-trong-dau --size "${{ matrix.size }}" --step 2.5 --fail
+
+      - name: Kiểm tra đầu ra (thời lượng, khung, tiếng không câm)
+        run: python3 kiem-tra.py 02_noi-tham-trong-dau --size "${{ matrix.size }}"
+
+      - name: Đăng lên release — URL công khai cố định
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload moi-nhat \
+            "video-do-hoa/02_noi-tham-trong-dau_${{ matrix.size }}_co-tieng.mp4" --clobber
+          sha256sum "video-do-hoa/02_noi-tham-trong-dau_${{ matrix.size }}_co-tieng.mp4"
+
+      - name: Lưu bản dựng vào mục tải về của lần chạy
+        uses: actions/upload-artifact@v5
+        with:
+          name: 02-${{ matrix.size }}
+          path: video-do-hoa/02_noi-tham-trong-dau_${{ matrix.size }}_co-tieng.mp4
           retention-days: 14
 
   soat-bo-cuc:

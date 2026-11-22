@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Kiểm tra một tập đã dựng: đúng thời lượng, có hình, có tiếng, và tiếng không bị câm.
 Dùng: python3 kiem-tra.py <slug> [<slug> ...]      (mã thoát 1 nếu có tập lỗi)
+      python3 kiem-tra.py <slug> --size 1080x1080  (bản khung khác: <slug>_1080x1080_co-tieng.mp4)
 """
 import importlib.util, json, os, subprocess, sys
 
@@ -63,11 +64,28 @@ def co_tieng_noi(f, moc, cua_so=0.5, tre=0.4):
 
 def main():
     eps = load_episodes()
-    args = sys.argv[1:] or list(eps)
+    args = sys.argv[1:]
+    # --size WxH: kiểm bản dựng khung khác; mặc định là bản dọc 9:16
+    khung = None
+    con = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--size" and i + 1 < len(args):
+            try:
+                khung = tuple(int(x) for x in args[i + 1].lower().split("x"))
+            except Exception:
+                raise SystemExit(f"--size phải có dạng WxH (nhận: {args[i + 1]})")
+            i += 2
+            continue
+        con.append(args[i]); i += 1
+    if not con:
+        con = list(eps)
+    rong, cao = khung or (1080, 1920)
+    hau = f"_{rong}x{cao}" if khung else ""
     loi = 0
-    for slug in args:
+    for slug in con:
         ep = eps[slug]
-        f = f"{OUT}/{slug}_co-tieng.mp4"
+        f = f"{OUT}/{slug}{hau}_co-tieng.mp4"
         print(f"\n=== {slug}")
         if not os.path.exists(f):
             print("  LỖI: chưa có tệp video"); loi += 1; continue
@@ -82,8 +100,8 @@ def main():
             print(f"  thời lượng {dur:.2f}s khớp kịch bản")
         if not vs:
             print("  LỖI: không có luồng hình"); ok = False
-        elif vs[0]["width"] != 1080 or vs[0]["height"] != 1920:
-            print(f"  LỖI: khung {vs[0]['width']}x{vs[0]['height']}, phải là 1080x1920"); ok = False
+        elif vs[0]["width"] != rong or vs[0]["height"] != cao:
+            print(f"  LỖI: khung {vs[0]['width']}x{vs[0]['height']}, phải là {rong}x{cao}"); ok = False
         else:
             print(f"  khung {vs[0]['width']}x{vs[0]['height']} đúng")
         if not aud:
