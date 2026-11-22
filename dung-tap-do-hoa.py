@@ -395,16 +395,17 @@ def endcard(i, ep):
               '<div class="nxt">Xem lại từ đầu để nhớ đủ các bước</div></div>')
     cham = "".join('<i class="%s"></i>' % ("on" if k <= i else "")
                    for k in range(tong))
-    ten_ngan = CAU_HINH["dang_ky"].replace("https://", "").replace("http://", "").rstrip("/")
+    link_ep = ep.get("dang_ky") or CAU_HINH["dang_ky"]
+    ten_ngan = link_ep.replace("https://", "").replace("http://", "").rstrip("/")
     # Phong cách đỏ–trắng: cuối video trỏ về trang lớp Zoom online (speedreading.vn/sp-online)
     if ep.get("phong_cach") == "do-trang":
-        link = CAU_HINH.get("dang_ky_online", CAU_HINH["dang_ky"])
-        nhan = CAU_HINH.get("dang_ky_nhan_online", CAU_HINH["dang_ky_nhan"])
+        link = ep.get("dang_ky") or CAU_HINH.get("dang_ky_online", CAU_HINH["dang_ky"])
+        nhan = ep.get("dang_ky_nhan") or CAU_HINH.get("dang_ky_nhan_online", CAU_HINH["dang_ky_nhan"])
         qr = "assets/qr-sp-online.svg"
         ten_ngan = link.replace("https://", "").replace("http://", "").rstrip("/")
         cuoi = "Lớp <b>7 buổi Zoom</b> · <b>980.000đ</b> · hoàn phí nếu không hài lòng sau buổi 1"
     else:
-        nhan, qr = CAU_HINH["dang_ky_nhan"], "assets/qr.svg"
+        nhan, qr = ep.get("dang_ky_nhan") or CAU_HINH["dang_ky_nhan"], "assets/qr.svg"
         cuoi = "Lớp <b>7 buổi</b> · <b>980.000đ</b> · buổi 1 không hợp thì hoàn tiền"
     return f"""
     <div class="kicker">Tập {so}/{tong}</div>
@@ -550,7 +551,7 @@ def build_html(ep, size=KHUNG_GOC):
     font_link = ('<link rel="stylesheet" href="fonts/noto-sans.css">\n'
                  '<link rel="stylesheet" href="fonts/inter.css">' if do_trang
                  else '<link rel="stylesheet" href="fonts/noto-sans.css">')
-    theme_css = CSS_DO_TRANG if do_trang else ""
+    theme_css = (CSS_DO_TRANG if do_trang else "") + ep.get("css_extra", "")
     return f"""<!DOCTYPE html>
 <html lang="vi">
 <head>

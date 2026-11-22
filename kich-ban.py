@@ -1495,4 +1495,153 @@ BO_MAU_CHUAN = "do-trang"
 for _ep in _DS_TAP:
     _ep.setdefault("phong_cach", BO_MAU_CHUAN)
 
-EPISODES = _DS_TAP + [EP22]
+
+
+# ---------------------------------------------------------------- TẬP AI AGENT — sâu hơn, màu công nghệ
+EP_AI_AGENT = {
+ "slug": "23_ai-agent-tu-nuoi-kenh", "total": 96.0,
+ "ten": "AI Agent tự nuôi kênh: từ ý tưởng đến bài đăng mỗi ngày",
+ "brand": "VĂN HỈ OFFICIAL · AI AGENT",
+ "dang_ky": "https://vanhi.id.vn",
+ "dang_ky_nhan": "Xem thêm tại vanhi.id.vn",
+ "phong_cach": "toi",
+ "css_extra": """
+  #bg{background:
+      radial-gradient(1200px 900px at 16% 8%, rgba(0,180,255,.20), transparent 60%),
+      radial-gradient(1000px 820px at 84% 90%, rgba(120,80,255,.16), transparent 62%),
+      linear-gradient(165deg,#050b18 0%,#0a1630 52%,#050b18 100%)!important}
+  .grain{opacity:.06}
+  .kicker{color:#38d9ff!important}
+  h1{color:#f0f7ff}
+  h1 .hl{color:#38d9ff!important}
+  .sub{color:#a8bed4}
+  .sub b{color:#eaf6ff}
+  .techcard{display:flex;flex-direction:column;gap:20px;margin-top:18px}
+  .techcard .tc{background:rgba(10,28,56,.78);border:2px solid rgba(56,217,255,.38);border-radius:24px;padding:28px 34px;opacity:0}
+  .techcard .tc .tl{font-size:30px;color:#38d9ff;font-weight:800;letter-spacing:.04em;margin-bottom:10px}
+  .techcard .tc .tt{font-size:42px;line-height:1.32;color:#eaf6ff}
+  .techcard .tc .ts{font-size:28px;color:#9fb8d0;margin-top:10px}
+  .bigq{font-size:62px;line-height:1.25;font-weight:800;color:#f0f7ff;text-align:center;margin:26px 0}
+  .bigq em{font-style:normal;color:#38d9ff}
+  .flow{display:flex;flex-direction:column;gap:16px;margin-top:16px}
+  .flow .fw{display:flex;align-items:center;gap:22px;background:rgba(10,28,56,.7);border:1px solid rgba(56,217,255,.3);border-radius:20px;padding:22px 28px;opacity:0}
+  .flow .fw .fn{width:64px;height:64px;border-radius:18px;background:#38d9ff;color:#051224;font-size:32px;font-weight:900;display:grid;place-items:center;flex:0 0 auto}
+  .flow .fw .ft{font-size:36px;color:#eaf6ff;font-weight:700}
+  .flow .fw .fd{font-size:26px;color:#9fb8d0;margin-top:4px}
+  .msg{display:flex;flex-direction:column;gap:18px;margin-top:18px}
+  .msg .mb{max-width:86%;padding:24px 30px;border-radius:22px;font-size:36px;line-height:1.35;opacity:0}
+  .msg .mb.u{align-self:flex-end;background:#38d9ff;color:#051224;font-weight:700}
+  .msg .mb.a{align-self:flex-start;background:rgba(10,28,56,.8);border:1px solid rgba(56,217,255,.3);color:#eaf6ff}
+  .stat{display:flex;gap:22px;margin-top:20px;justify-content:center}
+  .stat .st{flex:1;background:rgba(10,28,56,.7);border:1px solid rgba(56,217,255,.3);border-radius:20px;padding:22px 12px;text-align:center;opacity:0}
+  .stat .st b{display:block;font-size:48px;color:#38d9ff;font-weight:900}
+  .stat .st span{font-size:24px;color:#9fb8d0}
+  #brand{color:#38d9ff!important}
+  .nx,.endinfo,.ticket{color:#c9dcf0!important}
+  .nx .nxt{color:#eaf6ff!important}
+ """,
+ "scenes": [
+   (0,8.0),(8.0,20.0),(20.0,34.0),(34.0,48.0),(48.0,62.0),
+   (62.0,76.0),(76.0,88.0),(88.0,96.0)
+ ],
+ "html": [
+   scene("""<div class="kicker">Một câu hỏi</div>
+    <div class="bigq">Bạn có kênh.<br>Bạn có ý tưởng.<br><em>Vậy mà ngày nào cũng bí đăng?</em></div>
+    <div class="sub">Không phải bạn lười. Là mỗi ngày bạn phải bắt đầu lại từ con số không.</div>"""),
+   scene("""<div class="kicker">01 · Giá trị khi biết</div>
+    <h1 style="font-size:74px">Thứ tốn bạn<br><span class="hl">không phải ý tưởng.</span></h1>
+    <div class="techcard" id="c1">
+      <div class="tc"><div class="tl">Tốn thật</div><div class="tt">Viết lại caption, làm lại ảnh, nhớ lại giờ đăng.</div><div class="ts">Một tiếng mỗi ngày, nhân 30 là 30 tiếng.</div></div>
+      <div class="tc"><div class="tl">Hiểu ra</div><div class="tt">Việc lặp lại nên giao cho máy, không phải cho bạn.</div></div>
+    </div>"""),
+   scene("""<div class="kicker">02 · Hiểu biết mới</div>
+    <h1 style="font-size:72px">Chatbot chờ bạn hỏi.<br><span class="hl">Agent tự làm tiếp.</span></h1>
+    <div class="techcard" id="c2">
+      <div class="tc"><div class="tl">Chatbot</div><div class="tt">Bạn gõ một câu, nó trả một câu, rồi thôi.</div></div>
+      <div class="tc"><div class="tl">AI Agent</div><div class="tt">Nhận mục tiêu, tự chia việc, tự chạy đến khi xong.</div><div class="ts">Có công cụ, có bộ nhớ, có lịch chạy.</div></div>
+    </div>"""),
+   scene("""<div class="kicker">03 · Cấu tạo</div>
+    <h1 style="font-size:70px">Agent = <span class="hl">Mục tiêu</span><br>+ Công cụ + Bộ nhớ</h1>
+    <div class="flow" id="f3">
+      <div class="fw"><div class="fn">1</div><div><div class="ft">Mục tiêu</div><div class="fd">"Kênh có bài mỗi ngày"</div></div></div>
+      <div class="fw"><div class="fn">2</div><div><div class="ft">Công cụ</div><div class="fd">Sheet · Drive · Buffer</div></div></div>
+      <div class="fw"><div class="fn">3</div><div><div class="ft">Bộ nhớ</div><div class="fd">Nhớ chủ đề đã làm, giữ không đăng trùng</div></div></div>
+    </div>"""),
+   scene("""<div class="kicker">04 · Ta cần làm gì</div>
+    <h1 style="font-size:70px">Bạn chỉ việc<br><span class="hl">duyệt một dòng.</span></h1>
+    <div class="msg" id="m4">
+      <div class="mb u">"Chủ đề hôm nay: AI Agent cho Spa. Đăng 14h."</div>
+      <div class="mb a">Đã viết caption. Đã tạo ảnh. Đã hẹn 14h trên 3 kênh.</div>
+      <div class="mb u">"Ổn. Ngày mai làm tiếp chủ đề 15."</div>
+      <div class="mb a">Đã ghi nhớ. Hẹn gặp bạn 8h30 sáng mai.</div>
+    </div>"""),
+   scene("""<div class="kicker">05 · Thông điệp</div>
+    <h1 style="font-size:68px">Máy làm phần <span class="hl">mệt.</span><br>Bạn giữ phần <span class="hl">quyết định.</span></h1>
+    <div class="techcard" id="c5">
+      <div class="tc"><div class="tl">Không phải</div><div class="tt">Agent thay bạn sáng tạo. Nó thay bạn lặp lại.</div></div>
+      <div class="tc"><div class="tl">Kết quả</div><div class="tt">15 phút mỗi sáng. Còn lại kênh tự chạy.</div></div>
+    </div>"""),
+   scene("""<div class="kicker">06 · Kết quả thật</div>
+    <h1 style="font-size:72px">Hệ thống đang<br><span class="hl">chạy mỗi ngày.</span></h1>
+    <div class="stat" id="s6">
+      <div class="st"><b>8h30</b><span>tạo nội dung</span></div>
+      <div class="st"><b>12h</b><span>bài đầu lên sóng</span></div>
+      <div class="st"><b>15h</b><span>bài thứ hai</span></div>
+    </div>
+    <div class="sub">Có cron tự đổi model khi hết free. Có job tự giữ kết nối Google.</div>"""),
+   scene("""<div class="kicker">Bắt đầu</div>
+    <h1 style="font-size:76px">Muốn kênh bạn<br><span class="hl">tự chạy?</span></h1>
+    <div class="sub">Xem thêm quy trình và dịch vụ tại <b>vanhi.id.vn</b>.<br>Từ một chủ đề đến ba kênh, không cần biết code.</div>"""),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     [1,2].forEach(function(k){
+       var c = el.querySelector('#c1 .tc:nth-child('+k+')');
+       if(!c) return;
+       var o = ease(span(t, 9.5+k*3.2, 10.6+k*3.2));
+       c.style.opacity = o; c.style.transform='translateY('+((1-o)*22)+'px)';
+     });
+   }""",
+   """function(t, el){
+     [1,2].forEach(function(k){
+       var c = el.querySelector('#c2 .tc:nth-child('+k+')');
+       if(!c) return;
+       c.style.opacity = ease(span(t, 21.5+k*3.4, 22.8+k*3.4));
+     });
+   }""",
+   """function(t, el){
+     var ws = el.querySelectorAll('#f3 .fw');
+     ws.forEach(function(w,i){ w.style.opacity = ease(span(t, 35.5+i*2.6, 36.8+i*2.6)); });
+   }""",
+   """function(t, el){
+     var ms = el.querySelectorAll('#m4 .mb');
+     ms.forEach(function(m,i){ m.style.opacity = ease(span(t, 49.5+i*2.8, 50.8+i*2.8)); });
+   }""",
+   """function(t, el){
+     [1,2].forEach(function(k){
+       var c = el.querySelector('#c5 .tc:nth-child('+k+')');
+       if(!c) return;
+       c.style.opacity = ease(span(t, 63.5+k*3.4, 64.8+k*3.4));
+     });
+   }""",
+   """function(t, el){
+     var ss = el.querySelectorAll('#s6 .st');
+     ss.forEach(function(s,i){ s.style.opacity = ease(span(t, 77.5+i*2.2, 78.8+i*2.2)); });
+   }""",
+   "",
+ ],
+ "narration": [
+   (0, "Bạn có kênh, bạn có ý tưởng. Vậy mà ngày nào cũng bí đăng. Không phải bạn lười. Là mỗi ngày bạn phải bắt đầu lại từ con số không."),
+   (1, "Thứ tốn bạn không phải là ý tưởng. Là viết lại caption, làm lại ảnh, nhớ lại giờ đăng. Một tiếng mỗi ngày, nhân ba mươi là ba mươi tiếng."),
+   (2, "Hiểu ra một điều: việc lặp lại nên giao cho máy, không phải cho bạn. Chatbot chờ bạn hỏi, trả một câu rồi thôi. AI Agent nhận mục tiêu, tự chia việc, tự chạy đến khi xong."),
+   (3, "Agent gồm ba thứ. Mục tiêu: kênh có bài mỗi ngày. Công cụ: Sheet, Drive, Buffer. Và bộ nhớ: nhớ chủ đề đã làm để không đăng trùng."),
+   (4, "Bạn chỉ việc duyệt một dòng. Ghi chủ đề và giờ đăng. Agent viết caption, tạo ảnh, hẹn giờ trên ba kênh, rồi tự ghi nhớ cho ngày mai."),
+   (5, "Thông điệp ở đây: máy làm phần mệt, bạn giữ phần quyết định. Agent không thay bạn sáng tạo. Nó thay bạn lặp lại. Mười lăm phút mỗi sáng, còn lại kênh tự chạy."),
+   (6, "Hệ thống này đang chạy thật. Tám giờ ba mươi tạo nội dung. Mười hai giờ bài đầu lên sóng. Ba giờ chiều bài thứ hai. Có cron tự đổi model khi hết free, có job tự giữ kết nối Google."),
+   (7, "Muốn kênh bạn tự chạy? Xem thêm quy trình và dịch vụ tại van hi dot i d v n. Từ một chủ đề đến ba kênh, không cần biết code."),
+ ],
+}
+
+EPISODES = _DS_TAP + [EP22, EP_AI_AGENT]
+
