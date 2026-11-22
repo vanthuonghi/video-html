@@ -26,41 +26,43 @@ FADE = 0.25                   # làm mờ hai đầu để lặp không kêu "t�
 VONG = ["Am", "F", "C", "G"]
 HOP_AM = {"Am": [45, 48, 52], "F": [41, 45, 48], "C": [48, 52, 55], "G": [43, 47, 50]}
 # thứ tự quét của tiếng chuông trong mỗi ô: trầm → cao → về giữa
-QUET = [0, 1, 2, 1, 0, 2, 1, 2]
+QUET = [0, 1, 2, 1]
 
 
 def tan_so(midi):
     return 440.0 * 2 ** ((midi - 69) / 12.0)
 
 
-def them_chuong(buf, t0, f, bien_do, tau=0.55, hai=0.22):
-    """Một nốt chuông: sin tắt dần + hơi có hoạ âm bậc hai cho ấm, không chói."""
+def cong_vong(buf, t0, mau):
+    """Cộng một nốt đã dựng sẵn vào vòng nhạc, quấn vòng ở cuối.
+
+    Vòng nhạc dài 9,6 giây và được lặp 6 lần thành 57,6 giây, nên đuôi nốt của ô
+    nhịp cuối phải chảy sang đầu vòng chứ không bị cắt (cắt là nghe "tách").
+    """
+    n = len(buf)
     i0 = int(t0 * SR)
+    for i, v in enumerate(mau):
+        buf[(i0 + i) % n] += v
+
+
+def not_chuong(f, bien_do, tau=0.55, hai=0.22):
+    """Mẫu của một nốt chuông: sin tắt dần + hoạ âm bậc hai cho ấm."""
     n = int(min(1.6, 4 * tau) * SR)
+    ra = []
     for i in range(n):
-        j = i0 + i
-        if j >= len(buf):
-            break
         t = i / SR
         bao = math.exp(-t / tau) * (1.0 - math.exp(-t / 0.006))
-        buf[j] += bien_do * bao * (math.sin(2 * math.pi * f * t)
-                                   + hai * math.sin(4 * math.pi * f * t) * math.exp(-t / (tau * 0.45)))
+        ra.append(bien_do * bao * (math.sin(2 * math.pi * f * t)
+                                   + hai * math.sin(4 * math.pi * f * t) * math.exp(-t / (tau * 0.45))))
+    return ra
 
 
-def them_bass(buf, t0, f, bien_do, dai=BAR):
-    """Nốt bass êm: vào chậm, giữ, ra chậm — chỉ sin nên không có tiếng rè."""
-    i0 = int(t0 * SR)
+def not_bass(f, bien_do, dai=BAR):
+    """Một ô bass êm: vào chậm, giữ, ra chậm — chỉ sin nên không có tiếng rè."""
     n = int(dai * SR)
-    vao, ra = 0.35, 0.55
-    for i in range(n):
-        j = i0 + i
-        if j >= len(buf):
-            break
-        t = i / SR
-        bao = min(1.0, t / vao, (dai - t) / ra) if dai - t > 0 else 0.0
-        if bao < 0:
-            bao = 0.0
-        buf[j] += bien_do * bao * math.sin(2 * math.pi * f * t)
+    vao, ra_o = 0.35, 0.55
+    return [bien_do * max(0.0, min(1.0, (i / SR) / vao, (dai - i / SR) / ra_o))
+            * math.sin(2 * math.pi * f * (i / SR)) for i in range(n)]
 
 
 def ghi_wav(ten, mau, dinh=0.55):
@@ -77,23 +79,29 @@ def ghi_wav(ten, mau, dinh=0.55):
 
 
 def nhac_nen():
-    n = int(SO_O * BAR * SR)
-    buf = [0.0] * n
-    for o in range(SO_O):
-        ten = VONG[o % len(VONG)]
+    """Dựng MỘT vòng 4 ô nhịp (9,6 giây) rồi lặp 6 lần.
+
+    Vòng hợp âm lặp y hệt nhau, nên dựng từng ô 24 lần là phí: mỗi nốt chỉ viết
+    một lần rồi nhân bản. Bản viết thẳng ra 57,6 giây mất 23 giây mỗi job — quá
+    đắt, trong khi cách này dưới 3 giây và ra đúng cùng một bản nhạc.
+    """
+    vong = [0.0] * int(BAR * len(VONG) * SR)
+    for o, ten in enumerate(VONG):
         hop = HOP_AM[ten]
         t_o = o * BAR
         # bass: nốt gốc, nhẹ và dài hết ô nhịp
-        them_bass(buf, t_o, tan_so(hop[0]), 0.085)
-        # chuông: 8 nốt mỗi ô, nốt gốc lên quãng tám cho sáng mà vẫn dịu
+        cong_vong(vong, t_o, not_bass(tan_so(hop[0]), 0.085))
+        # chuông: 4 nốt mỗi ô, nốt gốc lên quãng tám cho sáng mà vẫn dịu
         for k, chi in enumerate(QUET):
-            midi = hop[chi] + 12 + (12 if k % 4 == 2 else 0)
-            # nốt 1 và 5 của ô nhấn hơn một chút để có nhịp, không đều đều
-            bien_do = 0.15 if k in (0, 4) else 0.095
-            them_chuong(buf, t_o + k * (BAR / len(QUET)), tan_so(midi), bien_do,
-                        tau=0.5 if k in (0, 4) else 0.38,
-                        hai=0.18 if k in (0, 4) else 0.10)
+            midi = hop[chi] + 12 + (12 if k == 2 else 0)
+            nhan = k == 0            # nốt đầu ô nhấn hơn để có nhịp, không đều đều
+            cong_vong(vong, t_o + k * (BAR / len(QUET)),
+                      not_chuong(tan_so(midi), 0.15 if nhan else 0.095,
+                                 tau=0.50 if nhan else 0.38,
+                                 hai=0.18 if nhan else 0.10))
+    buf = vong * int(round(SO_O / len(VONG)))
     # làm mờ hai đầu: bản nhạc được lặp bằng -stream_loop nên mối nối phải êm
+    n = len(buf)
     m = int(FADE * SR)
     for i in range(m):
         buf[i] *= i / m
@@ -103,10 +111,9 @@ def nhac_nen():
 
 def tieng_chuyen_canh():
     """Chuông hai nốt (quãng năm) thay cho tiếng nhiễu gió cũ."""
-    n = int(1.2 * SR)
-    buf = [0.0] * n
-    them_chuong(buf, 0.0, tan_so(81), 0.5, tau=0.42, hai=0.25)   # La5
-    them_chuong(buf, 0.06, tan_so(88), 0.32, tau=0.34, hai=0.18)  # Mi6
+    buf = [0.0] * int(1.2 * SR)
+    cong_vong(buf, 0.0, not_chuong(tan_so(81), 0.5, tau=0.42, hai=0.25))   # La5
+    cong_vong(buf, 0.06, not_chuong(tan_so(88), 0.32, tau=0.34, hai=0.18))  # Mi6
     return buf
 
 
