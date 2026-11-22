@@ -62,6 +62,14 @@ Chữ dùng font đóng gói trong `do-hoa/fonts/` (không phụ thuộc font c�
 Âm thanh: nhạc nền tự hạ dưới giọng đọc (`sidechaincompress`), mỗi tập được đo độ to thật
 rồi đưa về **−16 LUFS, đỉnh −1,5 dBTP** để các tập nghe đều nhau.
 
+Nhạc nền do `sinh-nhac.py` viết bằng Python (không kèm tệp, không cần ffmpeg): vòng hợp
+âm **Am–F–C–G** 100 BPM, giai điệu chuông quét 8 nốt mỗi ô nhịp + bass êm, lặp mỗi 57,6
+giây, hai đầu làm mờ 0,25 giây nên mối nối không kêu. Tiếng chuyển cảnh là **chuông hai
+nốt**, không phải nhiễu gió. Bản đầu là hai sin 110 Hz + 163 Hz chồng nhau, chênh 53 Hz
+nên tạo nhịp phách rất chậm rồi lọc thấp — nghe thành tiếng **ù “è è”** suốt video và
+biến mất trên loa điện thoại; đã bỏ hẳn. Mức nhạc nền (`PAD_VOL`) chọn bằng số đo: giọng
+đọc phải hơn nền **≥ 14 dB** trong `kiem-tra.py`.
+
 Cảnh cuối của mọi tập được thay bằng **thẻ kết thúc dùng chung**: số tập `n/tổng`, teaser
 tập sau, mã QR đăng ký và dải chấm tiến độ. Link và câu mời nằm trong `noi-dung.json`,
 sửa một chỗ là toàn bộ tập đổi theo. Mỗi tập sinh kèm `_poster.png` (ảnh bìa) và
