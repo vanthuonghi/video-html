@@ -1,15 +1,22 @@
 name: Đưa gallery lên GitHub Pages
 
-# Chỉ đăng thư mục gallery/ (trang xem trước sinh bởi sinh-gallery.py).
-# Nếu Pages chưa bật trong Settings → Pages → Source: GitHub Actions thì job tự
-# bỏ qua thay vì báo đỏ, để lần đẩy nào cũng xanh.
+# Đăng thư mục gallery/ (trang xem trước sinh bởi sinh-gallery.py).
+# Gallery được sinh lại ngay trước khi đăng, nên tập mới tự xuất hiện — không phải
+# nhớ chạy sinh-gallery.py rồi commit.
+# Nếu Pages chưa bật (Settings → Pages → Source: GitHub Actions) thì job tự bỏ qua
+# thay vì báo đỏ, để lần đẩy nào cũng xanh.
 on:
   push:
     branches: [main]
     paths:
       - "gallery/**"
       - "sinh-gallery.py"
+      - "kich-ban.py"
       - ".github/workflows/pages.yml"
+  # dựng xong video mới thì cập nhật gallery theo
+  workflow_run:
+    workflows: ["Dựng video đồ hoạ (HTML → Chromium → ffmpeg)"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -24,11 +31,15 @@ concurrency:
 jobs:
   dang:
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     environment:
       name: github-pages
       url: ${{ steps.dang.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
+
+      - name: Sinh lại gallery từ kịch bản
+        run: python3 sinh-gallery.py
 
       - name: Kiểm tra Pages đã bật chưa
         id: bat
