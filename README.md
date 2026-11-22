@@ -13,7 +13,7 @@ không bị gò vào vài loại hình của một thư viện dựng sẵn.
 ```
 kich-ban.py          kịch bản từng tập: cảnh, HTML cảnh, hàm vẽ theo thời gian, lời đọc
 dung-tap-do-hoa.py   khung dựng: CSS, JS __seek, phụ đề, thẻ kết thúc, tỉ lệ khung
-      ├─ sinh-nhac.py        nhạc nền + tiếng vút (sinh bằng ffmpeg, không kèm tệp)
+      ├─ sinh-nhac.py        nhạc nền + tiếng vút (sinh bằng Python, không kèm tệp)
       ├─ sinh-giong-edge.py  lời đọc bằng edge-tts (Microsoft, miễn phí)
       ├─ chup-nhanh.py       chụp N khung song song qua CDP (N tiến trình Chrome)
       ├─ ffmpeg              mã hoá thành mp4
@@ -33,7 +33,7 @@ kịch bản ở `kich-ban.py` rồi đẩy lên là máy tự dựng.
 | `chup-nhanh.py` | chụp khung hình; chia việc ra nhiều tiến trình; tự dò độ dài trang |
 | `ghep-tieng-tap.py` | đặt lời đọc vào đúng cảnh, thêm nhạc nền, ép tốc độ nếu lời quá dài |
 | `sinh-giong-edge.py` | sinh lời đọc bằng edge-tts, có thử lại (dịch vụ hay chập chờn) |
-| `sinh-nhac.py` | sinh nhạc nền và tiếng vút bằng ffmpeg |
+| `sinh-nhac.py` | sinh nhạc nền (115,2 giây, 12 đoạn biến đổi) và tiếng vút bằng Python |
 | `kiem-tra.py` | kiểm tra đầu ra, mã thoát 1 nếu lỗi |
 | `sinh-phu-de.py` | sinh phụ đề `.srt` từ lời đọc và mốc từng từ (không có thì theo mốc cảnh) |
 | `sinh-qr.py` | sinh mã QR đăng ký (`do-hoa/assets/qr.svg`) từ `noi-dung.json` |
@@ -63,9 +63,13 @@ Chữ dùng font đóng gói trong `do-hoa/fonts/` (không phụ thuộc font c�
 rồi đưa về **−16 LUFS, đỉnh −1,5 dBTP** để các tập nghe đều nhau.
 
 Nhạc nền do `sinh-nhac.py` viết bằng Python (không kèm tệp, không cần ffmpeg): vòng hợp
-âm **Am–F–C–G** 100 BPM, giai điệu chuông quét 8 nốt mỗi ô nhịp + bass êm, lặp mỗi 57,6
-giây, hai đầu làm mờ 0,25 giây nên mối nối không kêu. Tiếng chuyển cảnh là **chuông hai
-nốt**, không phải nhiễu gió. Bản đầu là hai sin 110 Hz + 163 Hz chồng nhau, chênh 53 Hz
+âm **Am–F–C–G** 100 BPM, giai điệu chuông + bass êm. Bản nhạc là một **hình thức 12 đoạn
+× 4 ô nhịp = 115,2 giây** xếp từ bốn kiểu đoạn khác nhau — chuông quét 4 nốt mỗi ô;
+chuông cao thêm quãng tám và thưa hơn; 2 nốt mỗi ô ngân dài; 4 nốt mỗi ô có thêm nốt
+quãng tám — nên tập dài nhất (tập 23, 99 giây) nghe hết một lượt mà không lặp y nguyên
+một vòng. Hai đầu làm mờ 0,25 giây và đoạn cuối cùng kiểu với đoạn đầu, nên mối nối khi
+quay lại đầu cũng như lúc chạy tiếp. Tiếng chuyển cảnh là **chuông hai nốt**, không phải
+nhiễu gió. Bản đầu là hai sin 110 Hz + 163 Hz chồng nhau, chênh 53 Hz
 nên tạo nhịp phách rất chậm rồi lọc thấp — nghe thành tiếng **ù “è è”** suốt video và
 biến mất trên loa điện thoại; đã bỏ hẳn. Mức nhạc nền (`PAD_VOL`) chọn bằng số đo: giọng
 đọc phải hơn nền **≥ 14 dB** trong `kiem-tra.py`.
