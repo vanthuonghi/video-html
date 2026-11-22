@@ -13,6 +13,9 @@ PAD = f"{AUD}/pad.wav"
 SWELL = f"{AUD}/swell.wav"
 
 TAPS = None  # dựng từ chính kịch bản trong dung-tap-do-hoa.py, không chép tay
+# Hậu tố tên tệp cho khung khác 9:16, ví dụ VH_HAU_TO=_1080x1080 → <slug>_1080x1080.mp4
+# đọc vào và ghi ra <slug>_1080x1080_co-tieng.mp4. Để trống thì giữ nguyên tên cũ.
+HAU_TO = os.environ.get("VH_HAU_TO", "")
 
 
 def load_taps():
@@ -58,7 +61,7 @@ def do_to(f):
 
 def ghep(slug):
     spec = TAPS[slug]
-    video = f"{OUT}/{slug}.mp4"
+    video = f"{OUT}/{slug}{HAU_TO}.mp4"
     if not os.path.exists(video):
         print(f"  {slug}: CHƯA CÓ VIDEO {video}")
         return
@@ -130,8 +133,8 @@ def ghep(slug):
     parts.append("".join(mix_lbl) +
                  f"amix=inputs={len(mix_lbl)}:duration=longest:normalize=0,"
                  f"atrim=0:{durv},aresample=48000[aout]")
-    out = f"{OUT}/{slug}_co-tieng.mp4"
-    mix = f"{OUT}/{slug}_hon-hop.wav"
+    out = f"{OUT}/{slug}{HAU_TO}_co-tieng.mp4"
+    mix = f"{OUT}/{slug}{HAU_TO}_hon-hop.wav"
 
     # lượt 1: dựng bản hoà trộn thô (chưa chuẩn hoá) để đo
     cmd = (["ffmpeg", "-v", "error", "-y", "-i", video] + ins +

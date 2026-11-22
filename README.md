@@ -41,6 +41,7 @@ kịch bản ở `kich-ban.py` rồi đẩy lên là máy tự dựng.
 | `sinh-metadata.py` | sinh `metadata.json`: tiêu đề, mô tả, hashtag, chương, `?v=<sha8>` |
 | `kiem-tra-kich-ban.py` | validator: cấu trúc tập, cảnh liền mạch, ngân sách lời đọc |
 | `kiem-tra-hop-dong.py` | cùng một mốc `t` ở hai phiên trình duyệt phải ra cùng khung (PSNR ≥ 45 dB) |
+| `dung-ti-le-khac.py` | dựng trọn một tập ở khung 1:1 / 16:9: HTML → khung → mp4 → ghép tiếng |
 | `noi-dung.json` | link đăng ký, câu mời quét mã, hashtag dùng chung |
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
@@ -97,22 +98,27 @@ thư mục `/gallery`.
 Cùng một kịch bản dựng được cho Reels/TikTok (9:16), feed vuông (1:1) và YouTube
 ngang (16:9):
 
+Trọn một tập, từ trang HTML tới video có tiếng:
+
 ```bash
-python3 dung-tap-do-hoa.py --size 1080x1080 --tap 02_noi-tham-trong-dau
-python3 dung-tap-do-hoa.py --size 1920x1080 --tap 02_noi-tham-trong-dau
+python3 -m http.server 8899 &
+python3 dung-ti-le-khac.py 02_noi-tham-trong-dau --size 1080x1080    # vuông
+python3 dung-ti-le-khac.py 02_noi-tham-trong-dau --size 1920x1080    # ngang
 python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080 --fail
-python3 chup-nhanh.py "http://127.0.0.1:8899/do-hoa/02_noi-tham-trong-dau_1080x1080.html" \
-  .thu-nghiem/frames-vuong --size 1080x1080 --workers 4
 ```
+
+Số đo thật của hai bản dựng đó (1008 khung, 4 tiến trình): hình 42,00s, tiếng
+−16,1 LUFS đỉnh −1,5 dB, dung lượng 3,1 MB (1:1) và 3,7 MB (16:9); chụp 1008 khung
+mất 37,9s (26,6 khung/giây tổng).
 
 Cách làm: giữ nguyên khung thiết kế 1080×1920 rồi **thu phóng vừa khung đích**
 (`transform: scale`), nới cột nội dung lên tối đa 1320px thiết kế cho khung
-vuông/ngang. Nhờ vậy 16 cảnh đã soát không phải dựng lại, chữ vẫn đúng tỉ lệ, còn
+vuông/ngang. Nhờ vậy các cảnh đã soát không phải dựng lại, chữ vẫn đúng tỉ lệ, còn
 phần thừa hai bên là nền `#bg` phủ kín chứ không phải dải đen.
 
 Bản khác tỉ lệ ghi thành `do-hoa/<slug>_WxH.html`, không lẫn với tập gốc; cổng
 `soat-do-hoa.py --size ...` tự dịch vùng an toàn theo phép thu phóng đó. Mới làm
-cho **một tập mẫu** (02) — cố ý, để chứng minh trước khi nhân ra 16 tập.
+cho **một tập mẫu** (02) — cố ý, để chứng minh trước khi nhân ra cả chuỗi.
 
 ## Tốc độ (số đo thật)
 

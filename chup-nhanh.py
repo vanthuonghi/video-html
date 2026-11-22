@@ -193,17 +193,24 @@ def main():
         e = hi if k == a.workers - 1 else s + per - 1
         if s > hi:
             break
-        procs.append(subprocess.Popen([
+        procs.append((s, e, subprocess.Popen([
             sys.executable, __file__, a.url, a.outdir, "--from", str(s), "--to", str(e),
             "--port", str(a.port + k), "--fps", str(a.fps), "--quality", str(a.quality),
-            "--size", a.size, "--total", str(total)] + (["--gpu"] if a.gpu else [])))
-    for p in procs:
+            "--size", a.size, "--total", str(total)] + (["--gpu"] if a.gpu else []))))
+    for s, e, p in procs:
         p.wait()
+        # một tiến trình Chrome chết giữa chừng từng làm thiếu nửa số khung mà vẫn
+        # trả mã thoát 0; nay báo lỗi ngay tại đây thay vì để ffmpeg hỏng ở bước sau
+        if p.returncode != 0:
+            print(f"  !! tiến trình {s}–{e} thoát với mã {p.returncode}")
     el = time.time() - t0
     got = len([f for f in os.listdir(a.outdir) if f.endswith(".jpg")])
     want = hi - lo + 1
-    canh_bao = "" if got == want else "   <<< THIẾU KHUNG, kiểm lại"
+    thieu = got != want or any(p.returncode != 0 for _, _, p in procs)
+    canh_bao = "   <<< THIẾU KHUNG, kiểm lại" if got != want else ""
     print(f"TỔNG: {a.workers} tiến trình · cần {want} khung · có {got} khung · {el:.1f}s · {got/el:.1f} khung/giây{canh_bao}")
+    if thieu:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
