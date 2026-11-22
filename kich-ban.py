@@ -1381,6 +1381,183 @@ EP21 = {
  ],
 }
 
+# ------------------------------------------------- ĐỊNH DẠNG CHUẨN TỪ TẬP 23 TRỞ ĐI
+# Sáu phần bắt buộc, theo đúng thứ tự (cổng kiem-tra-kich-ban.py chặn nếu thiếu):
+#   1. hook     — câu mở gợi tò mò, nói trúng việc người xem đang gặp
+#   2. gia_tri  — biết nội dung này thì được gì (lợi ích cụ thể, đo được)
+#   3. hieu_biet— cơ chế mới: vì sao lại như vậy (phần "hiểu biết mới")
+#   4. lam_gi   — việc cần làm, thành bước, làm được ngay
+#   5. thong_diep — một câu chốt để nhớ
+#   6. ket_khoa — giới thiệu khoá 7 buổi Zoom + thẻ kết thúc trỏ speedreading.vn/sp-online
+# Mỗi tập mới phải khai "cau_truc": CAU_TRUC_CHUAN (kiểm tự động), dài ≥ 110 giây,
+# tối thiểu 9 cảnh, cảnh cuối là CTA. Tập 01–22 giữ nguyên định dạng cũ đã đăng.
+CAU_TRUC_CHUAN = ["hook", "gia_tri", "hieu_biet", "lam_gi", "thong_diep", "ket_khoa"]
+
+# ---------------------------------------------------------------- TẬP 23 — E4: 7 bước đọc giáo trình
+EP23 = {
+ "slug": "23_hoc-sinh-7-buoc-doc-giao-trinh",
+ "total": 152.0,
+ "ten": "Học sinh: 7 bước đọc giáo trình để thuộc bài",
+ "cau_truc": CAU_TRUC_CHUAN,
+ "phong_cach": "do-trang",
+ "scenes": [(0,9.0),(9.0,19.0),(19.0,30.0),(30.0,47.0),(47.0,63.0),
+            (63.0,77.0),(77.0,94.0),(94.0,111.0),(111.0,126.0),(126.0,144.0),(144.0,152.0)],
+ "html": [
+   # 1. hook
+   scene("""
+    <div class="kicker">Học sinh · mùa thi</div>
+    <h1>Đọc lại ba lần<br>vẫn <span class="hl">quên sạch</span></h1>
+    <div class="sub">Không phải bạn kém trí nhớ — <b>cách đọc chưa đúng</b>.</div>"""),
+   # 1. hook (nỗi đau cụ thể)
+   scene("""
+    <div class="kicker">Điều ai cũng gặp</div>
+    <div class="list3">
+      <div class="it"><b>Đọc lại ba lần</b> — gấp sách là quên</div>
+      <div class="it"><b>Hai tiếng liền một chỗ</b> — nhớ ít hơn bốn lượt ngắn</div>
+      <div class="it"><b>Vào phòng thi</b> — không kể lại được gì</div>
+    </div>"""),
+   # 2. giá trị
+   scene("""
+    <div class="kicker">Bảy bước này cho bạn gì</div>
+    <div class="list20">
+      <div class="it"><b>1</b>Một chương giáo trình: nắm trong khoảng 15 phút</div>
+      <div class="it"><b>2</b>Nhớ tới ngày thi — không phải đọc lại lần hai</div>
+      <div class="it"><b>3</b>Biết ngay chỗ mình chưa nhớ, trong lúc đang đọc</div>
+    </div>
+    <div class="note">Bảy bước · một lượt đọc · không thức trắng.</div>"""),
+   # 3. hiểu biết mới — nhận ra khác nhớ lại
+   scene("""
+    <div class="kicker">Đọc lại và làm bài là hai việc khác nhau</div>
+    <div class="versus">
+      <div class="vs"><b style="font-size:52px">NHẬN RA</b>
+        <div class="note">Thấy mặt chữ là thấy quen. Đọc lại luyện việc này.</div></div>
+      <div class="vs"><b style="font-size:52px">NHỚ LẠI</b>
+        <div class="note">Không có chữ mà vẫn kể được. Đề thi hỏi việc này.</div></div>
+    </div>
+    <div class="sub">Đọc lại luyện một đằng, đề thi hỏi một nẻo.</div>"""),
+   # 3. hiểu biết mới — vì sao phải gọi lại theo mốc
+   scene("""
+    <div class="kicker">Vì sao phải gọi lại theo mốc</div>
+    <div class="race">
+      <div class="row"><div class="name"><b>Không gọi lại</b><span class="val" id="q1v">tụt nhanh theo ngày</span></div>
+        <div class="track"><i class="fill" id="q1f"></i></div></div>
+      <div class="row"><div class="name"><b>Gọi lại ở mốc 1–3–6 ngày</b><span class="val" id="q2v">giữ được mức cao</span></div>
+        <div class="track"><i class="fill red" id="q2f"></i></div></div>
+    </div>
+    <div class="note">Hình minh hoạ. Mỗi mốc năm phút, bằng cách tự kể lại — không phải đọc lại.</div>"""),
+   # 3. hiểu biết mới — hai cái bẫy
+   scene("""
+    <div class="kicker">Hai cái bẫy nữa</div>
+    <div class="list3">
+      <div class="it"><b>Đọc liền hai tiếng</b> — não chỉ giữ liền mạch 5–10 phút</div>
+      <div class="it"><b>Chép nguyên câu vào vở</b> — đang chép, không đang nhớ</div>
+    </div>"""),
+   # 4. việc cần làm — bước 1–4
+   scene("""
+    <div class="kicker">Bước 1–4 · đọc để hiểu</div>
+    <div class="list20">
+      <div class="it"><b>1</b>Lướt chương ba phút: tiêu đề, câu đầu, câu cuối</div>
+      <div class="it"><b>2</b>Đọc câu hỏi cuối chương trước khi vào thân bài</div>
+      <div class="it"><b>3</b>Đọc chậm một lượt, mỗi đoạn gạch một từ khoá</div>
+      <div class="it"><b>4</b>Gấp sách, tự trả lời từng câu hỏi cuối chương</div>
+    </div>"""),
+   # 4. việc cần làm — bước 5–7
+   scene("""
+    <div class="kicker">Bước 5–7 · đọc để nhớ</div>
+    <div class="list20">
+      <div class="it"><b>5</b>Chỗ nào không kể được → mở đúng chỗ đó, đọc lại một lần</div>
+      <div class="it"><b>6</b>Sơ đồ một trang cho chương — chỉ ghi từ khoá</div>
+      <div class="it"><b>7</b>Ôn ở mốc 1–3–6 ngày, mỗi lần năm phút</div>
+    </div>"""),
+   # 5. thông điệp
+   scene("""
+    <div class="kicker">Thông điệp</div>
+    <h1>Đọc để nhớ là<br>một <span class="hl">quy trình</span></h1>
+    <div class="sub">Một lượt đọc đúng quy trình thay cho ba lượt đọc lại.</div>"""),
+   # 6. giới thiệu khoá 7 buổi
+   scene("""
+    <div class="kicker">Khoá đọc hiệu quả · 7 buổi Zoom</div>
+    <div class="list20">
+      <div class="it"><b>1</b>Buổi đầu: luyện mắt theo kỹ thuật 3-2-1</div>
+      <div class="it"><b>2</b>Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm</div>
+      <div class="it"><b>3</b>Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc</div>
+    </div>
+    <div class="note">Sửa lỗi ngay trong buổi · hỗ trợ Zalo 1:1 · 980.000đ · hoàn phí sau buổi 1 nếu không hợp.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const t0 = [10.0, 11.6, 13.2];
+     el.querySelectorAll('.list3 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.7)).toFixed(3);
+     });
+   }""",
+   """function(t, el){
+     const t0 = [20.4, 22.4, 24.4];
+     el.querySelectorAll('.list20 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.7)).toFixed(3);
+     });
+     el.querySelector('.note').style.opacity = ease(span(t, 26.6, 27.6)).toFixed(3);
+   }""",
+   """function(t, el){
+     const p = ease(span(t, 32.0, 34.0));
+     el.querySelectorAll('.vs').forEach(function(x, k){
+       x.style.opacity = (p * (k ? 1 : 1)).toFixed(3);
+       x.style.transform = 'translateY(' + ((1 - p) * 24) + 'px)';
+     });
+     el.querySelector('.sub').style.opacity = ease(span(t, 42.0, 43.4)).toFixed(3);
+   }""",
+   """function(t, el){
+     const p1 = ease(span(t, 48.6, 54.0));   // không gọi lại: thanh tụt xuống
+     const p2 = ease(span(t, 55.0, 60.0));   // gọi lại theo mốc: thanh giữ mức cao
+     // Không in con số phần trăm: đây là hình minh hoạ, không phải số đo.
+     el.querySelector('#q1f').style.width = (100 - p1 * 84) + '%';
+     el.querySelector('#q2f').style.width = (p2 * 94) + '%';
+   }""",
+   """function(t, el){
+     const t0 = [64.0, 66.0];
+     el.querySelectorAll('.list3 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.7)).toFixed(3);
+     });
+   }""",
+   """function(t, el){
+     const t0 = [78.2, 80.0, 81.8, 83.6];
+     el.querySelectorAll('.list20 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.7)).toFixed(3);
+     });
+   }""",
+   """function(t, el){
+     const t0 = [95.2, 97.4, 99.6];
+     el.querySelectorAll('.list20 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.7)).toFixed(3);
+     });
+   }""",
+   "",
+   """function(t, el){
+     const t0 = [127.0, 129.6, 132.2];
+     el.querySelectorAll('.list20 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.7)).toFixed(3);
+     });
+     el.querySelector('.note').style.opacity = ease(span(t, 135.0, 136.4)).toFixed(3);
+   }""",
+   "",
+ ],
+ "narration": [
+   (0, "Bạn đọc lại một chương ba lần, gấp sách, và vẫn quên sạch. Không phải bạn kém trí nhớ."),
+   (1, "Ba lần đọc lại vẫn không nhớ. Ngồi hai tiếng liền cho ra ít hơn bốn lượt ngắn. Tới phòng thi, không kể lại được gì."),
+   (2, "Bảy bước dưới đây gom thành một quy trình: nắm một chương trong khoảng mười lăm phút, nhớ tới ngày thi, và biết ngay chỗ mình còn chưa nhớ."),
+   (3, "Đây là chỗ quan trọng nhất. Đọc lại là việc nhận ra: thấy mặt chữ, thấy quen, não báo mình biết rồi. Làm bài là việc nhớ lại: không có chữ, bạn phải tự kể. Đọc lại luyện việc thứ nhất, đề thi hỏi việc thứ hai."),
+   (4, "Trí nhớ rơi theo ngày nếu bạn không gọi lại: sau một tuần, nhiều chương gần như phải đọc từ đầu. Nhưng gọi lại ở ba mốc — một ngày, ba ngày, sáu ngày — thì chương đó ở lại. Mỗi mốc chỉ năm phút."),
+   (5, "Hai cái bẫy nữa. Não chỉ giữ liền mạch năm đến mười phút, nên đọc liền hai tiếng thì phần sau không vào. Chép nguyên câu vào vở là đang chép, không phải đang nhớ."),
+   (6, "Bước một: lướt chương ba phút — tiêu đề, câu đầu, câu cuối. Bước hai: đọc câu hỏi cuối chương trước khi vào thân bài. Bước ba: đọc chậm một lượt, mỗi đoạn gạch một từ khoá. Bước bốn: gấp sách, tự trả lời từng câu hỏi."),
+   (7, "Bước năm: chỗ nào không kể được, mở đúng chỗ đó, đọc lại một lần. Bước sáu: vẽ một sơ đồ một trang cho chương, chỉ ghi từ khoá. Bước bảy: ôn lại ở mốc một, ba, sáu ngày — mỗi lần năm phút, bằng cách tự kể lại."),
+   (8, "Thông điệp ở đây: đọc để nhớ là một quy trình, không phải một lần đọc. Một lượt đọc đúng quy trình thay được ba lượt đọc lại — vì não nhớ bằng cách gọi lại, không phải bằng cách nhìn lại."),
+   (9, "Bảy bước này là bản rút gọn của quy trình trong khoá. Khoá có bảy buổi Zoom: buổi đầu luyện mắt theo kỹ thuật ba hai một, buổi hai chuyển sang đọc cụm ba đến năm từ, các buổi sau vào quy trình đọc, ghi chép và ôn theo mốc."),
+   (10, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ],
+}
+
 # ---------------------------------------------------------------- TẬP 22 — bài test tốc độ đọc, bản đầy đủ
 # Các tập đứng trước theo đúng thứ tự đăng — văn bản cho bài test lấy từ chính lời đọc của chúng.
 _DS_TAP = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12,
@@ -1643,5 +1820,5 @@ EP_AI_AGENT = {
  ],
 }
 
-EPISODES = _DS_TAP + [EP22, EP_AI_AGENT]
 
+EPISODES = _DS_TAP + [EP22, EP23, EP_AI_AGENT]

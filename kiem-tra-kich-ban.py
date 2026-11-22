@@ -22,7 +22,15 @@ def nap():
     return m
 
 
-def kiem(ep, dt, thay):
+def nap_kb():
+    """Nạp kich-ban.py để lấy hai hằng số dùng chung: CTA và CAU_TRUC_CHUAN."""
+    sp = importlib.util.spec_from_file_location("kb", f"{BASE}/kich-ban.py")
+    m = importlib.util.module_from_spec(sp)
+    sp.loader.exec_module(m)
+    return m
+
+
+def kiem(ep, dt, kb):
     loi, canh_bao = [], []
     slug = ep.get("slug", "?")
     so_canh, so_html, so_anim = len(ep["scenes"]), len(ep["html"]), len(ep["anim"])
@@ -58,19 +66,35 @@ def kiem(ep, dt, thay):
         loi.append(f"{slug}: cover_at={c} nằm ngoài video")
     # Bộ màu chuẩn từ tập 21 là đỏ–trắng (thương hiệu speedreading.vn/sp-online).
     # Quên khoá này chỉ nhìn ra khi video đã dựng xong, nên nhắc ngay ở cổng kiểm kịch bản.
+    # Tập của dự án khác dùng chung đường ống (khai "dang_ky" riêng, ví dụ AI Agent) không
+    # thuộc bộ màu này — bỏ qua, kẻo cổng của dự án này chặn nhầm video của dự án kia.
+    sr = not ep.get("dang_ky")
     so_tap = re.match(r"(\d+)", slug)
-    if so_tap and int(so_tap.group(1)) >= 21 and ep.get("phong_cach") != "do-trang":
+    if sr and so_tap and int(so_tap.group(1)) >= 21 and ep.get("phong_cach") != "do-trang":
         canh_bao.append(f'{slug}: thiếu "phong_cach": "do-trang" — bộ màu chuẩn từ tập 21')
+    # Định dạng nội dung chuẩn từ tập 23: sáu phần hook → giá trị → hiểu biết mới →
+    # việc cần làm → thông điệp → giới thiệu khoá 7 buổi. Video 45 giây không đủ chỗ
+    # cho sáu phần, nên cổng này cũng chặn luôn các tập quá ngắn.
+    if sr and so_tap and int(so_tap.group(1)) >= 23:
+        if ep.get("cau_truc") != kb.CAU_TRUC_CHUAN:
+            loi.append(f'{slug}: phải khai "cau_truc": CAU_TRUC_CHUAN (6 phần chuẩn)')
+        if ep["total"] < 110:
+            loi.append(f"{slug}: dài {ep['total']}s — tập theo định dạng mới phải từ 110 giây")
+        if so_canh < 9:
+            loi.append(f"{slug}: chỉ {so_canh} cảnh — cần tối thiểu 9 cảnh cho đủ 6 phần")
+        if ep["html"][-1] != kb.CTA:
+            loi.append(f"{slug}: cảnh cuối phải là CTA (thẻ kết thúc + khoá 7 buổi)")
     return loi, canh_bao
 
 
 def main():
     dt = nap()
+    kb = nap_kb()
     slug = [e["slug"] for e in dt.EPISODES]
     trung = {s for s in slug if slug.count(s) > 1}
     loi, canh_bao = [f"slug trùng: {', '.join(sorted(trung))}"] if trung else [], []
     for ep in dt.EPISODES:
-        a, b = kiem(ep, dt, None)
+        a, b = kiem(ep, dt, kb)
         loi += a
         canh_bao += b
     for c in canh_bao:

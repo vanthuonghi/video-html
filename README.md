@@ -126,6 +126,34 @@ Khi bật, tập đó dùng: nền trắng, đỏ thương hiệu `#dc2626` / `#
 Đổi font thì bề ngang chữ đổi theo, nên sau khi bật bộ màu mới **phải chạy lại
 `soat-do-hoa.py <slug> --fail`** trước khi dựng — đây là cổng bắt lỗi chữ tràn.
 
+## Định dạng nội dung từ tập 23 trở đi (sáu phần)
+
+Video 45 giây không đủ chỗ cho một nội dung sâu: người xem biết *có gì* nhưng không biết
+*vì sao* và *làm gì tiếp*. Từ tập 23, mỗi tập dài **tối thiểu 110 giây** (thực tế 2–2,5 phút)
+và đi đúng sáu phần theo thứ tự:
+
+| Phần | Việc | Chỗ trong video |
+|---|---|---|
+| `hook` | câu mở gợi tò mò, nói trúng việc người xem đang gặp | 1–2 cảnh đầu |
+| `gia_tri` | biết nội dung này thì được gì (lợi ích cụ thể) | 1 cảnh |
+| `hieu_biet` | phần hiểu biết mới: vì sao lại như vậy | 2–3 cảnh |
+| `lam_gi` | việc cần làm, chia thành bước, làm được ngay | 2–3 cảnh |
+| `thong_diep` | một câu chốt để nhớ | 1 cảnh |
+| `ket_khoa` | giới thiệu khoá 7 buổi Zoom + thẻ kết thúc trỏ `speedreading.vn/sp-online` | 1–2 cảnh cuối |
+
+Tập mới khai `"cau_truc": CAU_TRUC_CHUAN` trong `kich-ban.py`; cổng `kiem-tra-kich-ban.py`
+chặn nếu thiếu khoá này, ngắn hơn 110 giây, ít hơn 9 cảnh, hoặc cảnh cuối không phải `CTA`.
+Các tập 01–22 giữ nguyên định dạng cũ đã đăng.
+
+**Ngân sách lời đọc:** cổng dùng 4 từ/giây cho chỗ trống của cảnh (`cuối − đầu − 0,85s`) và
+cảnh báo khi vượt 15%. Nhưng giọng đọc thật chỉ khoảng **2,5–2,8 từ/giây**, nên viết tới sát
+trần 4 từ/giây là bị tua nhanh, nghe gấp. Viết theo 2,5 từ/giây thì mỗi cảnh còn khoảng nửa
+giây im lặng, nghe tự nhiên.
+
+**Ví dụ đã dựng:** `23_hoc-sinh-7-buoc-doc-giao-trinh` (152 giây, 11 cảnh) — hook "đọc lại ba
+lần vẫn quên sạch", giá trị, ba cảnh hiểu biết mới (nhận ra khác nhớ lại, vì sao gọi lại theo
+mốc, hai cái bẫy), hai cảnh bảy bước, thông điệp, rồi cảnh giới thiệu khoá và thẻ kết thúc.
+
 ## Đa tỉ lệ khung (một kịch bản, ba đầu ra)
 
 Cùng một kịch bản dựng được cho Reels/TikTok (9:16), feed vuông (1:1) và YouTube
