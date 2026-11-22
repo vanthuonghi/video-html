@@ -303,12 +303,18 @@ jobs:
           sleep 2
           python3 soat-do-hoa.py --step 2.5 --fail
 
-      - name: Soát khung vuông và ngang của tập mẫu
+      - name: Sinh lại và soát mọi trang tỉ lệ khác đã commit
+        # lấy từ repo chứ không gắn cứng một tập: thêm trang 1:1/16:9 cho tập khác là
+        # nó tự được soát, và quên sinh lại sau khi đổi thẻ kết thúc là bước sau báo đỏ
         run: |
-          python3 dung-tap-do-hoa.py --size 1080x1080 --tap 02_noi-tham-trong-dau
-          python3 dung-tap-do-hoa.py --size 1920x1080 --tap 02_noi-tham-trong-dau
-          python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080 --step 2.5 --fail
-          python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1920x1080 --step 2.5 --fail
+          for f in $(git ls-files 'do-hoa/*_*x*.html'); do
+            ten=$(basename "$f")
+            tap=${ten%%_[0-9]*x[0-9]*.html}
+            size=$(echo "$ten" | grep -oE '[0-9]+x[0-9]+' | tail -1)
+            echo "→ $tap · $size"
+            python3 dung-tap-do-hoa.py --tap "$tap" --size "$size" >/dev/null
+            python3 soat-do-hoa.py "$tap" --size "$size" --step 2.5 --fail
+          done
 
       - name: Trang HTML đã commit phải khớp bản sinh lại
         # Bắt đúng lỗi đã xảy ra: trang cũ nằm lại trong repo thì lần đẩy nào bước

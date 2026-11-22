@@ -153,6 +153,16 @@ Bản khác tỉ lệ ghi thành `do-hoa/<slug>_WxH.html`, không lẫn với t�
 `soat-do-hoa.py --size ...` tự dịch vùng an toàn theo phép thu phóng đó. Mới làm
 cho **một tập mẫu** (02) — cố ý, để chứng minh trước khi nhân ra cả chuỗi.
 
+CI dựng trọn hai bản đó trong job `ti-le-khac` (mỗi khung một máy, ~110 giây/job):
+chạy khi trang tập 02 đổi, hoặc khi chạy tay với ô `ti_le` = `1`. Video đăng lên
+release cạnh bản dọc (`02_noi-tham-trong-dau_1080x1080_co-tieng.mp4`), và
+`kiem-tra.py <slug> --size 1080x1080` kiểm đúng tệp, đúng khung của bản đó.
+
+Job soát bố cục **sinh lại mọi trang `_WxH.html` đang có trong repo** rồi soát từng
+cái, nên thêm bản tỉ lệ cho tập khác không phải sửa workflow. Cũng chính bước này
+bắt lỗi thật: sau khi chuỗi lên 23 tập, hai trang tỉ lệ vẫn ghi `Tập 1/22` vì lần
+sinh lại chỉ dựng bản dọc — nay đã sinh lại và cổng in ra đúng dòng lệch khi báo đỏ.
+
 ## Tốc độ (số đo thật)
 
 Mỗi tập chạy trên một máy riêng của GitHub Actions (4 nhân, 4 tiến trình chụp):
@@ -163,7 +173,8 @@ Mỗi tập chạy trên một máy riêng của GitHub Actions (4 nhân, 4 ti�
 | Bước chụp khung + mã hoá | **75 giây** — chụp 1008 khung mất 65 giây, mã hoá chạy chen dưới nên gần như không tính |
 | Chụp khung trên CI | 15,4 khung/giây (4 tiến trình) |
 | Sửa một tập rồi đẩy lên | chỉ tập đó dựng; sửa `*.py` mà không đổi trang thì **không dựng tập nào** |
-| Dựng cả 22 tập | 22 job, 12 job cùng lúc (2 đợt) — đo được 9 phút với đường ống cũ, khoảng 5–6 phút với đường ống hiện tại |
+| Dựng cả bộ (22 tập + 2 bản tỉ lệ khác) | 26 job, 12 job cùng lúc → **7 phút 49 giây** (lần chạy 44987458919, không job nào đỏ; job dài nhất 172 giây) |
+| Số tiến trình chụp | **4 là tốt nhất**: 3 tiến trình 15,5 khung/giây · 4 tiến trình 15,4 · 6 tiến trình 14,4 (thử thật trên CI — thêm tiến trình không nhanh hơn) |
 | Độ to sau khi ghép | −16,0 … −16,2 LUFS, đỉnh −1,2 … −1,5 dBFS |
 
 Ba thứ làm nên tốc độ này:
