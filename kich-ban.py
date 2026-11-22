@@ -1884,6 +1884,61 @@ EP28 = dua_tap(
   ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
  ])
 
+# ------------------------------------------- TẬP 29 — C3: ba lớp kiểm tra một quyển sách
+EP29 = dua_tap(
+ "29_ba-lop-kiem-tra-sach", "Ba lớp kiểm tra một quyển sách", [
+  ("h1", 9.0, ("Ba lớp kiểm tra một quyển sách",
+    "Cuốn sách này có đáng<br><span class=\"hl\">tiền và thời gian</span>?",
+    "Ba câu hỏi, mỗi câu một phút, trả lời trước khi trả tiền."),
+   "Một cuốn sách đáng tiền hay không thì kiểm được trong ba phút, bằng ba câu hỏi. Mỗi câu trả lời một lớp."),
+  ("list", 12.0, ("Ba lớp kiểm tra", [
+    "<b>Lớp 1</b> — nội dung dựa trên gì",
+    "<b>Lớp 2</b> — mục lục có trả đúng lời hứa ở tựa",
+    "<b>Lớp 3</b> — có bước làm được, hay chỉ nói ý tưởng"], None),
+   "Ba lớp: lớp thứ nhất xem nội dung dựa trên gì, lớp thứ hai xem mục lục có trả đúng lời hứa ở tựa, lớp thứ ba xem sách có bước làm được hay chỉ nói ý tưởng."),
+  ("list", 12.0, ("Kiểm xong thì được gì", [
+    "Biết sách hợp với mình ở đâu, không hợp ở đâu",
+    "Không mua vì bìa, cũng không bỏ vì tựa dở",
+    "Dùng được cho cả sách giấy và sách mua online"],
+    "Ba phút kiểm, thay cho ba tuần đọc dở."),
+   "Kiểm xong thì bạn biết cuốn sách hợp với mình ở chỗ nào và không hợp ở chỗ nào, và dùng được cả khi mua sách online."),
+  ("h1", 14.0, ("Vì sao phải kiểm theo lớp",
+    "Một cuốn sách có thể<br>đúng nửa này, <span class=\"hl\">sai nửa kia</span>",
+    "Tựa đúng không có nghĩa nội dung đúng. Cấu trúc đẹp không có nghĩa làm được."),
+   "Không có cuốn sách nào đúng hoặc sai toàn bộ. Một cuốn có thể có nội dung tốt nhưng cấu trúc lộn xộn, hoặc ngược lại. Vì vậy phải kiểm theo từng lớp."),
+  ("list", 13.0, ("Lớp 1 · nội dung dựa trên gì", [
+    "Tác giả có làm nghề này không, làm bao lâu",
+    "Số liệu có ghi nguồn hay chỉ nói chung chung",
+    "Cuối sách có phần ghi chú, tài liệu tham khảo không"], None),
+   "Lớp thứ nhất: tác giả có làm nghề này không và làm bao lâu, số liệu có ghi nguồn hay chỉ nói chung chung, và cuối sách có phần ghi chú hay tài liệu tham khảo không."),
+  ("list", 13.0, ("Lớp 2 và 3 · cấu trúc và việc làm được", [
+    "Mục lục: mỗi chương trả lời một câu hỏi cụ thể",
+    "Trong chương: có bước, có ví dụ, có chỗ để làm theo",
+    "Đọc một chương bất kỳ rồi gấp lại: kể được điều gì?"], None),
+   "Lớp thứ hai và thứ ba: mỗi chương trong mục lục phải trả lời một câu hỏi cụ thể; trong chương phải có bước và ví dụ; và sau khi đọc một chương, gấp sách lại bạn phải kể được một điều cụ thể."),
+  ("list", 14.0, ("Việc cần làm · ba câu hỏi", [
+    "Câu 1: tác giả này dựa vào đâu để nói?",
+    "Câu 2: mục lục có việc gì cho từng chương?",
+    "Câu 3: sau chương đầu, tôi làm được gì?"], None),
+   "Việc cần làm: hỏi ba câu. Tác giả dựa vào đâu để nói. Mục lục có việc gì cho từng chương. Và sau chương đầu tiên, tôi làm được gì."),
+  ("list", 13.0, ("Trượt hai lớp thì để lại", [
+    "Trượt lớp nguồn: sách để đọc cho vui — mượn, đừng mua",
+    "Trượt lớp việc làm được: chỉ nên đọc thư viện",
+    "Đủ cả ba lớp: mua, và đọc theo quy trình"], None),
+   "Nếu trượt hai trong ba lớp thì để cuốn sách lại: sách chỉ để đọc cho vui thì mượn, không cần mua. Đủ cả ba lớp thì mua và đọc theo quy trình."),
+  ("h1", 13.0, ("Thông điệp",
+    "Đáng tiền là cuốn<br><span class=\"hl\">trả lời được ba câu</span>",
+    "Nguồn · cấu trúc · việc làm được."),
+   "Thông điệp: một cuốn sách đáng tiền là cuốn trả lời được cả ba câu hỏi — nguồn, cấu trúc, và việc làm được."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: chọn sách, đọc cụm, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Ba lớp kiểm tra này là phần chọn sách trong buổi thứ hai của khoá. Khoá bảy buổi Zoom, học phí chín trăm tám mươi nghìn đồng, hoàn phí nếu sau buổi một bạn thấy không hợp."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
 # ---------------------------------------------------------------- TẬP 22 — bài test tốc độ đọc, bản đầy đủ
 # Các tập đứng trước theo đúng thứ tự đăng — văn bản cho bài test lấy từ chính lời đọc của chúng.
 _DS_TAP = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12,
@@ -2147,4 +2202,4 @@ EP_AI_AGENT = {
 }
 
 
-EPISODES = _DS_TAP + [EP22, EP23, EP24, EP25, EP26, EP27, EP28, EP_AI_AGENT]
+EPISODES = _DS_TAP + [EP22, EP23, EP24, EP25, EP26, EP27, EP28, EP29, EP_AI_AGENT]
