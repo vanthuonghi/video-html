@@ -155,19 +155,30 @@ cho **một tập mẫu** (02) — cố ý, để chứng minh trước khi nhâ
 
 ## Tốc độ (số đo thật)
 
-Một lần đẩy `main` dựng **cả 16 tập song song** trên GitHub Actions:
+Mỗi tập chạy trên một máy riêng của GitHub Actions (4 nhân, 4 tiến trình chụp):
 
 | Hạng mục | Số đo |
 | --- | --- |
-| Toàn bộ lần chạy (16 tập + soát bố cục, kể cả xếp hàng) | **6 phút 12 giây** |
-| Tập nhanh nhất / chậm nhất | 1 phút 59 giây / 3 phút 8 giây |
-| Soát bố cục 16 tập (`soat-do-hoa.py`) | 27 giây |
-| Chụp khung trên máy (1008 khung, 4 tiến trình, Chrome 126) | 8,9 khung/giây |
-| Chụp khung 1080×1080 (1008 khung, 4 tiến trình) | 32,1 khung/giây (ít điểm ảnh hơn nên nhanh gần 4 lần) |
+| Một tập, trọn job trên CI | **128 giây** (trước khi tối ưu: 199 giây) |
+| Bước chụp khung + mã hoá | **75 giây** — chụp 1008 khung mất 65 giây, mã hoá chạy chen dưới nên gần như không tính |
+| Chụp khung trên CI | 15,4 khung/giây (4 tiến trình) |
+| Sửa một tập rồi đẩy lên | chỉ tập đó dựng; sửa `*.py` mà không đổi trang thì **không dựng tập nào** |
+| Dựng cả 22 tập | 22 job, 12 job cùng lúc (2 đợt) — đo được 9 phút với đường ống cũ, khoảng 5–6 phút với đường ống hiện tại |
 | Độ to sau khi ghép | −16,0 … −16,2 LUFS, đỉnh −1,2 … −1,5 dBFS |
 
-Thời gian gần như không đổi so với trước khi có phụ đề vì phụ đề được cháy vào khung
-ngay lúc chụp — không có bước mã hoá lại video.
+Ba thứ làm nên tốc độ này:
+
+1. **Mã hoá chạy song song với việc chụp.** Mỗi tiến trình chuyển khung JPEG thẳng vào
+   `ffmpeg` của mình và tự mã hoá đoạn của nó; xong thì ghép các đoạn bằng `concat`.
+   Không còn 1008 tệp trung gian, và 30 giây mã hoá sau khi chụp biến mất.
+2. **Chỉ dựng tập đổi** (`chon-tap.py`). Tài nguyên dùng chung (font, nhạc, mã QR) mà
+   đổi thì mới dựng lại tất cả.
+3. **Giọng đọc giữ lại giữa các lần** (cache `.thu-nghiem/giong`), chỉ phần lời đọc mới
+   phải gọi edge-tts.
+
+Chất lượng khung giữ nguyên JPEG q90. Hạ xuống q75 chỉ nhanh thêm ~20% nhưng tệp mp4
+sau đó lại **to hơn** (nhiễu làm x264 tốn bit hơn) và PSNR giảm — không đáng.
+
 
 ## Dựng trên GitHub
 
@@ -176,7 +187,7 @@ ngay lúc chụp — không có bước mã hoá lại video.
 - **Chạy tay**: Actions → Dựng video đồ hoạ → Run workflow. Ô `tap` để trống là dựng
   lại tất cả; muốn một tập thì ghi mã tập, ví dụ `05_phuhuynh-con-bo-sach`.
 - Không tập nào đổi thì bước dựng được bỏ qua hẳn, lần chạy vẫn xanh.
-- Mỗi tập chạy trên **một máy riêng, song song** (tối đa 8). Máy chuẩn của repo công khai:
+- Mỗi tập chạy trên **một máy riêng, song song** (tối đa 12). Máy chuẩn của repo công khai:
   4 lõi / 16 GB, **miễn phí và không giới hạn phút**.
 - Video được đăng vào release **`moi-nhat`** với **URL cố định theo từng tập**, thay mới tại chỗ:
 
