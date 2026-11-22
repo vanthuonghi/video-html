@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tap:
-        description: "Tập cần dựng, cách nhau dấu cách. Bỏ trống = dựng tất cả."
+        description: "Tập cần dựng, cách nhau dấu cách. Bỏ trống = dựng tất cả (chạy tay). Lần đẩy lên chỉ dựng tập có trang HTML đổi."
         required: false
         default: ""
       fps:
@@ -36,27 +36,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tap: ${{ steps.ls.outputs.tap }}
+      co: ${{ steps.ls.outputs.co }}
     steps:
       - uses: actions/checkout@v5
-      - name: Liệt kê tập cần dựng
+        with:
+          # cần lịch sử để so trang HTML với commit trước
+          fetch-depth: 0
+      - name: Chọn tập cần dựng (chỉ tập có trang đổi)
         id: ls
         env:
           IN: ${{ github.event.inputs.tap }}
-        run: |
-          python3 - <<'PY'
-          import glob, json, os, re
-          want = os.environ.get("IN", "").split()
-          co = sorted(os.path.basename(p)[:-5] for p in glob.glob("do-hoa/*.html"))
-          # do-hoa/<slug>_WxH.html là bản cho tỉ lệ khung khác, không phải tập riêng
-          co = [s for s in co if not re.search(r"_[0-9]+x[0-9]+$", s)]
-          chon = want or co
-          thieu = [t for t in chon if t not in co]
-          if thieu:
-              raise SystemExit("Không có tập: " + ", ".join(thieu))
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write("tap=" + json.dumps(chon) + "\n")
-          print("Sẽ dựng:", ", ".join(chon))
-          PY
+          TRUOC: ${{ github.event.before }}
+        run: python3 chon-tap.py
       - name: Tạo release chứa video (nếu chưa có)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -67,6 +58,8 @@ jobs:
 
   dung:
     needs: chuan-bi
+    # không có tập nào đổi thì bỏ qua hẳn: video cũ đã xong, không dựng lại
+    if: needs.chuan-bi.outputs.co == '1'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:

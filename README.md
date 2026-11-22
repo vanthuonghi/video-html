@@ -42,6 +42,7 @@ kịch bản ở `kich-ban.py` rồi đẩy lên là máy tự dựng.
 | `kiem-tra-kich-ban.py` | validator: cấu trúc tập, cảnh liền mạch, ngân sách lời đọc |
 | `kiem-tra-hop-dong.py` | cùng một mốc `t` ở hai phiên trình duyệt phải ra cùng khung (PSNR ≥ 45 dB) |
 | `dung-ti-le-khac.py` | dựng trọn một tập ở khung 1:1 / 16:9: HTML → khung → mp4 → ghép tiếng |
+| `chon-tap.py` | chọn tập cần dựng theo thay đổi, để không dựng lại video đã xong |
 | `noi-dung.json` | link đăng ký, câu mời quét mã, hashtag dùng chung |
 | `soat-do-hoa.py` | quét theo thời gian, tìm chữ tràn khỏi vùng an toàn 9:16; `--fail` để dùng làm cổng CI |
 | `dung-video-do-hoa.sh` | một lệnh dựng trọn một tập ở máy |
@@ -140,8 +141,11 @@ ngay lúc chụp — không có bước mã hoá lại video.
 
 ## Dựng trên GitHub
 
-- Vào **Actions → Dựng video đồ hoạ → Run workflow**. Ô `tap` để trống là dựng tất cả;
-  muốn một tập thì ghi mã tập, ví dụ `03_bieu-tri-quen`.
+- **Đẩy lên `main`**: chỉ tập có trang HTML đổi mới được dựng (`chon-tap.py` so với
+  commit trước). Sửa một tập thì một máy chạy, video cũ không bị dựng lại.
+- **Chạy tay**: Actions → Dựng video đồ hoạ → Run workflow. Ô `tap` để trống là dựng
+  lại tất cả; muốn một tập thì ghi mã tập, ví dụ `05_phuhuynh-con-bo-sach`.
+- Không tập nào đổi thì bước dựng được bỏ qua hẳn, lần chạy vẫn xanh.
 - Mỗi tập chạy trên **một máy riêng, song song** (tối đa 8). Máy chuẩn của repo công khai:
   4 lõi / 16 GB, **miễn phí và không giới hạn phút**.
 - Video được đăng vào release **`moi-nhat`** với **URL cố định theo từng tập**, thay mới tại chỗ:
