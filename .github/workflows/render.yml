@@ -316,6 +316,8 @@ jobs:
         run: |
           if ! git diff --quiet -- 'do-hoa/*.html'; then
             git --no-pager diff --stat -- 'do-hoa/*.html'
+            # in phần lệch: đọc được ngay dòng nào khác thay vì phải đoán
+            git --no-pager diff -U1 -- 'do-hoa/*.html' | head -60
             echo "::error::do-hoa/*.html đã commit đang lệch với generator; chạy python3 dung-tap-do-hoa.py rồi commit."
             exit 1
           fi
