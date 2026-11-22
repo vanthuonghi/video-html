@@ -102,8 +102,8 @@ không làm đỏ lần đẩy nào.
 
 ## Hai bộ màu trình bày
 
-Mặc định vẫn là **nền tối xanh ngọc** (các tập 01–20, không đổi). Tập nào muốn theo bộ màu
-thương hiệu **đỏ–trắng** của trang `speedreading.vn/sp-online` thì thêm một khoá vào dict
+**Bộ màu chuẩn từ tập 21 trở đi là đỏ–trắng** (thương hiệu `speedreading.vn/sp-online`);
+các tập 01–20 giữ nguyên nền tối xanh ngọc như đã đăng. Tập mới thêm khoá này vào dict
 của tập đó trong `kich-ban.py`:
 
 ```python

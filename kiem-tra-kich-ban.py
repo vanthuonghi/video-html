@@ -8,7 +8,7 @@ mốc lời đọc sai, hoặc lời dài tới mức phải tua nhanh âm thầ
 Dùng: python3 kiem-tra-kich-ban.py [--chat]
 Mã thoát 1 nếu có lỗi (dùng làm cổng trong CI).
 """
-import importlib.util, os, sys
+import importlib.util, os, re, sys
 
 BASE = os.environ.get("VH_BASE") or os.path.dirname(os.path.abspath(__file__))
 SO_TU_MOI_GIAY = 4.0      # tốc độ đọc tiếng Việt dùng để tính ngân sách
@@ -56,6 +56,11 @@ def kiem(ep, dt, thay):
     c = dt.cover_at(ep)
     if not (0 <= c <= ep["total"]):
         loi.append(f"{slug}: cover_at={c} nằm ngoài video")
+    # Bộ màu chuẩn từ tập 21 là đỏ–trắng (thương hiệu speedreading.vn/sp-online).
+    # Quên khoá này chỉ nhìn ra khi video đã dựng xong, nên nhắc ngay ở cổng kiểm kịch bản.
+    so_tap = re.match(r"(\d+)", slug)
+    if so_tap and int(so_tap.group(1)) >= 21 and ep.get("phong_cach") != "do-trang":
+        canh_bao.append(f'{slug}: thiếu "phong_cach": "do-trang" — bộ màu chuẩn từ tập 21')
     return loi, canh_bao
 
 

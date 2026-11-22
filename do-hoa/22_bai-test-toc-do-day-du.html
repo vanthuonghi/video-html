@@ -193,7 +193,7 @@
   .sub b{color:#0f172a}
   .race .name{color:#64748b}
   .race .name b{color:#0f172a}
-  .track{background:#fee2e2}
+  .track{background:#fecaca}
   .fill{background:linear-gradient(90deg,#ef4444,#dc2626)}
   .fill.red{background:linear-gradient(90deg,#b91c1c,#7f1d1d)}
   .cap{background:#b91c1c}
@@ -525,7 +525,11 @@ function seek(t){
   $('bg').style.transform = 'scale(1.06) translate(' + (Math.sin(t*.16)*10) + 'px,' + (Math.cos(t*.13)*10) + 'px)';
   SCENES.forEach(function(s,i){
     const el = document.querySelector('[data-scene="'+i+'"]');
-    const inA = ease(span(t, s.start, s.start+0.6));
+    // Cảnh vào sớm 0,6 giây — đúng lúc cảnh trước đang mờ đi — để hai cảnh giao nhau
+    // thành một lần chuyển mượt. Nếu để cảnh vào đúng mốc bắt đầu của nó thì tại mốc đó
+    // cả hai cảnh đều mờ hết, và trên nền trắng (bộ màu đỏ–trắng) khung hình nháy trắng
+    // một nhịp — trên nền tối thì không thấy.
+    const inA = i ? ease(span(t, s.start-0.6, s.start)) : ease(span(t, s.start, s.start+0.6));
     const out = 1-ease(span(t, s.end-0.6, s.end));
     el.style.opacity = inA*out;
     el.style.transform = 'translateY(' + ((1-inA)*30) + 'px)';

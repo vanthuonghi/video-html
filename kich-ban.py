@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 """Kịch bản 22 tập: mỗi tập một dict (slug, ten, total, scenes, html, anim, narration).
 
-Tách khỏi dung-tap-do-hoa.py để sửa nội dung không phải mở tệp hơn một nghìn dòng.
+Tách khỏi dung-tap-do-hoa.py để sửa nội dung không phải mở tệp một nghìn dòng.
 Khung dựng và mọi công cụ vẫn đọc từ đây, nên vẫn đúng một nguồn sự thật.
 Sửa xong chạy: python3 kiem-tra-kich-ban.py
+
+Bộ màu chuẩn từ tập 21 là **đỏ–trắng** theo trang speedreading.vn/sp-online: đặt một chỗ
+ở BO_MAU_CHUAN cho mọi tập, tập nào muốn quay lại nền tối thì tự khai "phong_cach": "toi".
+Cổng kiem-tra-kich-ban.py sẽ nhắc nếu tập từ 21 trở lên không dùng bộ màu đỏ–trắng.
 """
 import math
 import re
@@ -1484,4 +1488,11 @@ def _bai_test_dai():
 
 
 EP22 = _bai_test_dai()
+
+# Bộ màu chuẩn của cả chuỗi từ 22/11: đỏ–trắng theo trang speedreading.vn/sp-online.
+# Đặt một chỗ cho mọi tập cũ, tập nào muốn quay lại nền tối thì tự khai "phong_cach": "toi".
+BO_MAU_CHUAN = "do-trang"
+for _ep in _DS_TAP:
+    _ep.setdefault("phong_cach", BO_MAU_CHUAN)
+
 EPISODES = _DS_TAP + [EP22]
