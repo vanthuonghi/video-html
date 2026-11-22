@@ -2,6 +2,9 @@
   "thuong_hieu": "SPEED READING VIỆT NAM",
   "dang_ky": "https://speedreading.vn/dang-ky",
   "dang_ky_nhan": "Quét mã để nhận lịch lớp gần nhất",
+  "dang_ky_online": "https://speedreading.vn/sp-online",
+  "dang_ky_nhan_online": "Quét mã để giữ chỗ lớp Zoom",
   "hashtag": ["#docsach", "#docsachhieuqua", "#speedreading", "#phattrienbanthan", "#kyNangDoc"],
-  "mo_ta_cuoi": "Lớp 7 buổi: đọc cụm, bỏ đọc thầm, ghi nhớ theo khoa học. Học phí 980.000đ, buổi 1 không hợp thì hoàn tiền."
+  "mo_ta_cuoi": "Lớp 7 buổi: đọc cụm, bỏ đọc thầm, ghi nhớ theo khoa học. Học phí 980.000đ, buổi 1 không hợp thì hoàn tiền.",
+  "mo_ta_cuoi_online": "Lớp 7 buổi Zoom: đọc cụm, bỏ đọc thầm, ghi nhớ theo khoa học. Học phí 980.000đ, hoàn phí nếu không hài lòng sau buổi 1."
 }
