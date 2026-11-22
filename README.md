@@ -79,6 +79,13 @@ Mốc chụp ảnh bìa đặt riêng được bằng khoá `cover_at` trong t�
 - không có mốc từ (ví dụ máy không cài `edge-tts`) thì trang tự bỏ phụ đề và `.srt`
   quay về bản theo mốc cảnh — không vỡ bản dựng.
 
+**Quy ước khi commit `do-hoa/*.html`:** bản đem commit phải là bản dựng khi **chưa có tệp
+lời đọc** trong `.thu-nghiem/giong` (nên `CUES` rỗng), vì CI kiểm "do-hoa/\*.html khớp
+generator" trên một máy không có tệp lời đọc. Dựng trang trong lúc đã sinh giọng thì trang
+có nhúng mốc từ, CI sẽ báo lệch generator — máy chủ vẫn dựng lại trang có phụ đề đầy đủ
+trước khi chụp, nên bản commit không ảnh hưởng phụ đề của video. `dung-tap-do-hoa.py` in
+một dòng nhắc khi trang vừa dựng có nhúng mốc từ.
+
 ## Dùng repo này cho kênh của bạn
 
 1. Fork repo, sửa `noi-dung.json` (link đăng ký, hashtag, câu mời) và màu trong `CSS`

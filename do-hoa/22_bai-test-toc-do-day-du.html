@@ -515,7 +515,7 @@ const ANIM = [null,(function(t, el){
      el.querySelector('.pg').style.width = (lock(j / Math.ceil(W.length / c), 0, 1) * 100) + '%';
    }),null,null];
 const TOTAL = 140.0;
-const CUES = [[0.45, 1.71, "Mười hai mốc từ"], [1.71, 2.58, "hai trăm đến một"], [2.58, 3.56, "nghìn từ một phút"], [4.27, 5.24, "Mốc nào bạn bắt"], [5.24, 6.24, "đầu hụt đó là"], [6.24, 7.09, "tốc độ đọc hiện"], [7.09, 7.56, "tại"], [129.45, 130.4, "Ghi mốc bạn dừng"], [130.4, 131.22, "lại vào bình luận"], [131.22, 131.63, "nhé"], [132.35, 133.12, "Cách luyện để đi"], [133.12, 133.96, "tiếp có trong buổi"], [133.96, 134.88, "đầu của khoá"]];
+const CUES = [];
 const ease = x => x<0?0:x>1?1:(x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2);
 const span = (t,a,b) => (t-a)/(b-a);
 const lock = (x,a,b) => Math.max(a, Math.min(b, x));

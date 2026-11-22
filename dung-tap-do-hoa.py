@@ -618,12 +618,22 @@ def main():
     size = doc_size(sys.argv)
     chon = doc_tap(sys.argv)
     hau = "" if size == KHUNG_GOC else "_%dx%d" % size
+    co_phu_de = []
     for ep in EPISODES:
         if chon and ep["slug"] not in chon:
             continue
         p = f"{OUT}/{ep['slug']}{hau}.html"
         open(p, "w", encoding="utf-8").write(build_html(ep, size))
         print(f"đã ghi {p}  ({len(ep['html'])} cảnh, tổng {ep['total']}s)")
+        if captions(ep):
+            co_phu_de.append(ep["slug"])
+    # Bản commit lại phải là bản KHÔNG có mốc từ: máy chủ dựng lại trang lúc chụp, còn CI
+    # kiểm "do-hoa/*.html khớp generator" trong một máy không có tệp lời đọc, nên trang
+    # nhúng mốc từ sẽ bị coi là lệch. Nhắc ngay để không mất một vòng CI.
+    if co_phu_de:
+        print(f"  LƯU Ý: {len(co_phu_de)} trang có phụ đề theo mốc từ "
+              f"({', '.join(co_phu_de[:4])}{'…' if len(co_phu_de) > 4 else ''}) — "
+              f"trang đem commit phải dựng khi CHƯA có tệp lời đọc, nếu không CI báo lệch generator.")
 
 
 if __name__ == "__main__":
