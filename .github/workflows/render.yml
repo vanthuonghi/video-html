@@ -216,6 +216,17 @@ jobs:
           python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1080x1080 --step 2.5 --fail
           python3 soat-do-hoa.py 02_noi-tham-trong-dau --size 1920x1080 --step 2.5 --fail
 
+      - name: Trang HTML đã commit phải khớp bản sinh lại
+        # Bắt đúng lỗi đã xảy ra: trang cũ nằm lại trong repo thì lần đẩy nào bước
+        # chọn tập cũng thấy "đổi" và dựng lại một video không có gì mới.
+        run: |
+          if ! git diff --quiet -- 'do-hoa/*.html'; then
+            git --no-pager diff --stat -- 'do-hoa/*.html'
+            echo "::error::do-hoa/*.html đã commit đang lệch với generator; chạy python3 dung-tap-do-hoa.py rồi commit."
+            exit 1
+          fi
+          echo "do-hoa/*.html khớp với generator"
+
       - name: Kiểm hợp đồng render (cùng mốc t phải ra cùng khung)
         run: python3 kiem-tra-hop-dong.py 02_noi-tham-trong-dau 08_truong-nhin
 
