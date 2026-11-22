@@ -62,6 +62,41 @@ class CDP:
             "requestAnimationFrame(f)})"))
 
 
+def cho_trang_lai(c, so_lan=60):
+    """Chờ trang dùng được lại sau khi ngữ cảnh thực thi bị huỷ."""
+    for _ in range(so_lan):
+        try:
+            if c.eval("(typeof window.__seek==='function') && "
+                      "(typeof window.__total==='number')"):
+                return True
+        except Exception:
+            pass
+        time.sleep(0.25)
+    return False
+
+
+def chup_mot_khung(c, i, fps, quality, so_lan=3):
+    """Seek → chờ vẽ → chụp, có thử lại khi trình duyệt huỷ ngữ cảnh.
+
+    Chrome thinh thoảng reload trang giữa phiên (renderer tự phục hồi), làm
+    `__seek` báo "Execution context was destroyed". Mất một khung là hỏng cả video,
+    nên thử lại vài lần rồi mới bỏ.
+    """
+    loi = None
+    for lan in range(so_lan):
+        try:
+            c.eval(f"window.__seek({i / fps:.4f})")
+            c.ve_xong()
+            return base64.b64decode(c.send("Page.captureScreenshot", format="jpeg",
+                                           quality=quality, fromSurface=True,
+                                           optimizeForSpeed=True)["data"])
+        except RuntimeError as e:
+            loi = e
+            time.sleep(0.4)
+            cho_trang_lai(c)
+    raise RuntimeError(f"khung {i}: {loi}")
+
+
 def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", probe_only=False):
     os.makedirs(outdir, exist_ok=True)
     profile = f"/tmp/chrome-prof-{port}"
@@ -115,12 +150,8 @@ def capture(url, outdir, port, frm, to, fps, quality, gpu, total, label="", prob
         time.sleep(0.25)
         t0 = time.time(); n = 0
         for i in range(frm, hi + 1):
-            c.eval(f"window.__seek({i / fps:.4f})")
-            c.ve_xong()
-            shot = c.send("Page.captureScreenshot", format="jpeg", quality=quality,
-                          fromSurface=True, optimizeForSpeed=True)
             with open(f"{outdir}/{i:05d}.jpg", "wb") as fh:
-                fh.write(base64.b64decode(shot["data"]))
+                fh.write(chup_mot_khung(c, i, fps, quality))
             n += 1
         el = time.time() - t0
         if n:
