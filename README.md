@@ -90,8 +90,10 @@ Giấy phép: MIT (xem `LICENSE`).
 `python3 sinh-gallery.py` sinh `gallery/index.html`: lưới 16 thẻ (ảnh bìa lấy từ
 release), bấm một thẻ mở trình xem 1080×1920 thu nhỏ, có thanh tua và nút phát gọi
 thẳng `contentWindow.__seek(t)` — không render lại gì. Mở bằng
-`python3 -m http.server` ở gốc repo rồi vào `/gallery/`, hoặc bật GitHub Pages với
-thư mục `/gallery`.
+`python3 -m http.server` ở gốc repo rồi vào `/gallery/`, hoặc bật GitHub Pages:
+Settings → Pages → Source: **GitHub Actions**. Sau đó workflow `pages.yml` tự đăng
+thư mục `gallery/` mỗi khi nó đổi; khi Pages chưa bật, workflow đó tự bỏ qua nên
+không làm đỏ lần đẩy nào.
 
 ## Đa tỉ lệ khung (một kịch bản, ba đầu ra)
 

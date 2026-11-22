@@ -1,0 +1,58 @@
+name: Đưa gallery lên GitHub Pages
+
+# Chỉ đăng thư mục gallery/ (trang xem trước sinh bởi sinh-gallery.py).
+# Nếu Pages chưa bật trong Settings → Pages → Source: GitHub Actions thì job tự
+# bỏ qua thay vì báo đỏ, để lần đẩy nào cũng xanh.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gallery/**"
+      - "sinh-gallery.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  dang:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.dang.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Kiểm tra Pages đã bật chưa
+        id: bat
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            echo "co=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "co=0" >> "$GITHUB_OUTPUT"
+            echo "::notice::Pages chưa bật. Vào Settings → Pages → Source: GitHub Actions, rồi chạy lại workflow này."
+          fi
+
+      - name: Chuẩn bị Pages
+        if: steps.bat.outputs.co == '1'
+        uses: actions/configure-pages@v5
+
+      - name: Đóng gói thư mục gallery
+        if: steps.bat.outputs.co == '1'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gallery
+
+      - name: Đăng lên Pages
+        id: dang
+        if: steps.bat.outputs.co == '1'
+        uses: actions/deploy-pages@v4
