@@ -1939,6 +1939,120 @@ EP29 = dua_tap(
   ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
  ])
 
+# ------------------------------------------- TẬP 30 — F1: người Việt đọc bao nhiêu, CEO đọc bao nhiêu
+# Số liệu lấy từ nguồn công khai, ghi rõ nguồn trên màn hình: Cục Xuất bản, In và Phát hành
+# (báo cáo 2024), Vụ Thư viện — Bộ VH-TT&DL (khảo sát 2013), Bill Gates trả lời New York Times
+# 2016. Số liệu đổi theo năm, nên tập nào dùng lại phải tra lại trước khi đăng.
+EP30 = dua_tap(
+ "30_thoi-quen-doc-nguoi-viet", "Người Việt đọc bao nhiêu — và vì sao CEO đọc gấp mấy chục lần", [
+  ("h1", 9.0, ("Số liệu 2024 · Cục Xuất bản",
+    "Người Việt: <span class=\"hl\">5,9 bản sách</span><br>mỗi năm",
+    "Nghe không tệ. Nhưng 77% trong đó là sách giáo khoa."),
+   "Số liệu năm hai nghìn hai mươi tư: bình quân mỗi người Việt được hưởng năm phẩy chín bản sách một năm. Nghe không tệ."),
+  ("list", 13.0, ("Nhưng nhìn kỹ thì khác", [
+    "461 triệu bản là sách giáo khoa — 77% tổng số",
+    "Sách đọc tự nguyện chỉ còn 135 triệu bản",
+    "Chia cho 101 triệu dân: khoảng 1,3 bản một người"],
+    "Nguồn: Cục Xuất bản, In và Phát hành — báo cáo 2024."),
+   "Nhưng trong đó, bốn trăm sáu mươi mốt triệu bản là sách giáo khoa, chiếm bảy mươi bảy phần trăm. Sách đọc tự nguyện chỉ còn khoảng một phẩy ba bản một người một năm."),
+  ("list", 13.0, ("Hiểu đúng con số để làm gì", [
+    "Không tự nhận mình đọc nhiều dựa vào con số chung",
+    "Biết mốc thật của người Việt: khoảng 1–1,3 cuốn một năm",
+    "Đặt mục tiêu theo tuần thay vì theo năm"], None),
+   "Hiểu đúng con số giúp bạn không tự huyễn hoặc: mốc thật của người Việt là khoảng một đến một phẩy ba cuốn một năm."),
+  ("h1", 14.0, ("Vì sao có hai con số khác nhau",
+    "Cùng một dữ liệu,<br>khác <span class=\"hl\">cách đếm</span>",
+    "Bản in ra, bản bán được, bản thực sự được đọc — ba con số khác nhau."),
+   "Có lúc bạn nghe người Việt đọc không tới một cuốn một năm, có lúc nghe gần sáu bản. Cả hai đều có nguồn, chỉ khác cách đếm: bản in ra, bản bán được, hay bản thực sự được đọc."),
+  ("list", 13.0, ("Còn thói quen đọc thì sao", [
+    "26% người Việt hoàn toàn không đọc sách",
+    "44% thỉnh thoảng mới cầm sách",
+    "30% đọc thường xuyên"],
+    "Nguồn: Vụ Thư viện, Bộ Văn hóa, Thể thao và Du lịch."),
+   "Theo Vụ Thư viện, hai mươi sáu phần trăm người Việt hoàn toàn không đọc sách, bốn mươi bốn phần trăm thỉnh thoảng mới cầm sách, và ba mươi phần trăm đọc thường xuyên."),
+  ("list", 14.0, ("Đầu kia của khoảng cách", [
+    "<b>Bill Gates</b>: khoảng 50 cuốn một năm — gần 1 cuốn mỗi tuần",
+    "<b>Warren Buffett</b>: đọc 5–6 giờ mỗi ngày",
+    "Điểm chung không phải đọc nhanh hơn, mà là đọc đều hơn"],
+    "Nguồn: Bill Gates trả lời New York Times (2016); báo chí trong nước tổng hợp."),
+   "Ở đầu kia: Bill Gates nói ông đọc khoảng năm mươi cuốn một năm, tức gần một cuốn mỗi tuần. Warren Buffett đọc năm đến sáu giờ mỗi ngày. Điểm chung không phải họ đọc nhanh hơn, mà là đọc đều hơn."),
+  ("h1", 13.0, ("Năm mươi cuốn là bao nhiêu mỗi ngày",
+    "50 cuốn một năm<br>≈ <span class=\"hl\">50 phút mỗi ngày</span>",
+    "Ở 250 từ/phút, một cuốn 300 trang là khoảng 6 giờ đọc."),
+   "Năm mươi cuốn một năm là khoảng ba trăm giờ đọc. Chia cho ba trăm sáu mươi lăm ngày, mỗi ngày khoảng năm mươi phút ở tốc độ hai trăm năm mươi từ một phút. Đọc nhanh gấp đôi thì chỉ còn hai mươi lăm phút."),
+  ("list", 14.0, ("Việc cần làm · tuần này", [
+    "Chọn một cuốn mỏng, đặt mốc 1 cuốn mỗi tuần",
+    "Cố định 30 phút cùng một giờ mỗi ngày",
+    "Ghi lại số trang đọc được để thấy mình tiến bộ"],
+    "1 cuốn mỗi tuần là 52 cuốn một năm — mức của Bill Gates."),
+   "Việc cần làm: chọn một cuốn mỏng và đặt mốc một cuốn mỗi tuần, cố định ba mươi phút cùng một giờ mỗi ngày, và ghi lại số trang đọc được để thấy mình tiến bộ."),
+  ("h1", 13.0, ("Thông điệp",
+    "Khoảng cách không nằm ở<br><span class=\"hl\">tốc độ đọc</span>",
+    "Nằm ở số ngày bạn thật sự cầm sách — tốc độ chỉ làm việc đó dễ hơn."),
+   "Thông điệp: khoảng cách giữa một cuốn và năm mươi cuốn một năm không nằm ở tốc độ đọc, mà ở số ngày bạn thật sự cầm sách. Tốc độ chỉ làm việc đó dễ hơn."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Nếu mục tiêu của bạn là năm mươi cuốn một năm thì ba mươi phút mỗi ngày là chưa đủ, trừ khi bạn đọc nhanh hơn. Khoá bảy buổi Zoom dạy đúng phần tốc độ đó: học phí chín trăm tám mươi nghìn đồng, hoàn phí sau buổi một nếu bạn thấy không hợp."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
+# ------------------------------------------- TẬP 31 — F2: số liệu đo tốc độ đọc sinh viên đại học
+# Số liệu có nguồn: nghiên cứu 15 tuần trên 206 sinh viên đại học tại Việt Nam (Tran và cộng sự,
+# 2024) — đo tốc độ đọc bài tiếng Anh. Mốc tham chiếu 200–300 từ/phút là mốc phổ biến trong
+# tài liệu về tốc độ đọc. Không dùng số liệu lớp riêng vì chưa có sự đồng ý của trường.
+EP31 = dua_tap(
+ "31_sinh-vien-doc-bao-nhieu-tu-mot-phut", "Sinh viên Việt đọc bao nhiêu từ một phút — số liệu đo được", [
+  ("h1", 9.0, ("Số liệu nghiên cứu · 2024",
+    "Sinh viên Việt đọc<br><span class=\"hl\">124 từ một phút</span>",
+    "Đo trên 206 sinh viên đại học, đọc bài tiếng Anh, trước khi luyện."),
+   "Nghiên cứu 2024 đo tốc độ đọc bài tiếng Anh của hai trăm lẻ sáu sinh viên đại học Việt Nam: một trăm hai mươi bốn từ một phút."),
+  ("list", 13.0, ("Con số này nói với bạn điều gì", [
+    "Bạn không đọc chậm vì kém — đó là mức trung bình",
+    "Tốc độ đọc đo được, nên so sánh được",
+    "Biết mốc của mình để đặt mục tiêu cụ thể"], None),
+   "Con số này cho thấy bạn không đọc chậm vì kém cỏi — đó là mức trung bình. Và vì đo được nên nó so sánh được, và bạn đặt mục tiêu được."),
+  ("list", 13.0, ("Luyện 15 tuần thì sao", [
+    "Nhóm luyện: 124 → 136 từ/phút (tăng 12 từ)",
+    "Nhóm không luyện: 120 → 123 từ/phút (tăng 3 từ)",
+    "Điểm hiểu bài cũng tăng, không bị giảm"],
+    "Nguồn: Tran và cộng sự, 2024 — 206 sinh viên đại học, luyện 15 tuần."),
+   "Sau mười lăm tuần luyện, nhóm luyện tăng lên một trăm ba mươi sáu từ một phút, còn nhóm không luyện gần như đứng yên. Điểm hiểu bài cũng tăng theo, không giảm."),
+  ("h1", 14.0, ("Vì sao phải nhấn mạnh chữ “luyện”",
+    "Đọc nhanh là<br><span class=\"hl\">kỹ năng, không phải năng khiếu</span>",
+    "Hai nhóm học cùng thời gian — khác nhau ở cách luyện."),
+   "Hai nhóm có cùng thời gian học. Khác nhau ở chỗ một nhóm luyện có phương pháp, một nhóm đọc theo cách cũ. Nên tốc độ đọc là kỹ năng, không phải năng khiếu."),
+  ("list", 13.0, ("Đặt con số vào thang chung", [
+    "Người lớn đọc thường: 200–250 từ/phút",
+    "Sinh viên đại học: khoảng 300 từ/phút",
+    "Tài liệu kỹ thuật khó: 100–200 từ/phút"],
+    "Mốc tham chiếu phổ biến trong tài liệu về tốc độ đọc. Đọc tiếng Việt thường nhanh hơn đọc ngoại ngữ."),
+   "Để so sánh: người lớn đọc thường khoảng hai trăm đến hai trăm năm mươi từ một phút, sinh viên đại học khoảng ba trăm. Đọc tiếng Việt thường nhanh hơn đọc ngoại ngữ, nhưng phần cải thiện thì vẫn đo được như nhau."),
+  ("list", 13.0, ("Việc cần làm · tự đo trước", [
+    "Làm bài test 60 giây, ghi lại mốc bạn dừng",
+    "Luyện 15 phút mỗi ngày theo kỹ thuật",
+    "Đo lại sau 14 ngày và ghi lại con số mới"], None),
+   "Việc cần làm: tự đo trước bằng một bài test sáu mươi giây và ghi lại mốc bạn dừng. Luyện mười lăm phút mỗi ngày, rồi đo lại sau mười bốn ngày."),
+  ("list", 14.0, ("Luyện đúng ba thứ", [
+    "Bỏ đọc thầm từng chữ — đọc theo cụm",
+    "Dùng tay hoặc bút dẫn mắt theo dòng",
+    "Đọc lặp lại một bài quen để đo tốc độ"], None),
+   "Ba thứ cần luyện: bỏ đọc thầm từng chữ và đọc theo cụm, dùng tay hoặc bút dẫn mắt, và đọc lặp lại một bài quen để đo tốc độ."),
+  ("h1", 13.0, ("Thông điệp",
+    "Tốc độ đọc<br>luyện <span class=\"hl\">được</span>",
+    "Sinh viên trong nghiên cứu tăng 12 từ một phút sau 15 tuần — con số đo được."),
+   "Thông điệp: tốc độ đọc luyện được. Sinh viên trong nghiên cứu tăng mười hai từ một phút sau mười lăm tuần, và đó là con số đo được, không phải lời hứa."),
+  ("list", 16.0, ("Khoá đọc hiệu quả · 7 buổi Zoom", [
+    "Buổi đầu: luyện mắt theo kỹ thuật 3-2-1",
+    "Buổi hai: đọc cụm 3–5 từ, bỏ đọc thầm",
+    "Các buổi sau: quy trình đọc, ghi chép, ôn theo mốc"],
+    "980.000đ · hoàn phí sau buổi 1 nếu không hợp."),
+   "Ba thứ cần luyện ở trên là nội dung hai buổi đầu của khoá. Khoá bảy buổi Zoom, học phí chín trăm tám mươi nghìn đồng, hoàn phí nếu sau buổi một bạn thấy không hợp."),
+  ("cta", 8.0, None, "Quét mã trên màn hình để xem bảy buổi và giữ chỗ."),
+ ])
+
 # ---------------------------------------------------------------- TẬP 22 — bài test tốc độ đọc, bản đầy đủ
 # Các tập đứng trước theo đúng thứ tự đăng — văn bản cho bài test lấy từ chính lời đọc của chúng.
 _DS_TAP = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12,
@@ -2202,4 +2316,4 @@ EP_AI_AGENT = {
 }
 
 
-EPISODES = _DS_TAP + [EP22, EP23, EP24, EP25, EP26, EP27, EP28, EP29, EP_AI_AGENT]
+EPISODES = _DS_TAP + [EP22, EP23, EP24, EP25, EP26, EP27, EP28, EP29, EP30, EP31, EP_AI_AGENT]
