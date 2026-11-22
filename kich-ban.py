@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Kịch bản 20 tập: mỗi tập một dict (slug, ten, total, scenes, html, anim, narration).
+"""Kịch bản 22 tập: mỗi tập một dict (slug, ten, total, scenes, html, anim, narration).
 
 Tách khỏi dung-tap-do-hoa.py để sửa nội dung không phải mở tệp hơn một nghìn dòng.
 Khung dựng và mọi công cụ vẫn đọc từ đây, nên vẫn đúng một nguồn sự thật.
 Sửa xong chạy: python3 kiem-tra-kich-ban.py
 """
+import math
+import re
 
 # Đánh dấu cảnh kết thúc: khi dựng trang sẽ được thay bằng thẻ kết thúc dùng chung.
 CTA = "@@END@@"
@@ -1304,4 +1306,182 @@ EP20 = {
  ],
 }
 
-EPISODES = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12, EP13, EP14, EP15, EP16, EP17, EP18, EP19, EP20]
+# ---------------------------------------------------------------- TẬP 21 — B6: lướt có cấu trúc
+EP21 = {
+ "slug": "21_skim-co-cau-truc", "total": 45.0, "ten": "Lướt có cấu trúc: 300 trang trong 15 phút",
+ "phong_cach": "do-trang",
+ "scenes": [(0,8.0),(8.0,22.0),(22.0,31.0),(31.0,38.5),(38.5,45.0)],
+ "html": [
+   scene("""
+    <div class="kicker">Đọc lướt có cấu trúc</div>
+    <h1>Ba trăm trang<br>trong <span class="hl">mười lăm phút</span></h1>
+    <div class="sub">Không phải đọc hết. Là biết <b>chỗ nào đáng đọc trước</b>.</div>"""),
+   scene("""
+    <div class="kicker">Bốn lớp để lướt</div>
+    <div class="list20">
+      <div class="it"><b>1</b>Bìa và mục lục — sách nói về việc gì</div>
+      <div class="it"><b>2</b>Tiêu đề chương — bản đồ cuốn sách</div>
+      <div class="it"><b>3</b>Câu đầu, câu cuối mỗi đoạn — ý chính</div>
+      <div class="it"><b>4</b>Bảng biểu và chữ in đậm — chỗ tác giả nhấn</div>
+    </div>"""),
+   scene("""
+    <div class="kicker">Lượt một: lướt hết để đánh dấu</div>
+    <div class="race">
+      <div class="row"><div class="name"><b>Trang đã lướt qua</b><span class="val" id="e1v">0 trang</span></div>
+        <div class="track"><i class="fill" id="e1f"></i></div></div>
+      <div class="row"><div class="name"><b>Trang cần đọc kỹ</b><span class="val" id="e2v">0 trang</span></div>
+        <div class="track"><i class="fill red" id="e2f"></i></div></div>
+    </div>
+    <div class="badge"><span class="t">Chỉ khoảng một phần năm</span><span class="v">20%</span></div>"""),
+   scene("""
+    <div class="kicker">Ba lượt, ba mục đích</div>
+    <div class="chart" id="c1">
+      <div class="col"><div class="num" id="n1">0 phút</div><div class="bar" id="b1"></div><div class="lab">mục lục<br>và tiêu đề</div></div>
+      <div class="col"><div class="num" id="n2">0 phút</div><div class="bar" id="b2"></div><div class="lab">câu đầu<br>câu cuối</div></div>
+      <div class="col"><div class="num" id="n3">0 phút</div><div class="bar" id="b3"></div><div class="lab">phần<br>đọc kỹ</div></div>
+    </div>
+    <div class="note">Mười lăm phút cho ba trăm trang — nhờ chọn chỗ đọc, không phải đọc nhanh hơn.</div>"""),
+   scene(CTA),
+ ],
+ "anim": [
+   "",
+   """function(t, el){
+     const t0 = [9.0, 10.5, 12.0, 13.5];
+     el.querySelectorAll('.list20 .it').forEach(function(x, k){
+       x.style.opacity = ease(span(t, t0[k], t0[k] + 0.6)).toFixed(3);
+     });
+   }""",
+   """function(t, el){
+     const p1 = ease(span(t, 23.3, 26.3)), p2 = ease(span(t, 27.2, 29.6));
+     el.querySelector('#e1f').style.width = (p1 * 100) + '%';
+     el.querySelector('#e2f').style.width = (p2 * 20) + '%';
+     el.querySelector('#e1v').textContent = Math.round(p1 * 300) + ' trang';
+     el.querySelector('#e2v').textContent = Math.round(p2 * 60) + ' trang';
+   }""",
+   """function(t, el){
+     const s = [[32.4, 25, 2, 'n1', 'b1'], [33.5, 62, 5, 'n2', 'b2'], [34.6, 100, 8, 'n3', 'b3']];
+     s.forEach(function(x){
+       const p = ease(span(t, x[0], x[0] + 1.3));
+       el.querySelector('#' + x[4]).style.height = (p * x[1]) + '%';
+       el.querySelector('#' + x[3]).textContent = Math.round(p * x[2]) + ' phút';
+     });
+   }""",
+   "",
+ ],
+ "narration": [
+   (0, "Ba trăm trang trong mười lăm phút. Không phải đọc hết, mà là biết chỗ nào đáng đọc trước."),
+   (1, "Bốn lớp để lướt. Bìa và mục lục cho biết sách nói về gì. Tiêu đề chương là bản đồ cuốn sách. Câu đầu và câu cuối mỗi đoạn chứa ý chính. Chữ in đậm là chỗ tác giả nhấn."),
+   (2, "Lượt một bạn lướt hết ba trăm trang để đánh dấu. Chỉ khoảng hai mươi phần trăm là chỗ đọc kỹ."),
+   (3, "Ba lượt: hai phút cho mục lục và tiêu đề, năm phút cho câu đầu câu cuối, tám phút cho phần đáng đọc."),
+   (4, "Cách lướt này tôi dạy kèm trong từng buổi học."),
+ ],
+}
+
+# ---------------------------------------------------------------- TẬP 22 — bài test tốc độ đọc, bản đầy đủ
+# Các tập đứng trước theo đúng thứ tự đăng — văn bản cho bài test lấy từ chính lời đọc của chúng.
+_DS_TAP = [EP1, EP2, EP3, EP4, EP5, EP7, EP8, EP9, EP20_11, EP10, EP11, EP12,
+           EP13, EP14, EP15, EP16, EP17, EP18, EP19, EP20, EP21]
+
+# Mốc tốc độ của bài test: (từ/phút, số từ hiện mỗi lần, gợi ý dưới thanh chạy)
+#
+# Ở 24 hình/giây, một từ tại mốc 1.000 từ/phút chỉ có 1,4 khung hình — không ai đọc kịp
+# và video chỉ còn là nhấp nháy. Nên mốc càng cao thì mỗi lần hiện càng nhiều từ (đúng
+# cách đọc cụm mà khoá dạy), còn số từ mỗi phút vẫn giữ đúng con số ghi trên màn hình.
+MOC_TEST = [
+    (200,  1, "Chậm hơn tốc độ nói. Ai cũng theo được mốc này."),
+    (250,  1, "Đúng tốc độ giọng đọc trong đầu — cái hãm quen thuộc."),
+    (300,  2, "Nhanh hơn giọng nói một chút. Nhiều người bắt đầu hụt ở đây."),
+    (350,  2, "Nhịp đã gấp rưỡi tốc độ nói, nhưng vẫn đều."),
+    (400,  2, "Mắt phải đọc theo cụm, không nhẩm từng chữ nữa."),
+    (450,  2, "Mức học viên đạt sau khoá: bỏ hẳn giọng đọc trong đầu."),
+    (500,  3, "Mỗi lần hai đến ba từ. Ngưỡng của người đã luyện."),
+    (600,  3, "Nhịp này cần mắt nhận cả cụm, tai không nhẩm nữa."),
+    (700,  4, "Chỉ còn mắt làm việc. Theo được là bạn đã bỏ đọc thầm."),
+    (800,  4, "Mức đọc của người luyện lâu năm."),
+    (900,  5, "Rất ít người giữ được mốc này mà vẫn hiểu nội dung."),
+    (1000, 5, "Mốc cao nhất. Đây là giới hạn để bạn biết mình còn bao xa."),
+]
+
+CO_CHU_MOI_LAN = {1: 118, 2: 96, 3: 78, 4: 64, 5: 54}
+CHAY, GIAI_THICH, KET = 10.0, 9.0, 8.0     # mỗi mốc chạy 10 giây, hiện từ trong 9 giây đầu
+
+
+def so_tu_moc(wpm, c):
+    """Số từ cần hiện cho một mốc: đủ cho 9 giây ở tốc độ đó, làm tròn theo cả cụm."""
+    return math.ceil(wpm * GIAI_THICH / 60 / c) * c
+
+
+def _van_ban_test(so_tu):
+    """Văn bản cho bài test: ghép câu trong lời đọc của các tập trước (nội dung thật của
+    kênh, người xem đọc lại đúng thứ mình đã học), hết thì nối tiếp PASSAGE cho đủ từ."""
+    cau = []
+    for ep in _DS_TAP:
+        for _i, t in ep.get("narration", []):
+            for c in re.split(r"(?<=[.!?:])\s+", t.strip()):
+                if c and c not in cau:
+                    cau.append(c)
+    tu = [w.replace('"', "").replace("<", "").replace(">", "") for w in " ".join(cau).split()]
+    while len(tu) < so_tu:
+        tu += PASSAGE
+    return tu[:so_tu]
+
+
+ANIM_MOC = """function(t, el){
+     const box = el.querySelector('.flash');
+     const W = box.dataset.words.split('|'), c = +box.dataset.chunk;
+     const wpm = +box.dataset.wpm, t0 = +box.dataset.t0;
+     const j = Math.max(0, Math.floor((t - t0) / (c * 60 / wpm)));
+     const so = Math.min((j + 1) * c, W.length);
+     box.querySelector('.w').textContent = j * c < W.length ? W.slice(j * c, so).join(' ') : '—';
+     el.querySelector('.cnt').textContent = so + '/' + W.length + ' từ';
+     el.querySelector('.pg').style.width = (lock(j / Math.ceil(W.length / c), 0, 1) * 100) + '%';
+   }"""
+
+
+def _bai_test_dai():
+    """Bài test đầy đủ: cảnh mở đầu + 12 mốc tốc độ + cảnh kết, chạy 2 phút 20 giây."""
+    van_ban = _van_ban_test(sum(so_tu_moc(w, c) for w, c, _g in MOC_TEST))
+    scenes = [(0.0, GIAI_THICH)]
+    html = [scene("""
+    <div class="kicker">Bài test tốc độ đọc — bản đầy đủ</div>
+    <h1>Từ hai trăm<br>đến <span class="hl">một nghìn</span><br>từ một phút</h1>
+    <div class="sub">Mười hai mốc, đi từ chậm đến nhanh. Mốc nào bạn bắt đầu hụt, đó là tốc độ đọc hiện tại.</div>""")]
+    anim = [""]
+
+    vt = 0
+    for k, (wpm, c, goi_y) in enumerate(MOC_TEST):
+        a, n = GIAI_THICH + k * CHAY, so_tu_moc(wpm, c)
+        doan, vt = van_ban[vt:vt + n], vt + n
+        scenes.append((a, a + CHAY))
+        html.append(scene(f"""
+    <div class="kicker" style="margin-bottom:14px">Mốc {k + 1}/{len(MOC_TEST)} — {wpm} từ một phút</div>
+    <div class="flash" data-words="{'|'.join(doan)}" data-wpm="{wpm}" data-chunk="{c}"
+         data-t0="{a + 0.45:.2f}" style="height:430px">
+      <span class="w" style="font-size:{CO_CHU_MOI_LAN[c]}px;line-height:1.16;max-width:888px;text-align:center">—</span></div>
+    <div class="testbar"><span class="cnt" id="m{k}c">0/{n} từ</span>
+      <div class="track"><i class="pg" id="m{k}p"></i></div><span class="rate">{wpm} từ/phút</span></div>
+    <div class="sub" style="font-size:34px;margin-top:30px">{goi_y}</div>"""))
+        anim.append(ANIM_MOC)
+
+    a = GIAI_THICH + len(MOC_TEST) * CHAY
+    scenes.append((a, a + KET))
+    html.append(scene("""
+    <div class="kicker">Mốc bạn hụt chính là tốc độ hiện tại</div>
+    <h1 style="font-size:76px">Ghi mốc đó<br><span class="hl">vào bình luận</span></h1>
+    <div class="sub">Người đọc thường dừng ở 200–300. Sau khoá, phần lớn học viên giữ được 450–600 mà vẫn hiểu nội dung.</div>
+    <div class="cta"><div class="a">Khoá học</div><div class="b">Đọc hiệu quả Speed Reading</div><div class="c">Học phí 980.000đ · có buổi 1 hoàn tiền</div></div>"""))
+    anim.append("")
+
+    tong = a + KET + 3.0          # khung dựng tự nối thêm 3 giây thẻ kết thúc
+    return {"slug": "22_bai-test-toc-do-day-du", "total": round(tong, 2),
+            "ten": "Bài test tốc độ đọc: 200 đến 1.000 từ một phút",
+            "phong_cach": "do-trang",
+            "scenes": scenes, "html": html, "anim": anim,
+            "narration": [
+                (0, "Mười hai mốc, từ hai trăm đến một nghìn từ một phút. Mốc nào bạn bắt đầu hụt, đó là tốc độ đọc hiện tại."),
+                (len(MOC_TEST) + 1, "Ghi mốc bạn dừng lại vào bình luận nhé. Cách luyện để đi tiếp có trong buổi đầu của khoá."),
+            ]}
+
+
+EP22 = _bai_test_dai()
+EPISODES = _DS_TAP + [EP22]

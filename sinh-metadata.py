@@ -48,12 +48,14 @@ def tao(i, ep, cfg):
     cau_dau = dict(ep["narration"]).get(0, "")
     sau = dt.EPISODES[i + 1] if i + 1 < len(dt.EPISODES) else None
     tieu_de = f"{ten} | Đọc hiệu quả #{so:02d}"
+    # Phong cách đỏ–trắng trỏ về trang lớp Zoom online, khớp với thẻ kết thúc của video
+    do_trang = ep.get("phong_cach") == "do-trang"
     mo_ta = "\n".join(x for x in [
         f"Tập {so}/{tong}: {ten}.",
         cau_dau,
         "",
-        cfg["mo_ta_cuoi"],
-        f"Đăng ký lớp gần nhất: {cfg['dang_ky']}",
+        cfg.get("mo_ta_cuoi_online") if do_trang else cfg["mo_ta_cuoi"],
+        f"Đăng ký lớp gần nhất: {cfg.get('dang_ky_online') if do_trang else cfg['dang_ky']}",
         ("Tập sau: " + sau.get("ten", "")) if sau else "Đây là tập cuối chuỗi.",
     ] if x is not None)
     nhan = list(cfg.get("hashtag", []))

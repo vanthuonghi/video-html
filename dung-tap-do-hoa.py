@@ -201,6 +201,123 @@ CSS = """
   #brand{position:absolute;left:96px;top:132px;font-size:32px;color:#6f807c;font-weight:700;letter-spacing:.08em}
 """
 
+# Phong cách thương hiệu thứ hai, theo trang speedreading.vn/sp-online: nền trắng, đỏ thương
+# hiệu (đỏ Tailwind red-600/700/800), chữ Inter. Bật cho một tập bằng khoá
+# "phong_cach": "do-trang". Viết thành lớp phủ chồng lên CSS gốc nên mọi tập cũ không đổi.
+CSS_DO_TRANG = """
+  html,body{background:#fff}
+  body{font-family:"VH Inter","Noto Sans",sans-serif;color:#0f172a}
+  #bg{background:
+      radial-gradient(1100px 820px at 18% 10%, rgba(220,38,38,.10), transparent 62%),
+      radial-gradient(900px 760px at 86% 90%, rgba(220,38,38,.07), transparent 64%),
+      linear-gradient(168deg,#ffffff 0%,#fff7f7 52%,#ffffff 100%)}
+  .grain{opacity:.07;background-image:radial-gradient(#dc2626 1px, transparent 1px)}
+  .kicker{color:#dc2626}
+  h1{color:#0f172a}
+  h1 .hl{color:#dc2626}
+  h1 .bad{color:#991b1b}
+  .sub{color:#475569}
+  .sub b{color:#0f172a}
+  .race .name{color:#64748b}
+  .race .name b{color:#0f172a}
+  .track{background:#fee2e2}
+  .fill{background:linear-gradient(90deg,#ef4444,#dc2626)}
+  .fill.red{background:linear-gradient(90deg,#b91c1c,#7f1d1d)}
+  .cap{background:#b91c1c}
+  .caplbl{color:#b91c1c}
+  .col .bar{background:linear-gradient(180deg,#ef4444,#dc2626)}
+  .col .bar.red{background:linear-gradient(180deg,#b91c1c,#7f1d1d)}
+  .col .lab{color:#64748b}
+  .blk{background:#dc2626}
+  .gridline{color:#64748b}
+  .crd{background:#fff;border-color:#fecaca}
+  .crd .idx{background:#dc2626;color:#fff}
+  .crd .txt b{color:#0f172a}
+  .crd .txt span{color:#64748b}
+  .vs{background:#fff;border-color:#fecaca}
+  .vs .nm{color:#0f172a}
+  .vs .meter{background:#fee2e2}
+  .vs .meter i{background:#dc2626}
+  .vs .note{color:#64748b}
+  .ageline .age{color:#0f172a}
+  .ageline .ab{background:#fee2e2}
+  .ageline .ab i{background:#dc2626}
+  .ageline .mins{color:#0f172a}
+  .lines{color:#0f172a}
+  .lines .wd{color:#94a3b8}
+  .lines .wd.lit{color:#0f172a;background:#fee2e2}
+  .finger{background:rgba(220,38,38,.92)}
+  .finger::after{background:#fff}
+  .beat{border-color:#fecaca;color:#94a3b8}
+  .beat.on{background:#dc2626;border-color:#dc2626;color:#fff}
+  .badge{background:#fff;border-color:#fecaca}
+  .badge .t{color:#64748b}
+  .badge .v{color:#0f172a}
+  .waves .ch{color:#0f172a}
+  .waves .wave{background:#dc2626}
+  .flash .w{color:#0f172a}
+  .testbar .cnt,.testbar .rate{color:#64748b}
+  .testbar .track{background:#fee2e2}
+  .testbar .pg{background:#dc2626}
+  .cluster .cw{color:#94a3b8}
+  .cluster .cw.sharp{color:#0f172a}
+  .cluster .cw.dim{color:#cbd5e1}
+  .cluster .cw.wide{color:#334155}
+  .reticle{border-color:#dc2626}
+  .ring{border-color:#dc2626}
+  .ring.inner{border-color:#991b1b}
+  .eyedot{background:#0f172a}
+  .legend .l1{color:#991b1b}
+  .legend .l2{color:#dc2626}
+  .stack .pgbar{background:#fee2e2}
+  .stack .pgbar.on{background:#dc2626}
+  .stack .pgbar .pi{color:#fff}
+  .list20 .it{color:#0f172a}
+  .list20 .it b{background:#dc2626;color:#fff}
+  .cta{background:#dc2626;color:#fff}
+  .cta .a,.cta .c{color:#fff}
+  .fixline .fxw{color:#94a3b8}
+  .fixline .fxw.lit{color:#0f172a;background:#fee2e2}
+  .fixline .fxw.cl{background:#fff;border-color:#dc2626}
+  .fixdot{background:#dc2626}
+  .fixcount .n{color:#b91c1c}
+  .fixcount .n.ok{color:#dc2626}
+  .fixcount .u{color:#64748b}
+  .tl .seg{background:linear-gradient(90deg,#ef4444,#dc2626)}
+  .tl .gap{background:#fecaca}
+  .chain .link{background:#dc2626}
+  .chain .nd{background:#0f172a}
+  .hieubar .lb{color:#64748b}
+  .hieubar .tr{background:#fee2e2}
+  .hieubar .tr i{background:#dc2626}
+  .hieubar .tr i.bad{background:#991b1b}
+  .hieubar .pc{color:#0f172a}
+  .list3 .it{color:#0f172a}
+  .list3 .it b{background:#dc2626;color:#fff}
+  .note{color:#64748b}
+  .clwrap{border-color:#dc2626}
+  .page{background:#fff;border-color:#fecaca}
+  .page .pg{background:#fee2e2}
+  .page .pg.t{background:#dc2626}
+  .pgmark{color:#64748b}
+  .nx{background:#fff1f2;border-color:#fecaca;border-left-color:#dc2626}
+  .nx .nxl{color:#dc2626}
+  .nx .nxt{color:#0f172a}
+  .ticket{background:#fff;border-color:#fecaca}
+  .ticket .qr{background:#fff}
+  .ticket .tl{color:#475569}
+  .ticket .tu{color:#b91c1c}
+  .endinfo{color:#64748b}
+  .endinfo b{color:#0f172a}
+  .dots i{background:#fecaca}
+  .dots i.on{background:#dc2626}
+  #cap span{background:rgba(153,27,27,.92);color:#fff}
+  #thanh{background:#dc2626}
+  #brand{color:#b91c1c}
+  .cta{border-radius:26px}
+  .ticket .qr{padding:8px;border-radius:12px}
+"""
+
 JS_FRAME = """
 const SCENES = __SCENES__;
 const ANIM = __ANIM__;
@@ -275,17 +392,27 @@ def endcard(i, ep):
     cham = "".join('<i class="%s"></i>' % ("on" if k <= i else "")
                    for k in range(tong))
     ten_ngan = CAU_HINH["dang_ky"].replace("https://", "").replace("http://", "").rstrip("/")
+    # Phong cách đỏ–trắng: cuối video trỏ về trang lớp Zoom online (speedreading.vn/sp-online)
+    if ep.get("phong_cach") == "do-trang":
+        link = CAU_HINH.get("dang_ky_online", CAU_HINH["dang_ky"])
+        nhan = CAU_HINH.get("dang_ky_nhan_online", CAU_HINH["dang_ky_nhan"])
+        qr = "assets/qr-sp-online.svg"
+        ten_ngan = link.replace("https://", "").replace("http://", "").rstrip("/")
+        cuoi = "Lớp <b>7 buổi Zoom</b> · <b>980.000đ</b> · hoàn phí nếu không hài lòng sau buổi 1"
+    else:
+        nhan, qr = CAU_HINH["dang_ky_nhan"], "assets/qr.svg"
+        cuoi = "Lớp <b>7 buổi</b> · <b>980.000đ</b> · buổi 1 không hợp thì hoàn tiền"
     return f"""
     <div class="kicker">Tập {so}/{tong}</div>
     <h1 style="font-size:62px">Đọc hiệu quả<br><span class="hl">Speed Reading</span></h1>
     {nx}
     <div class="ticket">
-      <img class="qr" src="assets/qr.svg" alt="Mã QR đăng ký lớp">
-      <div><div class="tl">{CAU_HINH["dang_ky_nhan"]}</div>
+      <img class="qr" src="{qr}" alt="Mã QR đăng ký lớp">
+      <div><div class="tl">{nhan}</div>
         <div class="tu">{ten_ngan}</div></div>
     </div>
     <div class="dots">{cham}</div>
-    <div class="endinfo">Lớp <b>7 buổi</b> · <b>980.000đ</b> · buổi 1 không hợp thì hoàn tiền</div>"""
+    <div class="endinfo">{cuoi}</div>"""
 
 
 def _dur(f):
@@ -415,13 +542,19 @@ def build_html(ep, size=KHUNG_GOC):
         scenes_html = scenes_html.replace(ph, "|".join(seg))
     extra_css = ep.get("css_extra", "")
     brand_text = ep.get("brand", "SPEED READING VIỆT NAM")
+    do_trang = ep.get("phong_cach") == "do-trang"
+    font_link = ('<link rel="stylesheet" href="fonts/noto-sans.css">\n'
+                 '<link rel="stylesheet" href="fonts/inter.css">' if do_trang
+                 else '<link rel="stylesheet" href="fonts/noto-sans.css">')
+    theme_css = CSS_DO_TRANG if do_trang else ""
     return f"""<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
 <title>{ep['slug']}</title>
-<link rel="stylesheet" href="fonts/noto-sans.css">
+{font_link}
 <style>{CSS}
+{theme_css}
 {extra_css}{css_khung(size)}</style>
 </head>
 <body>
